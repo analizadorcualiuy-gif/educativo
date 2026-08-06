@@ -1,0 +1,8 @@
+{
+  "identifier": "main-capability",
+  "description": "AnalizadorCualiUY Pro main window permissions",
+  "windows": ["main"],
+  "permissions": [
+    "core:default"
+  ]
+}

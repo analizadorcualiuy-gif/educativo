@@ -1,0 +1,149 @@
+CONTRATO DE LICENCIA DE USUARIO FINAL (EULA)
+ANALIZADORCUALIUY PRO
+Versión del contrato: 1.0 — 5 de agosto de 2026
+
+IMPORTANTE: LEA ESTE CONTRATO ANTES DE INSTALAR O UTILIZAR EL SOFTWARE.
+
+Este Contrato de Licencia de Usuario Final (el “Contrato”) se celebra entre
+Prof. Esp. Santiago Hernández, titular y licenciante del Software (el
+“Licenciante”), y la persona física o jurídica que adquiere o utiliza una
+licencia (el “Usuario”). Al aceptar este Contrato durante la instalación,
+instalar, copiar o utilizar el Software, el Usuario manifiesta su aceptación.
+Si no acepta estas condiciones, no debe instalar ni utilizar el Software.
+
+1. SOFTWARE Y DOCUMENTOS DE COMPRA
+
+“Software” significa AnalizadorCualiUY Pro, sus componentes, documentación y
+actualizaciones que el Licenciante entregue bajo este Contrato. La factura,
+orden, propuesta aceptada o comprobante emitido por el canal de venta
+constituye el “Documento de Compra” y determina modalidad, plazo, cantidad de
+usuarios o dispositivos y servicios incluidos. En caso de contradicción, el
+Documento de Compra prevalece únicamente respecto de esos datos comerciales;
+este Contrato prevalece respecto de las condiciones de uso del Software.
+
+2. CONCESIÓN DE LICENCIA
+
+Sujeto al pago aplicable y al cumplimiento de este Contrato, el Licenciante
+concede al Usuario una licencia limitada, no exclusiva, no transferible y no
+sublicenciable para instalar y ejecutar el Software con fines internos,
+profesionales, académicos, educativos o de investigación. El alcance exacto es
+el indicado en el Documento de Compra. Si este no fija una cantidad, la
+licencia se limita a un usuario y un dispositivo.
+
+La licencia autoriza el uso del Software; no transfiere su propiedad ni el
+código fuente. Las copias de respaldo razonablemente necesarias deben mantener
+todos los avisos de autoría, licencia y propiedad.
+
+3. RESTRICCIONES
+
+Salvo autorización previa y escrita del Licenciante o derecho inderogable
+aplicable, el Usuario no podrá:
+
+a) vender, alquilar, arrendar, sublicenciar, ceder, publicar o redistribuir el
+Software o permitir su uso por encima del alcance adquirido;
+b) modificar, adaptar, traducir o crear obras derivadas del Software;
+c) descompilar, desensamblar, realizar ingeniería inversa o intentar obtener el
+código fuente, excepto en la medida expresamente permitida por una norma
+imperativa;
+d) eludir medidas de licencia, activación, límites técnicos o controles de uso;
+e) utilizar el Software para prestar acceso como servicio, alojamiento,
+procesamiento para terceros o modalidad de oficina de servicios, salvo que el
+Documento de Compra lo autorice;
+f) eliminar u ocultar avisos de derechos de autor, marcas o atribuciones; o
+g) usar el Software de modo ilícito o que vulnere derechos de terceros.
+
+4. TITULARIDAD Y PROPIEDAD INTELECTUAL
+
+El Software es propiedad intelectual del Prof. Esp. Santiago Hernández. Todos
+los derechos no concedidos expresamente quedan reservados. AnalizadorCualiUY Pro y
+sus elementos distintivos no podrán utilizarse para identificar productos o
+servicios de terceros sin autorización.
+
+El Software puede incorporar componentes de terceros sujetos a sus propias
+licencias. Esas condiciones se reproducen o identifican en
+THIRD_PARTY_NOTICES.txt y prevalecen exclusivamente para dichos componentes.
+
+5. DATOS, CONTENIDOS Y PRIVACIDAD
+
+En la versión 1.0 el procesamiento de documentos y proyectos se realiza
+localmente. El Software no incorpora telemetría, cuentas en línea ni envío de
+documentos al Licenciante. El Aviso de Privacidad incluido describe este
+funcionamiento con mayor detalle.
+
+El Usuario conserva sus derechos sobre los documentos, categorías, proyectos y
+resultados que ingrese o genere. Es responsable de contar con base jurídica,
+autorizaciones y medidas de seguridad adecuadas para tratar datos personales,
+confidenciales o de terceros. El Usuario debe realizar copias de respaldo y
+verificar los resultados antes de utilizarlos en decisiones, publicaciones o
+actuaciones profesionales.
+
+6. ACTUALIZACIONES, MANTENIMIENTO Y SOPORTE
+
+La compra no incluye actualizaciones, nuevas versiones, mantenimiento,
+capacitación ni soporte salvo que el Documento de Compra lo indique. Una
+actualización podrá estar sujeta a términos adicionales informados antes de su
+instalación. El Licenciante puede discontinuar versiones, sin afectar el uso
+de una licencia perpetua ya concedida cuando esa modalidad conste en el
+Documento de Compra.
+
+7. GARANTÍA LIMITADA
+
+El Licenciante procurará que el Software funcione sustancialmente conforme a su
+documentación durante los treinta (30) días siguientes a la entrega. Ante un
+defecto reproducible notificado dentro de ese plazo, la solución será, a
+elección del Licenciante, corregirlo, proporcionar una alternativa razonable o
+resolver la licencia y devolver el precio pagado por ella.
+
+En la máxima medida permitida por la ley, el Software se licencia “tal cual” y
+no se garantiza que sea ininterrumpido, libre de errores ni adecuado para una
+finalidad particular. El Software es una herramienta de apoyo al análisis; no
+sustituye el criterio profesional y sus resultados no constituyen asesoramiento
+legal, médico, financiero, psicológico ni de otra profesión regulada.
+
+8. LIMITACIÓN DE RESPONSABILIDAD
+
+En la máxima medida permitida por la normativa aplicable, el Licenciante no
+responderá por daños indirectos, pérdida de beneficios, pérdida o corrupción de
+datos, interrupción de actividad ni decisiones tomadas exclusivamente sobre la
+base de resultados no verificados. La responsabilidad total acumulada del
+Licenciante vinculada con el Software no excederá el importe efectivamente
+pagado por la licencia durante los doce (12) meses anteriores al hecho que
+originó el reclamo.
+
+Estas exclusiones y límites no se aplican cuando una norma imperativa los
+prohíba ni restringen derechos irrenunciables de consumidores.
+
+9. VIGENCIA Y TERMINACIÓN
+
+El Contrato rige durante el plazo indicado en el Documento de Compra o, si se
+adquirió una licencia perpetua, hasta su terminación. El incumplimiento esencial
+faculta al Licenciante a terminar la licencia si no se subsana dentro de los
+diez (10) días de recibida una notificación, salvo que el incumplimiento no sea
+subsanable. Terminada la licencia, el Usuario debe cesar el uso y eliminar las
+copias bajo su control. Las cláusulas de propiedad, restricciones, garantías,
+responsabilidad y ley aplicable subsisten.
+
+10. LEY APLICABLE Y CONTROVERSIAS
+
+Este Contrato se rige por las leyes de la República Oriental del Uruguay. Las
+partes procurarán resolver de buena fe cualquier diferencia. Cuando sea
+legalmente admisible, serán competentes los tribunales de Montevideo, Uruguay.
+Nada de lo anterior desplaza la jurisdicción ni los mecanismos de protección
+que una norma imperativa reconozca al consumidor.
+
+11. DISPOSICIONES GENERALES
+
+Si una disposición resulta inválida, las restantes conservarán su vigencia y
+la disposición afectada se aplicará en la máxima medida legal posible. La falta
+de ejercicio de un derecho no implica renuncia. El Usuario no podrá ceder este
+Contrato sin autorización escrita del Licenciante. Las modificaciones deberán
+constar por escrito, salvo nuevos términos aplicables a una actualización que
+el Usuario acepte expresamente.
+
+12. CONTACTO
+
+Las consultas de licencia, soporte y notificaciones deberán dirigirse al canal
+de contacto indicado en el Documento de Compra o en el sitio oficial del
+producto.
+
+Copyright © 2026 Prof. Esp. Santiago Hernández. Todos los derechos reservados.

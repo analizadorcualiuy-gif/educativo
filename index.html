@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalizadorCualiUY Pro - Análisis Cualitativo Local</title>
+    <meta name="description" content="AnalizadorCualiUY Pro: edición comercial local y confidencial para análisis cualitativo, matrices categoriales, documentos codificados y visualizaciones.">
+    <!-- Local Offline Parser for DOCX; PDF is extracted by the native Rust backend. -->
+    <script src="public/vendor/mammoth.browser.min.js"></script>
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Sample Data Notice Banner -->
+    <div id="sample-notice-banner" class="sample-notice-banner" style="display:none;">
+        <div class="banner-content">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <span><strong>Proyecto de Muestra:</strong> Estás explorando datos de ejemplo precargados. Puedes conservar este ejemplo o iniciar tu propio análisis desde cero.</span>
+        </div>
+        <div class="banner-actions">
+            <button id="btn-clear-sample" class="btn-banner-action" title="Eliminar datos de ejemplo e iniciar un proyecto nuevo en blanco">
+                🧹 Crear Proyecto en Blanco
+            </button>
+            <button id="btn-dismiss-banner" class="btn-banner-close" title="Cerrar este aviso">&times;</button>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+        <div class="brand">
+            <div class="logo-icon" style="display:flex; align-items:center; justify-content:center;">
+                <img src="public/logo.png" alt="AnalizadorCualiUY Pro Logo" style="width:32px; height:32px; border-radius:8px; object-fit:cover; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+            </div>
+            <div class="brand-text">
+                <h1>AnalizadorCualiUY <span style="font-size:0.68em; color:var(--accent-primary);">PRO</span></h1>
+                <span class="badge-local" title="Tus datos no salen de tu equipo">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Procesamiento local · la app no transmite tus documentos
+                </span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button id="btn-new-blank-project" class="btn btn-outline" title="Iniciar un nuevo proyecto cualitativo en blanco">
+                ✨ Nuevo Proyecto
+            </button>
+
+            <button id="btn-import-files" type="button" class="btn btn-secondary" title="Importar archivos TXT, DOCX, PDF o un Proyecto JSON guardado">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <span>Importar Archivos (TXT / DOCX / PDF / JSON)</span>
+            </button>
+            <input type="file" id="file-input" accept=".txt,.docx,.pdf,.json,application/json" multiple hidden>
+
+            <button id="btn-load-sample" class="btn btn-secondary" title="Cargar proyecto de muestra precargado">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <span>Cargar Muestra</span>
+            </button>
+
+            <div class="divider-vertical"></div>
+
+            <button id="btn-open-matrix" class="btn btn-primary" title="Ver Matriz Categorial completa, frecuencias y porcentajes">
+                📊 Matriz Categorial & Estadísticas
+            </button>
+
+            <button id="btn-save-project" class="btn btn-outline" title="Guardar todo el proyecto como archivo JSON local">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                <span>Guardar Proyecto</span>
+            </button>
+
+            <div id="btn-open-project" class="btn btn-outline" style="position:relative; overflow:hidden;" title="Abrir archivo de proyecto guardado (.json)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>Abrir Proyecto (.json)</span>
+                <input type="file" id="project-input" accept=".json,application/json" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:10;">
+            </div>
+
+            <button id="btn-export-csv" class="btn btn-outline" title="Exportar Matriz Categorial y reporte a CSV">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <path d="M8 13h2a2 2 0 1 0 0-4H8v8"/>
+                    <path d="M20 17H4"/>
+                </svg>
+                <span>Exportar CSV</span>
+            </button>
+
+            <button id="btn-export-docx" class="btn btn-primary" title="Exportar a Microsoft Word (DOCX): documento completo sombreado o pasajes clasificados por categoría">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span>Exportar DOCX (Word)</span>
+            </button>
+
+            <button id="btn-open-credits" class="btn btn-outline" title="Autoría, Declaración de IA e Instalación">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span>Acerca de / Créditos</span>
+            </button>
+
+            <button id="theme-toggle" class="btn-icon" title="Cambiar Tema Claro / Oscuro">
+                <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+                <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Split 3-Pane Layout -->
+    <main class="app-workspace" id="app-workspace">
+        
+        <!-- PANE 1: Left Sidebar (Documents & Codebook) -->
+        <aside class="pane pane-sidebar" id="pane-sidebar">
+            <!-- Section 1: Documents -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        Documentos
+                    </h2>
+                    <span id="doc-count" class="count-badge">0</span>
+                </div>
+                <div class="search-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="filter-docs" placeholder="Filtrar archivos...">
+                </div>
+                <ul id="document-list" class="item-list">
+                    <!-- Loaded documents injected here -->
+                </ul>
+            </div>
+
+            <!-- Section divider -->
+            <div class="section-divider"></div>
+
+            <!-- Section 2: Category Codebook Hierarchy -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                            <line x1="7" y1="7" x2="7.01" y2="7"/>
+                        </svg>
+                        Categorías / Subcategorías
+                    </h2>
+                    <div style="display:flex; gap:0.25rem;">
+                        <button id="btn-auto-code-all" class="btn-action-text" title="🔍 Buscar e identificar todas las ocurrencias en el texto activo">
+                            🔍 Buscar Todo
+                        </button>
+                        <button id="btn-add-category" class="btn-icon-small" title="Crear Categoría o Subcategoría">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="search-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="filter-codes" placeholder="Filtrar categorías...">
+                </div>
+                <ul id="codebook-list" class="item-list">
+                    <!-- Tree of Categories & Subcategories injected here with Edit ✏️ and Trash 🗑️ -->
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Resizer Left Bar -->
+        <div class="resizer" id="resizer-left" title="Arrastra para cambiar el ancho del panel izquierdo"></div>
+
+        <!-- PANE 2: Center (Document Reader & Text Coding Workbench) -->
+        <section class="pane pane-editor" id="pane-editor">
+            <!-- Editor Top Bar (Spacious 2-Row / Wrap Layout) -->
+            <div class="editor-bar">
+                <div class="editor-bar-row">
+                    <div class="doc-info">
+                        <h2 id="active-doc-title">Ningún documento seleccionado</h2>
+                        <div id="doc-meta-stats" class="meta-stats">
+                            <span id="stat-words">0 palabras</span>
+                            <span>•</span>
+                            <span id="stat-segments">0 pasajes codificados</span>
+                        </div>
+                    </div>
+
+                    <div class="editor-actions-right">
+                        <!-- PDF Export Button for Coded Document -->
+                        <button id="btn-export-doc-pdf" class="btn btn-outline btn-sm" title="Exportar este documento formateado en PDF con el texto pintado por categorías">
+                            🖨️ Exportar PDF
+                        </button>
+
+                        <div class="toggle-group" title="Modo de Visualización">
+                            <button id="view-mode-standard" class="btn-toggle active">Estándar</button>
+                            <button id="view-mode-tiers" class="btn-toggle" title="Ver sub-líneas de notas/traducciones debajo de las líneas">Capas (Tiers)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: In-Text Search Toolbar -->
+                <div class="editor-bar-row search-row">
+                    <div class="in-text-search-box-large" title="Buscador en Texto Estilo F3 (Ctrl+F)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" id="reader-search-input" placeholder="Buscar término en el texto activo (F3)...">
+                        <span id="reader-search-count" class="search-count-label">0/0</span>
+                        <button id="btn-search-prev" class="btn-nav-search" title="Coincidencia anterior (Mayús+F3)">▲ Anterior</button>
+                        <button id="btn-search-next" class="btn-nav-search" title="Siguiente coincidencia (F3 / Enter)">Siguiente ▼</button>
+                        <button id="btn-search-clear" class="btn-nav-search" title="Limpiar búsqueda">&times;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Category Filter Indicator Bar -->
+            <div id="active-category-banner" class="active-category-banner" style="display:none;">
+                <span>Filtrando pasajes por categoría: <strong id="selected-cat-label">Todas</strong></span>
+                <button id="btn-clear-cat-filter" class="btn-text-sm">&times; Ver todo el texto</button>
+            </div>
+
+            <!-- Text Content View Container -->
+            <div class="reader-wrapper">
+                <div id="reader-container" class="reader-container">
+                    <div class="empty-state" id="empty-reader">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="12" y1="18" x2="12" y2="12"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        <h3>Selecciona o importa un archivo (TXT, DOCX, PDF)</h3>
+                        <p>Crea categorías y usa 🔍 Buscar Ocurrencias o selecciona texto directamente con el mouse.</p>
+                        <button type="button" id="btn-import-empty" class="btn btn-primary">Importar Archivo (TXT / DOCX / PDF / JSON)</button>
+                    </div>
+
+                    <!-- Text display with margins for codes -->
+                    <div id="text-body" class="text-body" style="display:none;"></div>
+                </div>
+
+                <!-- ATLAS.ti Style Margin Bar for active code stripes -->
+                <div id="margin-bar" class="margin-bar" style="display:none;" title="Franjas de categorías en los márgenes"></div>
+            </div>
+
+            <!-- Application Footer with Credits -->
+            <footer class="app-footer">
+                <span>AnalizadorCualiUY Pro • Producto licenciado de <strong>Prof. Esp. Santiago Hernández</strong></span>
+                <span>Matriz Categorial & Gráficos Cualitativos • 100% Local</span>
+            </footer>
+        </section>
+
+        <!-- Resizer Right Bar -->
+        <div class="resizer" id="resizer-right" title="Arrastra para cambiar el ancho del panel derecho"></div>
+
+        <!-- PANE 3: Right Sidebar (Decoders, Visual Network & Graphs, Multi-File Search) -->
+        <aside class="pane pane-analysis" id="pane-analysis">
+            <!-- Navigation Tabs -->
+            <div class="analysis-tabs">
+                <button class="tab-btn active" data-tab="tab-decoders" title="Matriz de significados decodificados y notas">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    Decodificador
+                </button>
+                <button class="tab-btn" data-tab="tab-network" title="Gráficos y Visualización Cualitativa">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="18" cy="5" r="3"/>
+                        <circle cx="6" cy="12" r="3"/>
+                        <circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                    Gráficos Cuali
+                </button>
+                <button class="tab-btn" data-tab="tab-search" title="Búsqueda global multi-archivo">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    Buscador
+                </button>
+            </div>
+
+            <!-- Tab Content 1: Meaning Decoder & Memos -->
+            <div id="tab-decoders" class="tab-content active">
+                <div class="tab-header">
+                    <h3>Pasajes y Decodificación de Significados</h3>
+                    <div class="filter-row">
+                        <select id="decoder-filter-code" class="select-sm">
+                            <option value="ALL">Todas las categorías</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="decoder-list" class="cards-container">
+                    <!-- Injected decoded memos & quotes -->
+                </div>
+            </div>
+
+            <!-- Tab Content 2: Visual Concept Network & Qualitative Charts -->
+            <div id="tab-network" class="tab-content">
+                <div class="tab-header">
+                    <h3>Visualización Cualitativa de Datos</h3>
+                    
+                    <!-- Graph View Selector (Grafo, Heatmap, Barras Proporcionales) -->
+                    <div class="chart-type-selector">
+                        <button id="chart-type-network" class="btn-chart-type active" title="Red de Coocurrencia (Grafo)">🕸️ Red / Grafo</button>
+                        <button id="chart-type-heatmap" class="btn-chart-type" title="Matriz de Coocurrencia (Heatmap)">🔥 Coocurrencias</button>
+                        <button id="chart-type-bars" class="btn-chart-type" title="Comparación de categorías">📊 Comparación</button>
+                        <button id="chart-type-quality" class="btn-chart-type" title="Control de calidad de codificación">✅ Calidad</button>
+                    </div>
+
+                    <div class="analytics-toolbar" aria-label="Opciones analíticas">
+                        <label>Nivel categorial
+                            <select id="analytics-category-mode" class="select-sm">
+                                <option value="main">Categorías principales</option>
+                                <option value="all">Árbol completo</option>
+                            </select>
+                        </label>
+                        <label>Tamaño de nodos
+                            <select id="analytics-node-size" class="select-sm">
+                                <option value="documentShare">Presencia documental</option>
+                                <option value="count">Frecuencia</option>
+                                <option value="perThousand">Por 1.000 palabras</option>
+                            </select>
+                        </label>
+                        <label>Unidad
+                            <select id="cooccurrence-unit" class="select-sm">
+                                <option value="paragraph">Párrafo</option>
+                                <option value="sentence">Oración</option>
+                                <option value="document">Documento</option>
+                                <option value="window">Ventana</option>
+                                <option value="overlap">Solapamiento</option>
+                            </select>
+                        </label>
+                        <label>Métrica
+                            <select id="association-metric" class="select-sm">
+                                <option value="jaccard">Jaccard</option>
+                                <option value="count">Recuento</option>
+                                <option value="documentShare">% documentos</option>
+                            </select>
+                        </label>
+                        <label>Ventana
+                            <select id="cooccurrence-window" class="select-sm">
+                                <option value="50">±50</option>
+                                <option value="100" selected>±100</option>
+                                <option value="250">±250</option>
+                            </select>
+                        </label>
+                        <label>Documento
+                            <select id="analytics-document-filter" class="select-sm"><option value="">Todo el corpus</option></select>
+                        </label>
+                        <label>Umbral
+                            <input id="analytics-threshold" class="input-sm" type="number" min="0" step="0.05" value="0">
+                        </label>
+                        <label class="check-inline"><input id="analytics-hide-zeros" type="checkbox" checked> Ocultar ceros</label>
+                    </div>
+
+                    <div id="graph-toolbar-container" class="graph-toolbar">
+                        <div class="graph-toolbar-row">
+                            <label for="graph-layout-select" class="lbl-sm">Diseño Grafo:</label>
+                            <select id="graph-layout-select" class="select-sm">
+                                <option value="circular">Circular Radial</option>
+                                <option value="grid">Distribución Grilla</option>
+                                <option value="force">Red Libre (Fuerza)</option>
+                            </select>
+                        </div>
+                        <div class="graph-toolbar-row">
+                            <button id="btn-export-png" class="btn-sm btn-outline" title="Exportar gráfico como imagen PNG">📷 Exportar PNG</button>
+                            <button id="btn-export-svg" class="btn-sm btn-outline" title="Exportar gráfico como archivo vectorial SVG">📐 Exportar SVG</button>
+                            <button id="btn-reset-network" class="btn-sm btn-secondary" title="Restablecer posiciones">Reiniciar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Container 1: Network Canvas Graph -->
+                <div id="chart-container-network" class="canvas-wrapper">
+                    <canvas id="network-canvas" role="img" aria-label="Red de asociaciones entre categorías cualitativas"></canvas>
+                </div>
+
+                <!-- Container 2: Qualitative Co-occurrence Heatmap Crosstab -->
+                <div id="chart-container-heatmap" class="heatmap-wrapper" style="display:none;">
+                    <div id="heatmap-description" class="heatmap-info">Matriz categoría × categoría según la unidad y métrica seleccionadas.</div>
+                    <div id="heatmap-table-wrapper" class="heatmap-table-container"></div>
+                </div>
+
+                <!-- Container 3: Proportional Bar Chart -->
+                <div id="chart-container-bars" class="bars-wrapper" style="display:none;">
+                    <div id="bars-description" class="heatmap-info">Comparación normalizada por 1.000 palabras, frecuencia y presencia documental.</div>
+                    <div id="proportional-bars-list" class="cards-container"></div>
+                </div>
+
+                <div id="chart-container-quality" class="quality-wrapper" style="display:none;">
+                    <div class="heatmap-info">Diagnóstico del corpus y tareas pendientes antes de cerrar el análisis.</div>
+                    <div id="quality-dashboard" class="quality-dashboard"></div>
+                </div>
+
+                <div id="chart-drilldown" class="chart-drilldown" style="display:none;">
+                    <div class="chart-drilldown-header"><strong id="chart-drilldown-title">Evidencia</strong><button id="chart-drilldown-close" class="btn-close-sm">&times;</button></div>
+                    <div id="chart-drilldown-body"></div>
+                </div>
+            </div>
+
+            <!-- Tab Content 3: Multi-Document Search Engine -->
+            <div id="tab-search" class="tab-content">
+                <div class="tab-header">
+                    <h3>Búsqueda Global Multi-Archivo</h3>
+                    <div class="global-search-bar">
+                        <input type="text" id="global-search-input" placeholder="Buscar término o frase en todos los archivos...">
+                        <button id="btn-exec-search" class="btn btn-primary btn-sm">Buscar</button>
+                    </div>
+                </div>
+                <div id="global-search-results" class="search-results-list">
+                    <div class="empty-state-sm">Ingresa un término para buscar en todos tus documentos cargados.</div>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Floating Quick-Coding Popup Toolbar -->
+    <div id="floating-toolbar" class="floating-toolbar" style="display:none;">
+        <div class="toolbar-header">
+            <span>Codificar pasaje seleccionado:</span>
+            <button id="close-toolbar" class="btn-close-sm">&times;</button>
+        </div>
+        <div id="floating-code-buttons" class="code-buttons-row">
+            <!-- Category buttons injected dynamically -->
+        </div>
+        <div class="toolbar-footer">
+            <button id="btn-quick-new-code" class="btn-text">+ Nueva Categoría</button>
+            <button id="btn-add-memo-quick" class="btn-text-primary">+ Añadir Nota / Decodificación</button>
+        </div>
+    </div>
+
+    <!-- Modal: Categorical Matrix & Frequency Statistics -->
+    <div id="modal-matrix" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 860px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>📊 Matriz Categorial & Ponderación de Ocurrencias</h3>
+                <button class="modal-close" id="modal-matrix-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:1rem; max-height:75vh; overflow-y:auto;">
+                
+                <!-- Frequency & Percentage Statistics Table -->
+                <div class="matrix-section">
+                    <h4 style="font-size:0.95rem; color:var(--accent-primary); margin-bottom:0.5rem;">Ponderación y Frecuencia por Dimensión / Categoría</h4>
+                    <table class="stats-table" id="stats-frequency-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Categoría / Subcategoría</th>
+                                <th>Términos / Palabras Clave</th>
+                                <th>Ocurrencias</th>
+                                <th>Ponderación (%)</th>
+                                <th>Distribución Visual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-table-body">
+                            <!-- Injected statistics rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Categorical Matrix per Fragment -->
+                <div class="matrix-section">
+                    <h4 style="font-size:0.95rem; color:var(--accent-primary); margin-bottom:0.5rem;">Matriz Categorial de Fragmentos Coincidentes</h4>
+                    <div id="matrix-fragments-container" class="cards-container">
+                        <!-- Injected categorised fragments -->
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btn-export-executive-report" class="btn btn-outline" title="Configurar un informe analítico DOCX o PDF">📄 Crear informe analítico</button>
+                <button id="btn-export-matrix-csv" class="btn btn-primary">📥 Exportar Matriz Categorial a CSV</button>
+                <button class="btn btn-secondary modal-cancel">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Analytical Report Builder -->
+    <div id="modal-report-builder" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width:760px; max-width:95vw;">
+            <div class="modal-header">
+                <h3>📑 Constructor de informe analítico</h3>
+                <button class="modal-close" id="modal-report-close">&times;</button>
+            </div>
+            <div class="modal-body report-builder-body">
+                <div class="report-form-grid">
+                    <div class="form-group"><label for="report-title">Título</label><input id="report-title" value="Informe de análisis cualitativo"></div>
+                    <div class="form-group"><label for="report-author">Responsable / autoría</label><input id="report-author" value="Prof. Esp. Santiago Hernández"></div>
+                    <div class="form-group report-wide"><label for="report-objective">Objetivo del análisis</label><textarea id="report-objective" rows="2" placeholder="Pregunta u objetivo de investigación"></textarea></div>
+                    <div class="form-group report-wide"><label for="report-methodology">Metodología / criterios</label><textarea id="report-methodology" rows="2" placeholder="Corpus, estrategia de codificación y unidad de análisis"></textarea></div>
+                    <div class="form-group report-wide"><label for="report-conclusions">Conclusiones / interpretación</label><textarea id="report-conclusions" rows="3" placeholder="Conclusiones redactadas por el equipo investigador"></textarea></div>
+                </div>
+                <div class="report-options">
+                    <label><input type="radio" name="report-detail" value="summary" checked> Resumen ejecutivo</label>
+                    <label><input type="radio" name="report-detail" value="full"> Informe completo</label>
+                    <label><input id="report-include-evidence" type="checkbox" checked> Evidencias y memos</label>
+                    <label><input id="report-include-relations" type="checkbox" checked> Relaciones principales</label>
+                    <label><input id="report-include-quality" type="checkbox" checked> Control de calidad</label>
+                </div>
+                <div id="report-preview" class="report-preview"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-export-report-pdf" class="btn btn-outline">📄 Exportar PDF real</button>
+                <button id="btn-export-report-docx" class="btn btn-primary">📝 Exportar Word</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Select Categories for Document PDF Export -->
+    <div id="modal-export-pdf" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 500px;">
+            <div class="modal-header">
+                <h3>🖨️ Exportar Documento Codificado a PDF</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:0.75rem;">
+                <p style="font-size:0.85rem; color:var(--text-secondary);">Selecciona qué categorías deseas incluir con sus <strong>pasajes, métricas, relaciones y memos</strong> en el PDF:</p>
+                <div id="pdf-category-checkboxes" style="display:flex; flex-direction:column; gap:0.4rem; max-height:40vh; overflow-y:auto; padding:0.5rem; background:var(--bg-tertiary); border-radius:6px; border:1px solid var(--border-color);">
+                    <!-- Checkboxes injected dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-confirm-pdf-export" class="btn btn-primary">📄 Generar PDF del Documento</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Select Options for DOCX / Word Export -->
+    <div id="modal-export-docx" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 540px;">
+            <div class="modal-header">
+                <h3>📝 Exportar a Microsoft Word (.docx)</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:1rem;">
+                <div class="form-group">
+                    <label style="font-weight:600; color:var(--accent-primary);">Modo de Exportación:</label>
+                    <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.3rem;">
+                        <label style="display:flex; align-items:flex-start; gap:0.5rem; cursor:pointer; background:var(--bg-tertiary); padding:0.6rem; border-radius:6px; border:1px solid var(--border-color);">
+                            <input type="radio" name="docx-export-mode" value="full" checked style="margin-top:0.2rem;">
+                            <div>
+                                <strong style="display:block; color:var(--text-primary);">Documento Completo Sombreado por Categoría</strong>
+                                <span style="font-size:0.75rem; color:var(--text-secondary);">Exporta todo el texto del documento activo con cada pasaje resaltado/sombreado con el color de su categoría.</span>
+                            </div>
+                        </label>
+                        <label style="display:flex; align-items:flex-start; gap:0.5rem; cursor:pointer; background:var(--bg-tertiary); padding:0.6rem; border-radius:6px; border:1px solid var(--border-color);">
+                            <input type="radio" name="docx-export-mode" value="passages" style="margin-top:0.2rem;">
+                            <div>
+                                <strong style="display:block; color:var(--text-primary);">Solo Pasajes y Fragmentos Clasificados por Categoría</strong>
+                                <span style="font-size:0.75rem; color:var(--text-secondary);">Genera un informe estructurado agrupado por cada Categoría/Subcategoría con sus citas, origen y notas decodificadas.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight:600; color:var(--accent-primary);">Categorías a Incluir:</label>
+                    <div id="docx-category-checkboxes" style="display:flex; flex-direction:column; gap:0.4rem; max-height:30vh; overflow-y:auto; padding:0.5rem; background:var(--bg-tertiary); border-radius:6px; border:1px solid var(--border-color);">
+                        <!-- Checkboxes injected dynamically -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-confirm-docx-export" class="btn btn-primary">📥 Descargar Documento DOCX</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Credits & Privacy Notice -->
+    <div id="modal-credits" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 580px;">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <img src="public/logo.png" alt="Logo" style="width:36px; height:36px; border-radius:8px; object-fit:cover;">
+                    <h3 style="margin:0;">Acerca de AnalizadorCualiUY Pro</h3>
+                </div>
+                <button class="modal-close" id="modal-credits-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:0.85rem; font-size:0.85rem; max-height:70vh; overflow-y:auto;">
+                <div class="credits-box" style="background:var(--bg-tertiary); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color);">
+                    <p style="margin-bottom:0.4rem;"><strong>Autoría & Titularidad:</strong> Prof. Esp. Santiago Hernández (2026)</p>
+                    <p style="margin-bottom:0.4rem;"><strong>Versión de Escritorio:</strong> 1.0.0 (Tauri 2 + Rust Core Backend)</p>
+                    <p style="margin-bottom:0.4rem;"><strong>Garantía de Privacidad Local:</strong> 🛡️ 100% Offline. Todos los documentos, fragmentos y configuraciones son procesados en tu equipo y no se envían a ningún servidor externo.</p>
+                    <p style="margin-bottom:0.4rem;"><strong>Licencia:</strong> Producto comercial sujeto al EULA y al alcance indicado en el comprobante de compra.</p>
+                    <p><strong>Formatos Soportados:</strong> TXT, DOCX (Microsoft Word), PDF, JSON (Proyectos Guardados).</p>
+                </div>
+
+                <div class="credits-box" style="background:var(--accent-subtle); padding:0.75rem; border-radius:6px; border:1px solid var(--accent-primary);">
+                    <strong style="color:var(--accent-primary);">📖 Formato de Cita Académica Sugerido (APA 7):</strong>
+                    <p style="font-family:'JetBrains Mono', monospace; font-size:0.75rem; margin-top:0.4rem; color:var(--text-primary);">
+                        Hernández, S. (2026). <em>AnalizadorCualiUY Pro: herramienta local para el procesamiento cualitativo de datos</em> (Versión 1.0.0) [Software].
+                    </p>
+                </div>
+
+                <div class="credits-box" style="background:var(--bg-tertiary); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color);">
+                    <h4 style="font-size:0.9rem; color:var(--accent-primary); margin-bottom:0.4rem;">🔒 Protección de Datos y Licencia</h4>
+                    <p style="color:var(--text-secondary); font-size:0.8rem; line-line:1.4;">
+                        El uso está sujeto al Contrato de Licencia de Usuario Final (EULA). El procesamiento se realiza localmente y el usuario conserva el control de sus documentos.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-view-license-file" class="btn btn-outline">📜 Ver EULA</button>
+                <button class="btn btn-primary modal-cancel">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add/Edit Category / Subcategory -->
+    <div id="modal-category" class="modal-backdrop" style="display:none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-cat-title">Nueva Categoría / Subcategoría</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-cat-id" value="">
+                
+                <div class="form-group">
+                    <label for="cat-parent-select">Categoría Padre (Jerarquía):</label>
+                    <select id="cat-parent-select" class="select-full">
+                        <option value="NONE">Ninguna (Categoría Principal)</option>
+                    </select>
+                    <span class="hint-text">Si seleccionas una Categoría Padre, esta subcategoría heredará automáticamente una escala de color combinada.</span>
+                </div>
+                <div class="form-group">
+                    <label for="cat-name">Nombre de la Categoría / Subcategoría:</label>
+                    <input type="text" id="cat-name" placeholder="Ej: Informática">
+                </div>
+                <div class="form-group">
+                    <label for="cat-code">Código Sugerido (Alfanumérico / Etiqueta):</label>
+                    <input type="text" id="cat-code" placeholder="Ej: CAT-INF o SUBCAT-01">
+                    <span class="hint-text">Código corto para la matriz y reportes. Se genera automáticamente si se deja vacío.</span>
+                </div>
+                <div class="form-group">
+                    <label for="cat-keywords">Términos o Variaciones de Búsqueda (Opcional - separados por comas):</label>
+                    <input type="text" id="cat-keywords" placeholder="Ej: informática, computación, software, sistemas">
+                    <span class="hint-text">El nombre de la categoría y su código se usarán automáticamente como términos de búsqueda.</span>
+                </div>
+                <div class="form-group">
+                    <label for="cat-color">Color Identificador (Paleta):</label>
+                    <div class="color-picker-row">
+                        <input type="color" id="cat-color" value="#3b82f6">
+                        <div class="color-presets">
+                            <span class="color-preset" style="background:#ef4444;" data-color="#ef4444"></span>
+                            <span class="color-preset" style="background:#f59e0b;" data-color="#f59e0b"></span>
+                            <span class="color-preset" style="background:#10b981;" data-color="#10b981"></span>
+                            <span class="color-preset" style="background:#3b82f6;" data-color="#3b82f6"></span>
+                            <span class="color-preset" style="background:#8b5cf6;" data-color="#8b5cf6"></span>
+                            <span class="color-preset" style="background:#ec4899;" data-color="#ec4899"></span>
+                            <span class="color-preset" style="background:#14b8a6;" data-color="#14b8a6"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cat-desc">Descripción / Criterio de Inclusión (Opcional):</label>
+                    <textarea id="cat-desc" rows="2" placeholder="Describe qué tipo de pasajes pertenecen a esta categoría..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-save-category" class="btn btn-primary">🔍 Guardar y Buscar Ocurrencias en el Texto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add/Edit Decoding Memo -->
+    <div id="modal-memo" class="modal-backdrop" style="display:none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Decodificar Significado / Nota Analítica</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="quote-preview">
+                    <strong>Pasaje Seleccionado:</strong>
+                    <blockquote id="memo-quote-text">""</blockquote>
+                </div>
+                <div class="form-group">
+                    <label for="memo-category-select">Categoría Principal:</label>
+                    <select id="memo-category-select" class="select-full"></select>
+                </div>
+                <div class="form-group">
+                    <label for="memo-text">Significado Decodificado / Interpretación Cualitativa:</label>
+                    <textarea id="memo-text" rows="4" placeholder="Escribe aquí tu interpretación del significado profundo, contexto, emoción o intención de este pasaje..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-save-memo" class="btn btn-primary">Guardar Decodificación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="project-integrity.js"></script>
+    <script src="analytics.js"></script>
+    <script src="public/vendor/pdf-lib.min.js"></script>
+    <script src="public/vendor/fontkit.umd.min.js"></script>
+    <script src="pdf-report.js"></script>
+    <script src="docx-export.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

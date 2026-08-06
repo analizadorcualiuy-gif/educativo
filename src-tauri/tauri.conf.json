@@ -1,0 +1,50 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-config-schema/schema.json",
+  "productName": "AnalizadorCualiUY Pro",
+  "version": "1.0.0",
+  "identifier": "uy.santiago.analizadorcuali.pro",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none';"
+    },
+    "windows": [
+      {
+        "title": "AnalizadorCualiUY Pro - Prof. Esp. Santiago Hernández",
+        "width": 1280,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false,
+        "devtools": false
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/icon.ico"
+    ],
+    "publisher": "Prof. Esp. Santiago Hernández",
+    "copyright": "Copyright © 2026 Prof. Esp. Santiago Hernández. Todos los derechos reservados.",
+    "shortDescription": "AnalizadorCualiUY Pro - Análisis cualitativo local y confidencial",
+    "license": "LicenseRef-Proprietary",
+    "licenseFile": "../EULA.txt",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["Spanish"],
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}
