@@ -43,6 +43,18 @@ cargo test --locked --manifest-path "src-tauri\Cargo.toml"
 if ($LASTEXITCODE -ne 0) { throw "Las pruebas Rust fallaron." }
 cargo audit --file "src-tauri\Cargo.lock" --target-os windows --target-arch x86_64
 if ($LASTEXITCODE -ne 0) { throw "cargo audit detectó vulnerabilidades aplicables a Windows." }
+cargo test --locked --manifest-path "license-core\Cargo.toml"
+if ($LASTEXITCODE -ne 0) { throw "Las pruebas del verificador de licencias fallaron." }
+cargo test --locked --manifest-path "license-admin\Cargo.toml"
+if ($LASTEXITCODE -ne 0) { throw "Las pruebas de la herramienta emisora fallaron." }
+cargo audit --file "license-core\Cargo.lock"
+if ($LASTEXITCODE -ne 0) { throw "RustSec rechazó el verificador de licencias." }
+cargo audit --file "license-admin\Cargo.lock" --target-os windows --target-arch x86_64
+if ($LASTEXITCODE -ne 0) { throw "RustSec rechazó la herramienta emisora." }
+$publicKeyBytes = [Convert]::FromBase64String((Get-Content "src-tauri\license-public-key.txt" -Raw).Trim())
+if ($publicKeyBytes.Length -ne 32 -or ($publicKeyBytes | Where-Object { $_ -ne 0 }).Count -eq 0) {
+    throw "La clave pública Ed25519 del producto no es válida."
+}
 
 if (Test-Path $releaseDir) { Remove-Item $releaseDir -Recurse -Force }
 New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null

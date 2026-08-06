@@ -11,9 +11,11 @@ revisión jurídica, contable ni tributaria profesional.
 
 ## Resumen de evidencia positiva
 
-- `npm test`: 36/36 pruebas aprobadas después de la remediación actual.
-- `cargo test --locked`: 4/4 pruebas aprobadas.
+- `npm test`: 39/39 pruebas aprobadas después de la remediación actual.
+- Rust: 7/7 pruebas aprobadas entre aplicación, verificador y emisor.
 - `npm audit`: 0 vulnerabilidades conocidas en el árbol npm.
+- RustSec: 0 vulnerabilidades en los tres lockfiles; los avisos informativos GTK
+  del lockfile multiplataforma no se compilan en el artefacto Windows.
 - El build de la beta fue reproducible en dos ejecuciones: los 10 archivos de
   salida conservaron exactamente los mismos SHA-256.
 - `dist-beta` no contiene las exportaciones profesionales conocidas.
@@ -123,6 +125,11 @@ paquete Pro cualquier parser que no sea necesario.
 
 ### AUD-006 — Sin línea base de control de versiones
 
+- **Estado de remediación:** **CORREGIDO EN LA LÍNEA BASE (2026-08-06).** Se
+  creó el commit raíz auditado `5fb1cb6`; artefactos, licencias emitidas y claves
+  privadas están excluidos. Antes de release falta crear la etiqueta exacta de
+  la versión sobre un árbol nuevamente limpio.
+
 - **Severidad:** crítica de proceso e integridad.
 - **Afecta:** todo el producto.
 - **Evidencia:** el repositorio Git no tiene `HEAD`; todos los archivos aparecen
@@ -145,6 +152,15 @@ paquete Pro cualquier parser que no sea necesario.
   final, no sólo de los manifiestos.
 
 ### AUD-008 — No existe control técnico de licencia Pro
+
+- **Estado de remediación:** **CORREGIDO EN CÓDIGO Y PROBADO (2026-08-06).** La
+  aplicación verifica en Rust licencias Ed25519 con clave pública embebida,
+  código local aleatorio, edición, fecha, vencimiento opcional y dispositivo o
+  portabilidad explícita. La clave privada está cifrada por DPAPI fuera del
+  repositorio; la herramienta emisora ofrece recuperación Argon2id +
+  AES-256-GCM. Las pruebas rechazan alteración, clave incorrecta, vencimiento y
+  otro dispositivo; una emisión/verificación real de extremo a extremo aprobó.
+  Antes de vender es obligatorio crear y probar la copia de recuperación.
 
 - **Severidad:** alta comercial.
 - **Afecta:** Pro.

@@ -136,6 +136,150 @@ fn state_file_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     }
 }
 
+fn license_file_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    let state = state_file_path(app)?;
+    Ok(state
+        .parent()
+        .ok_or_else(|| "Ruta de licencia inválida.".to_string())?
+        .join("license.acuy-license"))
+}
+
+fn device_id_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    let state = state_file_path(app)?;
+    Ok(state
+        .parent()
+        .ok_or_else(|| "Ruta de dispositivo inválida.".to_string())?
+        .join("device-id.txt"))
+}
+
+fn valid_device_id(value: &str) -> bool {
+    value.len() == 32 && value.chars().all(|character| character.is_ascii_hexdigit())
+}
+
+fn get_or_create_device_id(app: &tauri::AppHandle) -> Result<String, String> {
+    let path = device_id_path(app)?;
+    if let Ok(existing) = fs::read_to_string(&path) {
+        let existing = existing.trim().to_ascii_lowercase();
+        if valid_device_id(&existing) {
+            return Ok(existing);
+        }
+        return Err("El identificador local del dispositivo está dañado; no se regeneró para evitar invalidar una licencia existente.".to_string());
+    }
+    let parent = path
+        .parent()
+        .ok_or_else(|| "Ruta de dispositivo inválida.".to_string())?;
+    fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    let mut random = [0_u8; 16];
+    getrandom::fill(&mut random)
+        .map_err(|e| format!("No se pudo crear el código de dispositivo: {e}"))?;
+    let device_id = random
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
+    let temporary = temporary_sibling(&path, "new")?;
+    write_synced(&temporary, format!("{device_id}\n").as_bytes())?;
+    replace_synced(&temporary, &path, None)?;
+    Ok(device_id)
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct LicenseStatus {
+    valid: bool,
+    device_code: String,
+    message: String,
+    holder: Option<String>,
+    license_id: Option<String>,
+    expires_at: Option<String>,
+}
+
+fn current_license_status(app: &tauri::AppHandle) -> Result<LicenseStatus, String> {
+    let device_code = get_or_create_device_id(app)?;
+    let path = license_file_path(app)?;
+    if !path.is_file() {
+        return Ok(LicenseStatus {
+            valid: false,
+            device_code,
+            message: "No hay una licencia Pro instalada.".into(),
+            holder: None,
+            license_id: None,
+            expires_at: None,
+        });
+    }
+    let raw = fs::read_to_string(&path).map_err(|e| format!("No se pudo leer la licencia: {e}"))?;
+    let public_key =
+        analizador_license_core::parse_public_key(include_str!("../license-public-key.txt"))?;
+    match analizador_license_core::verify_license(
+        &raw,
+        &public_key,
+        &device_code,
+        analizador_license_core::today_utc(),
+    ) {
+        Ok(payload) => Ok(LicenseStatus {
+            valid: true,
+            device_code,
+            message: "Licencia Pro válida.".into(),
+            holder: Some(payload.holder),
+            license_id: Some(payload.license_id),
+            expires_at: payload.expires_at,
+        }),
+        Err(message) => Ok(LicenseStatus {
+            valid: false,
+            device_code,
+            message,
+            holder: None,
+            license_id: None,
+            expires_at: None,
+        }),
+    }
+}
+
+#[tauri::command]
+fn license_status(app: tauri::AppHandle) -> Result<LicenseStatus, String> {
+    current_license_status(&app)
+}
+
+#[tauri::command]
+async fn install_license(app: tauri::AppHandle) -> Result<LicenseStatus, String> {
+    use tauri_plugin_dialog::DialogExt;
+    let selected = app
+        .dialog()
+        .file()
+        .add_filter(
+            "Licencia AnalizadorCualiUY (*.acuy-license)",
+            &["acuy-license"],
+        )
+        .blocking_pick_file();
+    let Some(selected) = selected else {
+        return current_license_status(&app);
+    };
+    let source = selected.into_path().map_err(|e| e.to_string())?;
+    let metadata = fs::metadata(&source).map_err(|e| e.to_string())?;
+    if metadata.len() > 16 * 1024 {
+        return Err("El archivo de licencia supera 16 KiB.".to_string());
+    }
+    let raw = fs::read_to_string(&source)
+        .map_err(|e| format!("No se pudo leer la licencia seleccionada: {e}"))?;
+    let device_code = get_or_create_device_id(&app)?;
+    let public_key =
+        analizador_license_core::parse_public_key(include_str!("../license-public-key.txt"))?;
+    analizador_license_core::verify_license(
+        &raw,
+        &public_key,
+        &device_code,
+        analizador_license_core::today_utc(),
+    )?;
+    let target = license_file_path(&app)?;
+    let parent = target
+        .parent()
+        .ok_or_else(|| "Ruta de licencia inválida.".to_string())?;
+    fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    let temporary = temporary_sibling(&target, "new")?;
+    write_synced(&temporary, raw.as_bytes())?;
+    replace_synced(&temporary, &target, None)?;
+    current_license_status(&app)
+}
+
 #[tauri::command]
 fn load_app_state(app: tauri::AppHandle) -> Result<Option<String>, String> {
     let path = state_file_path(&app)?;
@@ -599,6 +743,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             load_app_state,
             save_app_state,
+            license_status,
+            install_license,
             native_open_files,
             native_save_file
         ])

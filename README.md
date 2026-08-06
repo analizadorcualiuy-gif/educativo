@@ -58,15 +58,18 @@ avisos legales y un archivo de hashes SHA-256. Un release comercial se detiene
 si el instalador no tiene una firma Authenticode válida. Para compilaciones
 internas sin certificado puede utilizarse `-AllowUnsigned` explícitamente.
 
-No contiene cobros, cuentas ni activación: el EULA es la capa contractual
-inicial, no un mecanismo técnico de control de licencias.
+No contiene cobros ni cuentas. La edición Pro utiliza activación offline con un
+archivo firmado Ed25519 y no consulta un servidor. La emisión, custodia de la
+clave privada y recuperación se describen en `LICENSE-OPERATIONS.md`.
 
 ## Seguridad local
 
 - Los proyectos importados se validan antes de incorporarse a la interfaz.
 - Los permisos generales del sistema de archivos no están expuestos a la WebView.
-- PDF, DOCX, TXT y JSON tienen límites amplios adaptados a la RAM disponible.
-- Los proyectos se guardan fuera de `localStorage`, con una copia `.bak`.
+- PDF, DOCX, TXT y JSON tienen presupuestos fijos conservadores y defensas de
+  descompresión.
+- Los proyectos se guardan fuera de `localStorage` mediante reemplazo atómico,
+  sincronización y respaldo.
 - La exportación CSV neutraliza prefijos interpretables como fórmulas.
 
 ## Documentación legal incluida

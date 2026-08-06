@@ -13,6 +13,23 @@
 </head>
 <body>
 
+    <div id="modal-license" class="modal-backdrop" style="display:none; z-index:10000;" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="license-title" style="width:560px; max-width:94vw;">
+            <div class="modal-header"><h2 id="license-title">Activar AnalizadorCualiUY Pro</h2></div>
+            <div class="modal-body" style="gap:0.8rem;">
+                <p id="license-message">Se requiere una licencia Pro firmada.</p>
+                <label for="license-device-code"><strong>Código de este dispositivo</strong></label>
+                <input id="license-device-code" type="text" readonly autocomplete="off" spellcheck="false">
+                <p style="font-size:0.84rem; color:var(--text-muted);">Envía únicamente este código al solicitar tu licencia. No contiene tus documentos ni identifica el hardware.</p>
+            </div>
+            <div class="modal-footer" style="flex-wrap:wrap;">
+                <button id="btn-copy-device-code" class="btn btn-secondary">Copiar código</button>
+                <a class="btn btn-secondary" href="mailto:santiherben@gmail.com?subject=Solicitud%20de%20licencia%20AnalizadorCualiUY%20Pro">Contactar</a>
+                <button id="btn-install-license" class="btn btn-primary">Instalar archivo de licencia</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Sample Data Notice Banner -->
     <div id="sample-notice-banner" class="sample-notice-banner" style="display:none;">
         <div class="banner-content">

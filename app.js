@@ -354,6 +354,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
     // ==========================================
 
     async function initApp() {
+        if (!await initLicenseGate()) return;
         await loadFromStorage();
         if (state.documents.length === 0) {
             loadSampleData();
@@ -372,6 +373,69 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         }
         renderDecoderList();
         setupNetworkCanvas();
+    }
+
+    function setApplicationInert(inert) {
+        document.querySelectorAll('body > :not(#modal-license)').forEach(element => { element.inert = inert; });
+    }
+
+    function showLicenseGate(status) {
+        const modal = document.getElementById('modal-license');
+        document.getElementById('license-message').textContent = status.message || 'Se requiere una licencia Pro válida.';
+        document.getElementById('license-device-code').value = status.deviceCode || '';
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        setApplicationInert(true);
+        document.getElementById('btn-install-license').focus();
+    }
+
+    async function initLicenseGate() {
+        const invoke = getTauriInvoke();
+        const install = document.getElementById('btn-install-license');
+        const copy = document.getElementById('btn-copy-device-code');
+        copy.onclick = async () => {
+            const code = document.getElementById('license-device-code').value;
+            if (!code) return;
+            try {
+                await navigator.clipboard.writeText(code);
+                copy.textContent = 'Código copiado';
+            } catch (_) {
+                const input = document.getElementById('license-device-code');
+                input.select();
+                document.execCommand('copy');
+            }
+        };
+        if (!invoke) {
+            install.disabled = true;
+            showLicenseGate({ message: 'La edición Pro sólo puede activarse dentro de la aplicación de escritorio.', deviceCode: '' });
+            return false;
+        }
+        let status;
+        try {
+            status = await invoke('license_status');
+        } catch (error) {
+            showLicenseGate({ message: `No se pudo comprobar la licencia: ${error.message || error}`, deviceCode: '' });
+            return false;
+        }
+        if (status.valid) return true;
+        showLicenseGate(status);
+        install.onclick = async () => {
+            install.disabled = true;
+            try {
+                const installed = await invoke('install_license');
+                if (installed.valid) {
+                    document.getElementById('license-message').textContent = `Licencia válida para ${installed.holder}. Reiniciando…`;
+                    window.location.reload();
+                    return;
+                }
+                showLicenseGate(installed);
+            } catch (error) {
+                document.getElementById('license-message').textContent = `Licencia rechazada: ${error.message || error}`;
+            } finally {
+                install.disabled = false;
+            }
+        };
+        return false;
     }
 
 

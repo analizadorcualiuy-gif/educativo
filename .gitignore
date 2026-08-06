@@ -6,6 +6,7 @@ internal-unsigned/
 src-tauri/target/
 src-tauri/gen/
 license-admin/target/
+license-core/target/
 *.exe
 *.msi
 *.zip
@@ -19,4 +20,5 @@ AnalizadorCualiUY-Pro-Portable/
 *.pem
 *.acuy-license
 *.license-key
+*.issuer-recovery
 license-admin/private-key*
