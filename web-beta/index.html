@@ -622,6 +622,34 @@
         </div>
     </div>
 
+    <!-- Modal: Student Assignment PDF Export -->
+    <div id="modal-student-assignment" class="modal-backdrop" style="display:none; z-index:9600;">
+        <div class="modal-card" style="width: 520px;">
+            <div class="modal-header">
+                <h3>🎓 Exportar Ficha de Trabajo Práctico (PDF)</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:0.85rem;">
+                <div class="form-group">
+                    <label for="student-name">Nombre del Alumno(s) / Equipo:</label>
+                    <input type="text" id="student-name" placeholder="Ej: Ana Silva y Mateo Rossi">
+                </div>
+                <div class="form-group">
+                    <label for="student-course">Asignatura / Cátedra / Institución:</label>
+                    <input type="text" id="student-course" placeholder="Ej: Metodología de la Investigación Cualitativa — UdelaR">
+                </div>
+                <div class="form-group">
+                    <label for="student-prompt">Pregunta de Investigación u Objetivo del Ejercicio:</label>
+                    <textarea id="student-prompt" rows="3" placeholder="Ej: ¿Qué factores facilitan u obstaculizan la adaptación a un nuevo espacio de formación?"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-generate-student-pdf" class="btn btn-primary">🎓 Generar PDF para Entrega</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Credits & Privacy Notice -->
     <div id="modal-credits" class="modal-backdrop" style="display:none;">
         <div class="modal-card" style="width: 580px;">

@@ -56,6 +56,51 @@
                 ['Entrevista_Lucia_Participacion.txt', 'Lucía: Sé la respuesta muchas veces, pero no levanto la mano porque temo equivocarme y que se rían.\n\nLucía: Cuando trabajamos primero en parejas me animo más; puedo ordenar la idea y después alguien del grupo la comparte.\n\nLucía: La profesora dice que el error sirve para aprender. Eso cambia bastante el ambiente.'],
                 ['Observacion_Clase_Participacion.txt', 'Durante la discusión, el docente habilitó un minuto de escritura antes de pedir intervenciones. Participaron estudiantes que habitualmente permanecían en silencio.\n\nUna estudiante señaló que le resultaba más fácil compartir una pregunta por escrito. El docente retomó la pregunta sin identificarla y el grupo desarrolló varias respuestas.']
             ]
+        },
+        estudio_caso: {
+            title: 'Estudio de Caso: Tecnologías en la Escuela',
+            prompt: '¿Cómo incide la integración de tecnologías digitales en las prácticas de enseñanza institucional?',
+            task: 'Identificá facilitadores organizacionales y resistencias pedagógicas. Redactá un memo interpretando el caso institucional.',
+            categories: [
+                ['cat-facilitadores', null, 'CAT-FAC', 'Facilitadores institucionales', '#0f766e', 'Apoyo directivo, infraestructura y acompañamiento entre pares.'],
+                ['sub-equipamiento', 'cat-facilitadores', 'SUB-EQU', 'Disponibilidad de recursos', '#14b8a6', 'Acceso a conectividad, dispositivos y plataformas en el centro.'],
+                ['cat-resistencias', null, 'CAT-RES', 'Resistencias pedagógicas', '#b91c1c', 'Miedos al cambio, sobrecarga laboral o falta de formación específica.'],
+                ['cat-innovacion', null, 'CAT-INN', 'Prácticas emergentes', '#2563eb', 'Nuevas formas de enseñar y evaluar utilizando mediación tecnológica.']
+            ],
+            documents: [
+                ['Entrevista_Director_Escuela.txt', 'Entrevistador: ¿Cómo ha sido la incorporación de plataformas digitales en la institución?\n\nDirector: El cambio requirió más que comprar equipos. Los docentes que avanzaron más rápido fueron quienes formaron comunidades de aprendizaje entre ellos. Sin embargo, persiste una brecha entre la normativa y el uso real en las aulas.'],
+                ['Informe_Observacion_Institucional.txt', 'Observación en Sala de Profesores: Se registran discusiones sobre el tiempo de planificación que exige diseñar materiales virtuales. Varios profesores manifiestan cansancio pero valoran la posibilidad de compartir recursos ya probados.']
+            ]
+        },
+        teoria_fundamentada: {
+            title: 'Teoría Fundamentada: Bienestar en Salud',
+            prompt: '¿Qué dimensiones configuran el bienestar y cuidado profesional en los equipos de salud?',
+            task: 'Aplica codificación abierta y axial. Vinculá la fatiga emocional con estrategias de autocuidado en tus memos.',
+            categories: [
+                ['cat-desgaste', null, 'CAT-DES', 'Fatiga y sobrecarga', '#b91c1c', 'Indicadores de desgaste profesional y estrés acumulado en la atención.'],
+                ['sub-emocional', 'cat-desgaste', 'SUB-EMO', 'Carga emocional', '#ef4444', 'Impacto subjetivo del contacto directo con situaciones complejas.'],
+                ['cat-autocuidado', null, 'CAT-AUT', 'Estrategias de autocuidado', '#0f766e', 'Prácticas personales y colectivas para preservar la salud mental.'],
+                ['cat-soporte', null, 'CAT-SOP', 'Soporte de equipo', '#2563eb', 'Espacios de ateneo, contención mutua y escucha entre colegas.']
+            ],
+            documents: [
+                ['Entrevista_Dra_Elena_Salud.txt', 'Entrevistadora: ¿Cómo impacta la exigencia cotidiana en tu salud personal?\n\nElena: Hay días en que la carga emocional es muy pesada. Si no contara con el espacio de reflexión del equipo de los viernes, sería insostenible. Compartir lo que nos pasa nos permite procesar la angustia.'],
+                ['Registro_Ateneo_Equipo_Salud.txt', 'Participante A: El límite entre el trabajo y la vida personal a veces se vuelve frágil. Desarrollamos pequeños rituales al cerrar la guardia para desconectar y cuidar nuestro espacio mental.']
+            ]
+        },
+        etnografia: {
+            title: 'Etnografía: Convivencia y Espacio Público',
+            prompt: '¿Cómo significan los vecinos el uso y la apropiación de la plaza comunitaria?',
+            task: 'Codificá los registros de observación y entrevistas de campo. Analizá en un memo los conflictos y acuerdos de convivencia.',
+            categories: [
+                ['cat-apropiacion', null, 'CAT-APR', 'Apropiación del espacio', '#0f766e', 'Usos cotidianos, sentido de pertenencia y actividades colectivas.'],
+                ['sub-recreacion', 'cat-apropiacion', 'SUB-REC', 'Prácticas recreativas', '#14b8a6', 'Deporte, juego e itinerarios juveniles o familiares.'],
+                ['cat-conflicto', null, 'CAT-CON', 'Tensiones de convivencia', '#b45309', 'Desacuerdos por ruidos, horarios o mantenimiento entre grupos.'],
+                ['cat-identidad', null, 'CAT-IDE', 'Identidad comunitaria', '#9333ea', 'Símbolos, memoria del barrio y defensa del espacio público.']
+            ],
+            documents: [
+                ['Diario_de_Campo_Plaza_Central.txt', '17:30 hs — La plaza presenta alta densidad de uso. Jóvenes ocupan el anfiteatro con música mientras personas mayores conversan en los bancos perimetrales. Se observan negociaciones tácitas sobre el volumen y el espacio.'],
+                ['Entrevista_Vecino_Don_Carlos.txt', 'Don Carlos: Esta plaza la recuperamos entre todos los vecinos hace diez años. Aunque a veces hay chispazos por la basura o la música alta, es el único lugar verde donde el barrio se encuentra cara a cara.']
+            ]
         }
     };
 
@@ -88,6 +133,7 @@
             <button type="button" class="educational-guide-toggle" aria-expanded="true">Guía educativa <span aria-hidden="true">▾</span></button>
             <div class="educational-guide-content">
                 <p class="educational-guide-intro"><strong>Así se articula un análisis cualitativo:</strong> vas del texto a la evidencia, de la evidencia a la interpretación y de allí a conclusiones justificadas.</p>
+                <button type="button" id="btn-open-student-assignment-modal" class="btn btn-primary" style="width:100%; margin-bottom:1rem;">🎓 Exportar Ficha de Trabajo Práctico (PDF)</button>
                 <section class="educational-cases" aria-labelledby="educational-cases-title">
                     <strong id="educational-cases-title">Casos para practicar</strong>
                     <p>Elegí un caso; incluye una pregunta, dos textos y categorías iniciales. Tu tarea es codificar y escribir memos.</p>
@@ -99,6 +145,15 @@
                     <p><b>Categoría:</b> idea analítica que organiza evidencias.</p>
                     <p><b>Codificación:</b> enlace entre un pasaje y una categoría.</p>
                     <p><b>Memo:</b> nota interpretativa sobre esa evidencia.</p>
+                </div>
+                <div class="educational-authors" style="margin-top:1rem; padding:0.75rem; background:rgba(255,255,255,0.05); border-radius:6px; font-size:0.78rem;">
+                    <strong style="display:block; margin-bottom:0.4rem; color:var(--accent-primary);">Reflexiones de Autores Metodológicos</strong>
+                    <p style="margin-bottom:0.4rem;"><strong>R. Hernández Sampieri:</strong> "Codificar cualitativamente es extraer unidades de significado para construir categorías con criterios claros."</p>
+                    <p style="margin-bottom:0.4rem;"><strong>J. A. Maxwell:</strong> "El diseño cualitativo es interactivo: las preguntas, métodos y validez se reajustan a medida que se profundiza en los datos."</p>
+                    <p style="margin-bottom:0.4rem;"><strong>J. Creswell & V. Plano Clark:</strong> "La elección del diseño (narrativo, fenomenología, grounded theory, etnografía o caso) guía cómo abordamos las evidencias discursivas."</p>
+                    <p style="margin-bottom:0.4rem;"><strong>A. Strauss & J. Corbin:</strong> "La codificación abierta parte del texto; la codificación axial relaciona categorías con sus subcategorías."</p>
+                    <p style="margin-bottom:0.4rem;"><strong>M. Miles & A. M. Huberman:</strong> "Los memos no son resúmenes; son el espacio donde el investigador conceptualiza la evidencia."</p>
+                    <p><strong>U. Flick:</strong> "La triangulación permite comparar perspectivas de informantes para dar rigurosidad al estudio."</p>
                 </div>
                 <a class="btn educational-pro-cta" href="${contactUrl}">Obtener versión Pro</a>
                 <small>Pro elimina los límites educativos y agrega exportaciones profesionales.</small>
@@ -265,6 +320,57 @@
         if (exportFooter) exportFooter.insertAdjacentHTML('beforeend', `<a class="btn btn-outline educational-export-pro" href="${contactUrl}">Obtener versión Pro</a>`);
     }
 
+    function setupStudentAssignmentModal() {
+        const modal = document.getElementById('modal-student-assignment');
+        const openBtn = document.getElementById('btn-open-student-assignment-modal');
+        const generateBtn = document.getElementById('btn-generate-student-pdf');
+        if (!modal) return;
+
+        if (openBtn) {
+            openBtn.addEventListener('click', () => {
+                modal.style.display = 'flex';
+            });
+        }
+
+        modal.querySelectorAll('.modal-close, .modal-cancel').forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        });
+
+        if (generateBtn) {
+            generateBtn.addEventListener('click', async () => {
+                const studentName = (document.getElementById('student-name') || {}).value || '';
+                const courseName = (document.getElementById('student-course') || {}).value || '';
+                const researchQuestion = (document.getElementById('student-prompt') || {}).value || '';
+
+                if (!window.PdfReportExporter || typeof window.PdfReportExporter.createStudentAssignmentReport !== 'function') {
+                    alert('El exportador PDF no se encuentra disponible.');
+                    return;
+                }
+
+                try {
+                    const currentState = (typeof window.getAppState === 'function') ? window.getAppState() : (window.appState || {});
+                    const blob = await window.PdfReportExporter.createStudentAssignmentReport(currentState, {
+                        studentName: studentName.trim(),
+                        courseName: courseName.trim(),
+                        researchQuestion: researchQuestion.trim()
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Trabajo_Practico_${(studentName.trim() || 'Estudiante').replace(/\s+/g, '_')}.pdf`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    modal.style.display = 'none';
+                } catch (err) {
+                    console.error('Error generando PDF estudiantil:', err);
+                    alert(`No se pudo generar el PDF: ${err.message || err}`);
+                }
+            });
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.classList.add('edition-educational');
         document.title = 'AnalizadorCualiUY Educativa — Aprender análisis cualitativo';
@@ -272,6 +378,7 @@
         addContextualHelp();
         setupSectorPopovers();
         addProCallsToAction();
+        setupStudentAssignmentModal();
     });
 })();
 

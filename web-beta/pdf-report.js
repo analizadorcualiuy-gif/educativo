@@ -218,5 +218,162 @@
         return new Blob([bytes], { type: 'application/pdf' });
     }
 
-    global.PdfReportExporter = { createAnalyticalReport };
+    async function createStudentAssignmentReport(state, options = {}) {
+        const { PDFLib, fontkit } = requireLibraries();
+        const pdfDoc = await PDFLib.PDFDocument.create();
+        pdfDoc.registerFontkit(fontkit);
+
+        const fontRegularBytes = await loadBytes(options.fontRegularBytes, FONT_PATHS.regular);
+        const fontBoldBytes = await loadBytes(options.fontBoldBytes, FONT_PATHS.bold);
+
+        const regular = await pdfDoc.embedFont(fontRegularBytes, { subset: true });
+        const bold = await pdfDoc.embedFont(fontBoldBytes, { subset: true });
+        const supported = new Set([...regular.getCharacterSet(), ...bold.getCharacterSet()]);
+
+        const wrapRegular = makeWrapper(regular, supported);
+        const wrapBold = makeWrapper(bold, supported);
+
+        const colors = {
+            primary: PDFLib.rgb(0.06, 0.46, 0.43),
+            text: PDFLib.rgb(0.12, 0.16, 0.23),
+            muted: PDFLib.rgb(0.38, 0.45, 0.55),
+            border: PDFLib.rgb(0.85, 0.88, 0.92)
+        };
+
+        const pages = [];
+        let currentPage = pdfDoc.addPage(A4);
+        pages.push(currentPage);
+        let cursorY = A4[1] - MARGIN;
+
+        function addPage() {
+            currentPage = pdfDoc.addPage(A4);
+            pages.push(currentPage);
+            cursorY = A4[1] - MARGIN;
+            return currentPage;
+        }
+
+        function ensureSpace(needed) {
+            if (cursorY - needed < MARGIN + 24) addPage();
+        }
+
+        function heading(text, level = 1) {
+            const size = level === 1 ? 14 : 11;
+            const font = bold;
+            const lines = (level === 1 ? wrapBold : wrapRegular).wrap(text, size, A4[0] - MARGIN * 2);
+            const height = lines.length * (size + 4) + (level === 1 ? 12 : 6);
+            ensureSpace(height);
+
+            if (level === 1) {
+                currentPage.drawRectangle({
+                    x: MARGIN,
+                    y: cursorY - (lines.length * (size + 4)) - 2,
+                    width: A4[0] - MARGIN * 2,
+                    height: lines.length * (size + 4) + 4,
+                    color: PDFLib.rgb(0.94, 0.97, 0.97)
+                });
+            }
+
+            for (const line of lines) {
+                cursorY -= size + 4;
+                currentPage.drawText(line, {
+                    x: MARGIN + (level === 1 ? 6 : 0),
+                    y: cursorY + 2,
+                    size,
+                    font,
+                    color: level === 1 ? colors.primary : colors.text
+                });
+            }
+            cursorY -= level === 1 ? 8 : 4;
+        }
+
+        function paragraph(text, size = 9.5, isBold = false, spacing = 8, color = colors.text) {
+            const wrapper = isBold ? wrapBold : wrapRegular;
+            const lines = wrapper.wrap(text, size, A4[0] - MARGIN * 2);
+            ensureSpace(lines.length * (size + 3.5) + spacing);
+
+            for (const line of lines) {
+                cursorY -= size + 3.5;
+                currentPage.drawText(line, {
+                    x: MARGIN,
+                    y: cursorY,
+                    size,
+                    font: isBold ? bold : regular,
+                    color
+                });
+            }
+            cursorY -= spacing;
+        }
+
+        // Header / Cover Block
+        heading('EDICIÓN EDUCATIVA — FICHA DE TRABAJO PRÁCTICO');
+        paragraph(`Estudiante / Equipo: ${options.studentName || 'Sin especificar'}`, 10, true, 4);
+        paragraph(`Cátedra / Asignatura: ${options.courseName || 'Metodología de la Investigación Cualitativa'}`, 9.5, false, 4);
+        paragraph(`Fecha de emisión: ${new Date().toLocaleDateString('es-ES')}`, 9, false, 12, colors.muted);
+
+        // Section 1: Pregunta & Corpus
+        heading('1. Pregunta de Investigación y Corpus');
+        paragraph(`Pregunta / Objetivo: ${options.researchQuestion || 'No especificada.'}`, 9.5, true, 6);
+        paragraph(`Documentos analizados (${(state.documents || []).length}):`, 9, true, 4);
+        for (const doc of (state.documents || [])) {
+            paragraph(`• ${doc.title} (${(doc.content || '').split(/\s+/).length.toLocaleString()} palabras)`, 8.5, false, 3);
+        }
+        cursorY -= 8;
+
+        // Section 2: Libro de Códigos
+        heading('2. Libro de Códigos y Criterios de Inclusión');
+        for (const cat of (state.categories || [])) {
+            const codeLabel = cat.code ? ` [${cat.code}]` : '';
+            const parentLabel = cat.parentId ? ' (Subcategoría)' : '';
+            heading(`${cat.name}${codeLabel}${parentLabel}`, 2);
+            paragraph(`Criterio de Inclusión: ${cat.description || 'Sin criterio redactado.'}`, 9, false, 6, colors.muted);
+        }
+
+        // Section 3: Citas y Memos
+        heading('3. Evidencias Codificadas y Memos Interpretativos');
+        const docMap = new Map((state.documents || []).map(d => [d.id, d.title]));
+        const codings = state.codings || [];
+        if (codings.length === 0) {
+            paragraph('No se han registrado pasajes codificados aún.', 9, false, 8, colors.muted);
+        } else {
+            for (const cat of (state.categories || [])) {
+                const matches = codings.filter(c => c.categoryId === cat.id);
+                if (!matches.length) continue;
+                heading(`Categoría: ${cat.name}`, 2);
+                for (const coding of matches) {
+                    const docTitle = docMap.get(coding.docId) || 'Documento';
+                    paragraph(`${docTitle}: “${coding.quoteText || ''}”`, 9, false, 4);
+                    if (coding.memo) {
+                        paragraph(`Memo interpretativo: ${coding.memo}`, 8.5, false, 8, colors.primary);
+                    } else {
+                        paragraph('Memo: [Pendiente de redactar por el estudiante]', 8.5, false, 8, colors.muted);
+                    }
+                }
+            }
+        }
+
+        // Section 4: Apéndice Metodológico
+        heading('4. Apéndice y Autoevaluación Metodológica');
+        paragraph('Esta ficha documenta el proceso cualitativo desde la evidencia textual hasta la interpretación analítica. La codificación abre la vía a la conceptualización; los memos fundamentan las inferencias.', 8.5, false, 12, colors.muted);
+
+        // Watermarks & Page Numbers
+        const eduHeader = 'ANALIZADORCUALIUY EDUCATIVA — TRABAJO PRÁCTICO ESTUDIANTIL';
+        const eduFooter = 'Uso formativo y docente | Desarrollador: S. Hernández';
+        for (let i = 0; i < pages.length; i++) {
+            const page = pages[i];
+            page.drawText(eduHeader, { x: MARGIN, y: A4[1] - 25, size: 7.5, font: bold, color: colors.primary, opacity: 0.8 });
+            page.drawText(eduFooter, { x: MARGIN, y: 24, size: 7.5, font: regular, color: colors.muted });
+            const pNum = `${i + 1}/${pages.length}`;
+            page.drawText(pNum, { x: A4[0] - MARGIN - regular.widthOfTextAtSize(pNum, 7.5), y: 24, size: 7.5, font: regular, color: colors.muted });
+        }
+
+        pdfDoc.setTitle(validateText(`Ficha de Trabajo Práctico - ${options.studentName || 'Estudiante'}`, supported));
+        pdfDoc.setAuthor(validateText(options.studentName || 'Estudiante', supported));
+        pdfDoc.setCreator('AnalizadorCualiUY Educativa');
+        pdfDoc.setCreationDate(new Date());
+
+        const bytes = await pdfDoc.save({ useObjectStreams: false, addDefaultPage: false });
+        return new Blob([bytes], { type: 'application/pdf' });
+    }
+
+    global.PdfReportExporter = { createAnalyticalReport, createStudentAssignmentReport };
 })(typeof window !== 'undefined' ? window : globalThis);

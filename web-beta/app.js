@@ -79,6 +79,8 @@
         searchActiveIndex: 0
     };
 
+    window.getAppState = () => state;
+
     let nativeSaveTimer = null;
     let nativeSaveQueue = Promise.resolve();
     let lastParsedProjectMetadata = null;
@@ -1837,7 +1839,7 @@ ${bodyHtml}
 
     function exportCategoricalMatrixCSV() {
         let csv = 'Código,Categoría Padre,Subcategoría / Nombre,Términos / Palabras Clave,Ocurrencias,Ponderación %,Documento,Fragmento Coincidente,Decodificación / Memo\n';
-        const totalCodings = state.codings.length;
+        const totalCodings = state.codings.filter(c => !c.dismissed).length;
 
         state.categories.forEach(cat => {
             const parentCat = cat.parentId ? state.categories.find(p => p.id === cat.parentId) : null;
@@ -1845,10 +1847,10 @@ ${bodyHtml}
             const catName = escapeCsv(cat.name);
             const codeStr = escapeCsv(cat.code || '');
             const keywordsStr = escapeCsv([cat.name, cat.code, ...(cat.keywords || [])].filter(Boolean).join(', '));
-            const count = state.codings.filter(c => c.categoryId === cat.id).length;
+            const catCodings = state.codings.filter(c => c.categoryId === cat.id && !c.dismissed);
+            const count = catCodings.length;
             const percentage = totalCodings > 0 ? ((count / totalCodings) * 100).toFixed(1) : '0.0';
 
-            const catCodings = state.codings.filter(c => c.categoryId === cat.id);
             if (catCodings.length === 0) {
                 csv += `"${codeStr}","${parentName}","${catName}","${keywordsStr}","0","0%","--","--","--"\n`;
             } else {
@@ -1863,7 +1865,7 @@ ${bodyHtml}
         });
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        universalSaveFile(blob, `AnalizadorCualiUY_Pro_MatrizCategorial_${new Date().toISOString().slice(0, 10)}.csv`);
+        universalSaveFile(blob, `AnalizadorCualiUY_Beta_MatrizCategorial_${new Date().toISOString().slice(0, 10)}.csv`);
     }
 
     // ==========================================
