@@ -96,7 +96,18 @@ pub fn sign_license(
     payload: LicensePayload,
     signing_key: &SigningKey,
 ) -> Result<LicenseEnvelope, String> {
-    validate_payload(&payload, today_utc())?;
+    sign_license_at(payload, signing_key, today_utc())
+}
+
+/// Signs against an explicit validation date. Production callers should use
+/// [`sign_license`]; the explicit variant keeps tests and offline tooling
+/// deterministic without changing the signed payload.
+fn sign_license_at(
+    payload: LicensePayload,
+    signing_key: &SigningKey,
+    validation_date: Date,
+) -> Result<LicenseEnvelope, String> {
+    validate_payload(&payload, validation_date)?;
     let canonical = serde_json::to_vec(&payload).map_err(|e| e.to_string())?;
     let signature = signing_key.sign(&canonical);
     Ok(LicenseEnvelope {
@@ -162,7 +173,7 @@ mod tests {
     #[test]
     fn signed_license_verifies_only_for_its_device() {
         let signing = SigningKey::from_bytes(&[7_u8; 32]);
-        let envelope = sign_license(payload(), &signing).unwrap();
+        let envelope = sign_license_at(payload(), &signing, date(2026, Month::August, 6)).unwrap();
         let raw = serde_json::to_string(&envelope).unwrap();
         let verified = verify_license(
             &raw,
@@ -184,7 +195,8 @@ mod tests {
     #[test]
     fn tampering_wrong_key_and_expiry_are_rejected() {
         let signing = SigningKey::from_bytes(&[8_u8; 32]);
-        let mut envelope = sign_license(payload(), &signing).unwrap();
+        let mut envelope =
+            sign_license_at(payload(), &signing, date(2026, Month::August, 6)).unwrap();
         envelope.payload.holder = "Titular alterado".into();
         let raw = serde_json::to_string(&envelope).unwrap();
         assert!(verify_license(
@@ -195,7 +207,10 @@ mod tests {
         )
         .is_err());
 
-        let valid = serde_json::to_string(&sign_license(payload(), &signing).unwrap()).unwrap();
+        let valid = serde_json::to_string(
+            &sign_license_at(payload(), &signing, date(2026, Month::August, 6)).unwrap(),
+        )
+        .unwrap();
         let wrong = SigningKey::from_bytes(&[9_u8; 32]);
         assert!(verify_license(
             &valid,
@@ -207,7 +222,10 @@ mod tests {
 
         let mut expired = payload();
         expired.expires_at = Some("2026-08-06".into());
-        let raw = serde_json::to_string(&sign_license(expired, &signing).unwrap()).unwrap();
+        let raw = serde_json::to_string(
+            &sign_license_at(expired, &signing, date(2026, Month::August, 6)).unwrap(),
+        )
+        .unwrap();
         assert!(verify_license(
             &raw,
             &signing.verifying_key(),

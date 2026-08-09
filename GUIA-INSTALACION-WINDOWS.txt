@@ -1,0 +1,38 @@
+GUÍA DE INSTALACIÓN — ANALIZADORCUALIUY PRO
+
+Esta edición funciona actualmente únicamente en computadoras con Windows.
+
+REQUISITOS
+
+- Windows 10 de 64 bits, versión 1803 o posterior.
+- Windows 11 de 64 bits.
+- Microsoft Edge WebView2. Normalmente ya está incluido en Windows 10 y 11.
+  Si falta, el instalador puede necesitar conexión a Internet para instalarlo.
+- Espacio libre para el programa y los documentos del usuario.
+
+NO ES COMPATIBLE POR AHORA CON macOS, Linux, Android ni iOS.
+
+INSTALACIÓN CON EL INSTALADOR
+
+1. Haga doble clic en AnalizadorCualiUY-Pro-Setup-1.0.4.exe.
+2. Lea y acepte el contrato de licencia.
+3. Siga las instrucciones que aparecen en pantalla.
+4. Abra AnalizadorCualiUY Pro desde el menú Inicio o el acceso directo.
+
+La instalación se realiza para el usuario actual de Windows y normalmente no
+requiere permisos de administrador.
+
+PRIMER INICIO
+
+La aplicación solicitará una licencia. Para activarla, siga la guía
+GUIA-ACTIVACION-LICENCIA.txt.
+
+PRIVACIDAD Y DATOS
+
+Los proyectos y documentos se procesan localmente en esta computadora. No se
+envían documentos a servidores externos. Realice copias de respaldo de sus
+proyectos importantes.
+
+AYUDA
+
+Para consultas sobre instalación, licencia o soporte, contacte a analizadorcualiuy@gmail.com.

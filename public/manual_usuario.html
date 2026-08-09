@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario | AnalizadorCualiUY Pro v1.0.4</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --bg-card: #131b2e;
+            --bg-card-hover: #1b2640;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(79, 140, 255, 0.3);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --accent-purple: #8b5cf6;
+            --accent-teal: #14b8a6;
+            --accent-amber: #f59e0b;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-dim: #6b7280;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Layout & Navigation Sidebar */
+        aside.sidebar {
+            width: var(--sidebar-width);
+            background: rgba(15, 22, 38, 0.95);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+            padding: 2rem 1.25rem;
+            z-index: 100;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .brand-text h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: var(--accent-teal);
+            font-weight: 600;
+            background: rgba(20, 184, 166, 0.15);
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        .nav-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            padding-left: 0.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 4px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.88rem;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.15);
+            border-left: 3px solid var(--primary);
+        }
+
+        .nav-menu a span.num {
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Main Content Container */
+        main.content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 3rem 4rem;
+            max-width: 1300px;
+        }
+
+        /* Hero Header */
+        .hero {
+            background: linear-gradient(135deg, rgba(19, 27, 46, 0.9), rgba(15, 23, 42, 0.8));
+            border: 1px solid var(--border-highlight);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-emerald);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-emerald);
+        }
+
+        .hero h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #ffffff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin-bottom: 2rem;
+        }
+
+        /* KPI Quick Indicators Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .kpi-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .kpi-icon.blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .kpi-icon.teal { background: rgba(20, 184, 166, 0.2); color: #2dd4bf; }
+        .kpi-icon.purple { background: rgba(139, 92, 246, 0.2); color: #c084fc; }
+        .kpi-icon.amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        .kpi-info h4 {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .kpi-info p {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+        }
+
+        /* Content Sections */
+        section.doc-section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-number {
+            width: 36px;
+            height: 36px;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .paragraph {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Screenshot Container with Hotspots */
+        .screenshot-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1rem;
+            margin: 2rem 0;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .screenshot-box img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .screenshot-caption {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 0.5rem 0.2rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .screenshot-caption span.tag {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-main);
+        }
+
+        /* Hotspot Badges Legend */
+        .hotspot-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+
+        .hotspot-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+
+        .hotspot-badge {
+            width: 26px;
+            height: 26px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .hotspot-text h5 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .hotspot-text p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Step Process Flow */
+        .process-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin: 2rem 0;
+        }
+
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.5rem;
+            position: relative;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-highlight);
+        }
+
+        .step-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 800;
+            color: rgba(59, 130, 246, 0.3);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-card h4 {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Visual Feature Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.75rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .feature-card h3 i {
+            color: var(--primary);
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Callout Boxes */
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: rgba(59, 130, 246, 0.08);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 12px 12px 0;
+            margin: 1.5rem 0;
+        }
+
+        .callout.tip {
+            border-color: var(--accent-emerald);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .callout.warning {
+            border-color: var(--accent-amber);
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .callout h5 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .callout p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Keyboard Shortcut Table */
+        .shortcut-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .shortcut-table th, .shortcut-table td {
+            padding: 0.9rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .shortcut-table th {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .shortcut-table td {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        kbd {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #fff;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 6rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        footer strong {
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand-header">
+            <div class="brand-icon">AC</div>
+            <div class="brand-text">
+                <h1>AnalizadorCualiUY</h1>
+                <span>Versión Pro 1.0.4</span>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-title">Contenido del Manual</div>
+            <ul class="nav-menu">
+                <li><a href="#sec-inicio" class="active"><span class="num">01</span> Introducción y Estado</a></li>
+                <li><a href="#sec-licencia"><span class="num">02</span> Activación Offline</a></li>
+                <li><a href="#sec-workspace"><span class="num">03</span> Espacio de Trabajo</a></li>
+                <li><a href="#sec-codificacion"><span class="num">04</span> Codificación y Citas</a></li>
+                <li><a href="#sec-analiticas"><span class="num">05</span> Analíticas y Matrices</a></li>
+                <li><a href="#sec-exportacion"><span class="num">06</span> Exportaciones y Reportes</a></li>
+                <li><a href="#sec-seguridad"><span class="num">07</span> Privacidad y Respaldo</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content">
+
+        <!-- Hero Header -->
+        <header class="hero">
+            <div class="hero-badge">
+                <span class="dot"></span> 100% Offline • Datos Confidenciales
+            </div>
+            <h1>Manual de Usuario Oficial</h1>
+            <p>Guía de uso visual para investigación cualitativa profesional con AnalizadorCualiUY Pro. Codifique, organice y analice sus datos cualitativos en un entorno local y seguro.</p>
+            
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon blue">🛡️</div>
+                    <div class="kpi-info">
+                        <h4>Seguridad Local</h4>
+                        <p>Sin Nube / 0 Telemetría</p>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon teal">🔑</div>
+                    <div class="kpi-info">
+                        <h4>Licencia Ed25519</h4>
+                        <p>Activación Firmware</p>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon purple">📊</div>
+                    <div class="kpi-info">
+                        <h4>Análisis Avanzado</h4>
+                        <p>Redes y Matrices</p>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon amber">📄</div>
+                    <div class="kpi-info">
+                        <h4>Exportaciones</h4>
+                        <p>PDF / DOCX / CSV</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Section 1: Introducción -->
+        <section id="sec-inicio" class="doc-section">
+            <div class="section-header">
+                <div class="section-number">01</div>
+                <h2>Introducción y Primeros Pasos</h2>
+            </div>
+            <p class="paragraph">
+                AnalizadorCualiUY Pro es una herramienta especializada diseñada para investigadores cualitativos, académicos y consultores que exigen la máxima confidencialidad en el tratamiento de entrevistas, grupos focales y documentos de campo.
+            </p>
+
+            <div class="process-flow">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <h4>Crear o Abrir</h4>
+                    <p>Inicie un proyecto desde cero o importe un proyecto JSON validado previamente.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <h4>Importar Archivos</h4>
+                    <p>Cargue entrevistas en formato DOCX, PDF o TXT directamente a la biblioteca local.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <h4>Codificar Citas</h4>
+                    <p>Seleccione fragmentos de texto y asigne categorías jerárquicas con colores visuales.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">04</div>
+                    <h4>Generar Informes</h4>
+                    <p>Obtenga matrices de coocurrencia y reportes en PDF/DOCX profesional con un solo clic.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Licencia Offline -->
+        <section id="sec-licencia" class="doc-section">
+            <div class="section-header">
+                <div class="section-number">02</div>
+                <h2>Activación y Licenciamiento Offline</h2>
+            </div>
+            <p class="paragraph">
+                La edición Pro utiliza activación sin conexión a Internet basada en firmas criptográficas <strong>Ed25519</strong> asociadas al identificador seguro de su dispositivo (protegido por Windows DPAPI).
+            </p>
+
+            <div class="screenshot-box">
+                <img src="docs/images/license.jpg" alt="Diálogo de Activación de Licencia Pro">
+                <div class="screenshot-caption">
+                    <span>Figura 1: Interfaz del módulo de activación de licencia comercial</span>
+                    <span class="tag">VERIFICACIÓN FAIL-CLOSED</span>
+                </div>
+            </div>
+
+            <div class="hotspot-legend">
+                <div class="hotspot-item">
+                    <div class="hotspot-badge">1</div>
+                    <div class="hotspot-text">
+                        <h5>Código de Dispositivo</h5>
+                        <p>Identificador único generado en base al hardware del equipo. Cópielo con el botón dedicado para enviarlo a emisión.</p>
+                    </div>
+                </div>
+                <div class="hotspot-item">
+                    <div class="hotspot-badge">2</div>
+                    <div class="hotspot-text">
+                        <h5>Carga de Archivo .acuy-license</h5>
+                        <p>Arrastre o busque su archivo de licencia provisto por ventas. El sistema verificará la firma asimétrica de forma instantánea.</p>
+                    </div>
+                </div>
+                <div class="hotspot-item">
+                    <div class="hotspot-badge">3</div>
+                    <div class="hotspot-text">
+                        <h5>Estado de Activación</h5>
+                        <p>Indicador en tiempo real que muestra el titular, fecha de validez y la firma digital autenticada por el kernel nativo en Rust.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Espacio de Trabajo -->
+        <section id="sec-workspace" class="doc-section">
+            <div class="section-header">
+                <div class="section-number">03</div>
+                <h2>Espacio de Trabajo Principal</h2>
+            </div>
+            <p class="paragraph">
+                La interfaz principal de AnalizadorCualiUY Pro está organizada de forma intuitiva para optimizar el flujo de lectura y codificación activa sin distracciones.
+            </p>
+
+            <div class="screenshot-box">
+                <img src="docs/images/workspace.jpg" alt="Espacio de trabajo principal">
+                <div class="screenshot-caption">
+                    <span>Figura 2: Vista general del espacio de trabajo con panel de lectura y codificación</span>
+                    <span class="tag">MODO LECTURA & CODIFICACIÓN</span>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3><i>📁</i> Panel Izquierdo: Documentos y Categorías</h3>
+                    <p>Gestiona la biblioteca de documentos importados y el árbol de códigos jerárquico. Permite crear subcategorías con arrastrar o asignando categorías padre.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i>📝</i> Panel Central: Lector de Texto</h3>
+                    <p>Visualiza el texto de las entrevistas con resaltados de colores configurables según cada categoría asignada. Admite selección rápida de citas.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i>💬</i> Panel Derecho: Memos e Inspector</h3>
+                    <p>Escriba notas analíticas (memos) vinculadas a pasajes específicos o documentos generales. Ideal para registrar reflexiones metodológicas.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Codificación -->
+        <section id="sec-codificacion" class="doc-section">
+            <div class="section-header">
+                <div class="section-number">04</div>
+                <h2>Codificación, Autocodificación y Teclas Rápidas</h2>
+            </div>
+            <p class="paragraph">
+                Para codificar un pasaje, seleccione el texto deseado con el ratón y haga clic en la categoría correspondiente dentro del árbol o use los atajos de teclado asignados.
+            </p>
+
+            <div class="callout tip">
+                <h5>💡 Sugerencia: Autocodificación Inteligente</h5>
+                <p>Puede definir "Palabras clave" en las propiedades de una categoría. Al usar la opción de autocodificación, el sistema buscará y asignará automáticamente esa categoría a todas las oraciones que contengan dichas palabras clave.</p>
+            </div>
+
+            <h3>Atajos de Teclado Principales</h3>
+            <table class="shortcut-table">
+                <thead>
+                    <tr>
+                        <th>Acción</th>
+                        <th>Atajo de Teclado</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Buscar en el texto (F3)</td>
+                        <td><kbd>Ctrl</kbd> + <kbd>F</kbd> o <kbd>F3</kbd></td>
+                        <td>Abre la barra de búsqueda rápida y resalta coincidencias.</td>
+                    </tr>
+                    <tr>
+                        <td>Guardar Proyecto Nativo</td>
+                        <td><kbd>Ctrl</kbd> + <kbd>S</kbd></td>
+                        <td>Fuerza la sincronización atómica del archivo de proyecto en disco.</td>
+                    </tr>
+                    <tr>
+                        <td>Codificación Rápida</td>
+                        <td><kbd>Ctrl</kbd> + <kbd>1</kbd> .. <kbd>9</kbd></td>
+                        <td>Asigna automáticamente uno de los primeros 9 códigos frecuentes a la selección.</td>
+                    </tr>
+                    <tr>
+                        <td>Eliminar Cita Seleccionada</td>
+                        <td><kbd>Supr</kbd> / <kbd>Delete</kbd></td>
+                        <td>Remueve el código del pasaje activo manteniendo el texto original.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Section 5: Analíticas -->
+        <section id="sec-analiticas" class="doc-section">
+            <div class="section-header">
+                <div class="section-number">05</div>
+                <h2>Dashboard de Analíticas Cualitativas</h2>
+            </div>
+            <p class="paragraph">
+                AnalizadorCualiUY Pro incorpora un potente motor de cálculo de relaciones entre categorías, frecuencias de codificación, matrices de coocurrencia y gráficos de red interactivos.
+            </p>
+
+            <div class="screenshot-box">
+                <img src="docs/images/analytics.jpg" alt="Dashboard de analíticas cualitativas">
+                <div class="screenshot-caption">
+                    <span>Figura 3: Panel de analíticas de red de coocurrencias y mapa de calor</span>
+                    <span class="tag">MÉTRICAS JACCARD & PÁRRAFOS</span>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🕸️ Gráfico de Red Circular</h3>
+                    <p>Visualiza cómo se relacionan los conceptos entre sí. Los nodos representan categorías (tamaño según frecuencia) y las líneas la fuerza de coocurrencia en el mismo párrafo o ventana.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🟩 Matriz Categórica de Coocurrencia</h3>
+                    <p>Grilla interactiva tipo Mapa de Calor que cruza Categorías vs Documentos o Categorías vs Categorías para detectar patrones temáticos recurrentes.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Exportaciones -->
+        <section id="sec-exportacion" class="doc-section">
+            <div class="section-header">
+                <div class="section-number">06</div>
+                <h2>Exportaciones e Informes Profesionales</h2>
+            </div>
+            <p class="paragraph">
+                Genere reportes listos para publicación académica o entregables a clientes en formatos estándar: PDF con pasajes pintados, Microsoft Word (DOCX) con tablas de síntesis y archivos CSV para análisis cuantitativo posterior.
+            </p>
+
+            <div class="screenshot-box">
+                <img src="docs/images/export.jpg" alt="Diálogo de exportación">
+                <div class="screenshot-caption">
+                    <span>Figura 4: Diálogo de configuración de exportaciones profesionales</span>
+                    <span class="tag">PDF / DOCX / CSV</span>
+                </div>
+            </div>
+
+            <div class="callout warning">
+                <h5>⚠️ Protección al Exportar</h5>
+                <p>Las exportaciones en CSV cuentan con protección automática que neutraliza prefijos especiales (como <code>=</code>, <code>+</code>, <code>-</code>) para prevenir la ejecución no deseada de fórmulas al abrirlos en Microsoft Excel o LibreOffice Calc.</p>
+            </div>
+        </section>
+
+        <!-- Section 7: Seguridad y Respaldo -->
+        <section id="sec-seguridad" class="doc-section">
+            <div class="section-header">
+                <div class="section-number">07</div>
+                <h2>Privacidad, Seguridad y Respaldo</h2>
+            </div>
+            <p class="paragraph">
+                Sus datos son de su exclusiva propiedad. La aplicación guarda su estado localmente en la carpeta de usuario de Windows (<code>%LOCALAPPDATA%\uy.santiago.analizadorcuali.pro</code>) y mantiene respaldos automáticos comprobables para evitar cualquier pérdida de trabajo.
+            </p>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon teal">💾</div>
+                    <div class="kpi-info">
+                        <h4>Reemplazo Atómico</h4>
+                        <p>Escrituras seguras en disco</p>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon blue">🔒</div>
+                    <div class="kpi-info">
+                        <h4>Aislamiento Total</h4>
+                        <p>Sin conexiones a Internet</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p><strong>AnalizadorCualiUY Pro v1.0.4</strong> — Sistema de Análisis Cualitativo Local y Confidencial</p>
+            <p>Derechos de autor © 2026 Prof. Esp. Santiago Hernández. Todos los derechos reservados.</p>
+        </footer>
+
+    </main>
+
+</body>
+</html>

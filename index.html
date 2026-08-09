@@ -9,7 +9,7 @@
     <script src="public/vendor/mammoth.browser.min.js"></script>
     
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260806-margin-scroll">
 </head>
 <body>
 
@@ -24,7 +24,7 @@
             </div>
             <div class="modal-footer" style="flex-wrap:wrap;">
                 <button id="btn-copy-device-code" class="btn btn-secondary">Copiar código</button>
-                <a class="btn btn-secondary" href="mailto:santiherben@gmail.com?subject=Solicitud%20de%20licencia%20AnalizadorCualiUY%20Pro">Contactar</a>
+                <a class="btn btn-secondary" href="mailto:analizadorcualiuy@gmail.com?subject=Solicitud%20de%20licencia%20AnalizadorCualiUY%20Pro">Contactar</a>
                 <button id="btn-install-license" class="btn btn-primary">Instalar archivo de licencia</button>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 <line x1="12" y1="16" x2="12"/>
                 <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
-            <span><strong>Proyecto de Muestra:</strong> Estás explorando datos de ejemplo precargados. Puedes conservar este ejemplo o iniciar tu propio análisis desde cero.</span>
+            <span id="notice-banner-text"><strong>Proyecto de Muestra:</strong> Estás explorando datos de ejemplo precargados. Puedes conservar este ejemplo o iniciar tu propio análisis desde cero.</span>
         </div>
         <div class="banner-actions">
             <button id="btn-clear-sample" class="btn-banner-action" title="Eliminar datos de ejemplo e iniciar un proyecto nuevo en blanco">
@@ -71,13 +71,13 @@
                 ✨ Nuevo Proyecto
             </button>
 
-            <button id="btn-import-files" type="button" class="btn btn-secondary" title="Importar archivos TXT, DOCX, PDF o un Proyecto JSON guardado">
+            <button id="btn-import-files" type="button" class="btn btn-secondary" title="Importar uno o varios documentos. Para seleccionar varios archivos, usa Ctrl o Shift en la ventana de Windows.">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="17 8 12 3 7 8"/>
                     <line x1="12" y1="3" x2="12" y2="15"/>
                 </svg>
-                <span>Importar Archivos (TXT / DOCX / PDF / JSON)</span>
+                <span>Importar Documentos (TXT / DOCX / PDF)</span>
             </button>
             <input type="file" id="file-input" accept=".txt,.docx,.pdf,.json,application/json" multiple hidden>
 
@@ -90,6 +90,10 @@
                     <polyline points="10 9 9 9 8 9"/>
                 </svg>
                 <span>Cargar Muestra</span>
+            </button>
+
+            <button id="btn-open-project-templates" class="btn btn-outline" title="Crear una estructura inicial de categorías">
+                ✨ Plantillas de proyecto
             </button>
 
             <div class="divider-vertical"></div>
@@ -135,13 +139,22 @@
                 <span>Exportar DOCX (Word)</span>
             </button>
 
-            <button id="btn-open-credits" class="btn btn-outline" title="Autoría, Declaración de IA e Instalación">
+            <button id="btn-open-credits" class="btn btn-outline" title="Información del producto e instalación">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="16" x2="12" y2="12"/>
                     <line x1="12" y1="8" x2="12.01" y2="8"/>
                 </svg>
                 <span>Acerca de / Créditos</span>
+            </button>
+
+            <button id="btn-open-guide" class="btn btn-outline" title="Ver Guía de Uso e Inducción Operativa">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span>Guía de Uso</span>
             </button>
 
             <button id="theme-toggle" class="btn-icon" title="Cambiar Tema Claro / Oscuro">
@@ -178,7 +191,10 @@
                         </svg>
                         Documentos
                     </h2>
-                    <span id="doc-count" class="count-badge">0</span>
+                    <div class="section-actions">
+                        <span id="doc-count" class="count-badge">0</span>
+                        <button id="btn-add-document" type="button" class="btn-add-document" title="Incorporar uno o varios documentos al proyecto">+</button>
+                    </div>
                 </div>
                 <div class="search-box">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -248,6 +264,7 @@
                     </div>
 
                     <div class="editor-actions-right">
+                        <button id="btn-edit-document-profile" class="btn btn-outline btn-sm" title="Completar la ficha de este documento">🗂️ Ficha</button>
                         <!-- PDF Export Button for Coded Document -->
                         <button id="btn-export-doc-pdf" class="btn btn-outline btn-sm" title="Exportar este documento formateado en PDF con el texto pintado por categorías">
                             🖨️ Exportar PDF
@@ -292,12 +309,13 @@
                             <line x1="12" y1="18" x2="12" y2="12"/>
                             <line x1="9" y1="15" x2="15" y2="15"/>
                         </svg>
-                        <h3>Selecciona o importa un archivo (TXT, DOCX, PDF)</h3>
+                        <h3>Selecciona o importa uno o varios documentos (TXT, DOCX, PDF)</h3>
                         <p>Crea categorías y usa 🔍 Buscar Ocurrencias o selecciona texto directamente con el mouse.</p>
-                        <button type="button" id="btn-import-empty" class="btn btn-primary">Importar Archivo (TXT / DOCX / PDF / JSON)</button>
+                        <button type="button" id="btn-import-empty" class="btn btn-primary" title="Puedes seleccionar varios archivos con Ctrl o Shift">Importar Documentos (TXT / DOCX / PDF)</button>
                     </div>
 
                     <!-- Text display with margins for codes -->
+                    <div id="reader-render-limit-notice" class="heatmap-info" style="display:none;" role="status"></div>
                     <div id="text-body" class="text-body" style="display:none;"></div>
                 </div>
 
@@ -307,7 +325,7 @@
 
             <!-- Application Footer with Credits -->
             <footer class="app-footer">
-                <span>AnalizadorCualiUY Pro • Producto licenciado de <strong>Prof. Esp. Santiago Hernández</strong></span>
+                <span>AnalizadorCualiUY Pro • Procesamiento local y confidencial</span>
                 <span>Matriz Categorial & Gráficos Cualitativos • 100% Local</span>
             </footer>
         </section>
@@ -349,6 +367,7 @@
             <div id="tab-decoders" class="tab-content active">
                 <div class="tab-header">
                     <h3>Pasajes y Decodificación de Significados</h3>
+                    <small id="decoder-document-context" style="display:block; margin:0.2rem 0 0.45rem; color:var(--text-muted);"></small>
                     <div class="filter-row">
                         <select id="decoder-filter-code" class="select-sm">
                             <option value="ALL">Todas las categorías</option>
@@ -413,6 +432,9 @@
                         <label>Documento
                             <select id="analytics-document-filter" class="select-sm"><option value="">Todo el corpus</option></select>
                         </label>
+                        <label>Grupo
+                            <select id="analytics-group-filter" class="select-sm"><option value="">Todos</option></select>
+                        </label>
                         <label>Umbral
                             <input id="analytics-threshold" class="input-sm" type="number" min="0" step="0.05" value="0">
                         </label>
@@ -435,6 +457,8 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="analytics-diagnostics-notice" class="heatmap-info" style="display:none;" role="status"></div>
 
                 <!-- Container 1: Network Canvas Graph -->
                 <div id="chart-container-network" class="canvas-wrapper">
@@ -515,6 +539,7 @@
                                 <th>Categoría / Subcategoría</th>
                                 <th>Términos / Palabras Clave</th>
                                 <th>Ocurrencias</th>
+                                <th>Evidencia ponderada</th>
                                 <th>Ponderación (%)</th>
                                 <th>Distribución Visual</th>
                             </tr>
@@ -535,6 +560,10 @@
 
             </div>
             <div class="modal-footer">
+                <button id="btn-open-summary-matrix" class="btn btn-outline">▦ Matriz de síntesis</button>
+                <button id="btn-open-advanced-query" class="btn btn-outline">🔎 Consultas</button>
+                <button id="btn-export-codebook" class="btn btn-outline">📘 Libro de códigos</button>
+                <button id="btn-export-audit-log" class="btn btn-outline">🧾 Registro metodológico</button>
                 <button id="btn-export-executive-report" class="btn btn-outline" title="Configurar un informe analítico DOCX o PDF">📄 Crear informe analítico</button>
                 <button id="btn-export-matrix-csv" class="btn btn-primary">📥 Exportar Matriz Categorial a CSV</button>
                 <button class="btn btn-secondary modal-cancel">Cerrar</button>
@@ -552,7 +581,7 @@
             <div class="modal-body report-builder-body">
                 <div class="report-form-grid">
                     <div class="form-group"><label for="report-title">Título</label><input id="report-title" value="Informe de análisis cualitativo"></div>
-                    <div class="form-group"><label for="report-author">Responsable / autoría</label><input id="report-author" value="Prof. Esp. Santiago Hernández"></div>
+                    <div class="form-group"><label for="report-author">Responsable / autoría</label><input id="report-author" value="Equipo investigador"></div>
                     <div class="form-group report-wide"><label for="report-objective">Objetivo del análisis</label><textarea id="report-objective" rows="2" placeholder="Pregunta u objetivo de investigación"></textarea></div>
                     <div class="form-group report-wide"><label for="report-methodology">Metodología / criterios</label><textarea id="report-methodology" rows="2" placeholder="Corpus, estrategia de codificación y unidad de análisis"></textarea></div>
                     <div class="form-group report-wide"><label for="report-conclusions">Conclusiones / interpretación</label><textarea id="report-conclusions" rows="3" placeholder="Conclusiones redactadas por el equipo investigador"></textarea></div>
@@ -582,10 +611,30 @@
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body" style="gap:0.75rem;">
-                <p style="font-size:0.85rem; color:var(--text-secondary);">Selecciona qué categorías deseas incluir con sus <strong>pasajes, métricas, relaciones y memos</strong> en el PDF:</p>
+                <div class="form-group">
+                    <label style="font-weight:600; color:var(--accent-primary);">Modo de exportación:</label>
+                    <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.3rem;">
+                        <label style="display:flex; align-items:flex-start; gap:0.5rem; cursor:pointer; background:var(--bg-tertiary); padding:0.6rem; border-radius:6px; border:1px solid var(--border-color);">
+                            <input type="radio" name="pdf-export-mode" value="full" checked style="margin-top:0.2rem;">
+                            <div>
+                                <strong style="display:block; color:var(--text-primary);">Documento activo completo</strong>
+                                <span style="font-size:0.75rem; color:var(--text-secondary);">Incluye todo el texto del documento abierto, las categorías seleccionadas, pasajes, métricas, relaciones y memos.</span>
+                            </div>
+                        </label>
+                        <label style="display:flex; align-items:flex-start; gap:0.5rem; cursor:pointer; background:var(--bg-tertiary); padding:0.6rem; border-radius:6px; border:1px solid var(--border-color);">
+                            <input type="radio" name="pdf-export-mode" value="passages" style="margin-top:0.2rem;">
+                            <div>
+                                <strong style="display:block; color:var(--text-primary);">Pasajes clasificados de todos los documentos</strong>
+                                <span style="font-size:0.75rem; color:var(--text-secondary);">Reúne todas las coincidencias de las categorías elegidas, con su documento de origen y memo.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-secondary);">Selecciona las categorías a incluir en el PDF:</p>
                 <div id="pdf-category-checkboxes" style="display:flex; flex-direction:column; gap:0.4rem; max-height:40vh; overflow-y:auto; padding:0.5rem; background:var(--bg-tertiary); border-radius:6px; border:1px solid var(--border-color);">
                     <!-- Checkboxes injected dynamically -->
                 </div>
+                <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;"><input id="pdf-include-memos" type="checkbox" checked> Incluir notas analíticas (memos)</label>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary modal-cancel">Cancelar</button>
@@ -628,6 +677,7 @@
                         <!-- Checkboxes injected dynamically -->
                     </div>
                 </div>
+                <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;"><input id="docx-include-memos" type="checkbox" checked> Incluir notas analíticas (memos)</label>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary modal-cancel">Cancelar</button>
@@ -648,18 +698,11 @@
             </div>
             <div class="modal-body" style="gap:0.85rem; font-size:0.85rem; max-height:70vh; overflow-y:auto;">
                 <div class="credits-box" style="background:var(--bg-tertiary); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color);">
-                    <p style="margin-bottom:0.4rem;"><strong>Autoría & Titularidad:</strong> Prof. Esp. Santiago Hernández (2026)</p>
-                    <p style="margin-bottom:0.4rem;"><strong>Versión de Escritorio:</strong> 1.0.0 (Tauri 2 + Rust Core Backend)</p>
+                    <p style="margin-bottom:0.4rem;"><strong>Edición:</strong> AnalizadorCualiUY Pro · versión de escritorio</p>
+                    <p style="margin-bottom:0.4rem;"><strong>Versión de Escritorio:</strong> 1.0.4 (Tauri 2 + Rust Core Backend)</p>
                     <p style="margin-bottom:0.4rem;"><strong>Garantía de Privacidad Local:</strong> 🛡️ 100% Offline. Todos los documentos, fragmentos y configuraciones son procesados en tu equipo y no se envían a ningún servidor externo.</p>
                     <p style="margin-bottom:0.4rem;"><strong>Licencia:</strong> Producto comercial sujeto al EULA y al alcance indicado en el comprobante de compra.</p>
                     <p><strong>Formatos Soportados:</strong> TXT, DOCX (Microsoft Word), PDF, JSON (Proyectos Guardados).</p>
-                </div>
-
-                <div class="credits-box" style="background:var(--accent-subtle); padding:0.75rem; border-radius:6px; border:1px solid var(--accent-primary);">
-                    <strong style="color:var(--accent-primary);">📖 Formato de Cita Académica Sugerido (APA 7):</strong>
-                    <p style="font-family:'JetBrains Mono', monospace; font-size:0.75rem; margin-top:0.4rem; color:var(--text-primary);">
-                        Hernández, S. (2026). <em>AnalizadorCualiUY Pro: herramienta local para el procesamiento cualitativo de datos</em> (Versión 1.0.0) [Software].
-                    </p>
                 </div>
 
                 <div class="credits-box" style="background:var(--bg-tertiary); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color);">
@@ -673,6 +716,14 @@
                 <button id="btn-view-license-file" class="btn btn-outline">📜 Ver EULA</button>
                 <button class="btn btn-primary modal-cancel">Entendido</button>
             </div>
+        </div>
+    </div>
+
+    <div id="modal-eula" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width:820px; max-width:96vw; max-height:90vh;">
+            <div class="modal-header"><h3>📜 Contrato de Licencia de Usuario Final (EULA)</h3><button class="modal-close" aria-label="Cerrar EULA">&times;</button></div>
+            <div class="modal-body" style="min-height:0; overflow-y:auto;"><pre id="eula-content" style="white-space:pre-wrap; font:0.82rem/1.55 inherit; color:var(--text-secondary); margin:0;">Cargando EULA…</pre></div>
+            <div class="modal-footer"><button class="btn btn-primary modal-cancel">Cerrar</button></div>
         </div>
     </div>
 
@@ -695,16 +746,16 @@
                 </div>
                 <div class="form-group">
                     <label for="cat-name">Nombre de la Categoría / Subcategoría:</label>
-                    <input type="text" id="cat-name" placeholder="Ej: Informática">
+                    <input type="text" id="cat-name" maxlength="4096" placeholder="Ej: Informática">
                 </div>
                 <div class="form-group">
                     <label for="cat-code">Código Sugerido (Alfanumérico / Etiqueta):</label>
-                    <input type="text" id="cat-code" placeholder="Ej: CAT-INF o SUBCAT-01">
+                    <input type="text" id="cat-code" maxlength="512" placeholder="Ej: CAT-INF o SUBCAT-01">
                     <span class="hint-text">Código corto para la matriz y reportes. Se genera automáticamente si se deja vacío.</span>
                 </div>
                 <div class="form-group">
                     <label for="cat-keywords">Términos o Variaciones de Búsqueda (Opcional - separados por comas):</label>
-                    <input type="text" id="cat-keywords" placeholder="Ej: informática, computación, software, sistemas">
+                    <input type="text" id="cat-keywords" maxlength="1048576" placeholder="Ej: informática, computación, software, sistemas">
                     <span class="hint-text">El nombre de la categoría y su código se usarán automáticamente como términos de búsqueda.</span>
                 </div>
                 <div class="form-group">
@@ -724,7 +775,11 @@
                 </div>
                 <div class="form-group">
                     <label for="cat-desc">Descripción / Criterio de Inclusión (Opcional):</label>
-                    <textarea id="cat-desc" rows="2" placeholder="Describe qué tipo de pasajes pertenecen a esta categoría..."></textarea>
+                    <textarea id="cat-desc" rows="2" maxlength="1048576" placeholder="Describe qué tipo de pasajes pertenecen a esta categoría..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="cat-criteria">Criterio de exclusión o decisión metodológica (Opcional):</label>
+                    <textarea id="cat-criteria" rows="2" maxlength="1048576" placeholder="Aclara límites, casos dudosos o cuándo no aplicar esta categoría..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -734,11 +789,53 @@
         </div>
     </div>
 
+    <!-- Modal: Document Profile -->
+    <div id="modal-document-profile" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width:560px; max-width:95vw;">
+            <div class="modal-header"><h3>🗂️ Ficha del documento</h3><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <p id="document-profile-title" class="hint-text"></p>
+                <div class="form-group"><label for="doc-profile-group">Grupo / conjunto</label><input id="doc-profile-group" maxlength="512" placeholder="Ej.: Docentes, Centro A, Cohorte 2026"></div>
+                <div class="form-group"><label for="doc-profile-case">Caso o participante</label><input id="doc-profile-case" maxlength="512" placeholder="Ej.: Entrevista 03"></div>
+                <div class="form-group"><label for="doc-profile-period">Período o fecha</label><input id="doc-profile-period" maxlength="512" placeholder="Ej.: Agosto 2026"></div>
+                <div class="form-group"><label for="doc-profile-notes">Notas de contexto</label><textarea id="doc-profile-notes" rows="4" maxlength="65536" placeholder="Información contextual que ayude a interpretar el documento..."></textarea></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary modal-cancel">Cancelar</button><button id="btn-save-document-profile" class="btn btn-primary">Guardar ficha</button></div>
+        </div>
+    </div>
+
+    <!-- Modal: Summary Matrix -->
+    <div id="modal-summary-matrix" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width:1100px; max-width:96vw;">
+            <div class="modal-header"><h3>▦ Matriz de síntesis: documento × categoría</h3><button class="modal-close">&times;</button></div>
+            <div class="modal-body" style="max-height:70vh; overflow:auto;"><p class="hint-text">Escribe una síntesis interpretativa por cruce. Las evidencias se conservan en el proyecto.</p><div id="summary-matrix-container"></div><div id="summary-editor" style="display:none; margin-top:1rem;"></div></div>
+            <div class="modal-footer"><button id="btn-export-summary-csv" class="btn btn-outline">📥 Exportar síntesis CSV</button><button class="btn btn-secondary modal-cancel">Cerrar</button></div>
+        </div>
+    </div>
+
+    <!-- Modal: Advanced Queries -->
+    <div id="modal-advanced-query" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width:760px; max-width:95vw;">
+            <div class="modal-header"><h3>🔎 Consulta avanzada de codificación</h3><button class="modal-close">&times;</button></div>
+            <div class="modal-body"><div class="report-form-grid"><div class="form-group"><label for="query-category-a">Categoría A</label><select id="query-category-a"></select></div><div class="form-group"><label for="query-operator">Relación</label><select id="query-operator"><option value="and">A Y B en el mismo párrafo</option><option value="not">A SIN B en el mismo párrafo</option><option value="near">A CERCA DE B</option></select></div><div class="form-group"><label for="query-category-b">Categoría B</label><select id="query-category-b"></select></div><div class="form-group"><label for="query-distance">Distancia máxima (caracteres)</label><input id="query-distance" type="number" min="0" value="150"></div></div><div id="advanced-query-results" class="cards-container" style="margin-top:1rem;"></div></div>
+            <div class="modal-footer"><button class="btn btn-secondary modal-cancel">Cerrar</button><button id="btn-run-advanced-query" class="btn btn-primary">Buscar pasajes</button></div>
+        </div>
+    </div>
+
+    <!-- Modal: Project Templates -->
+    <div id="modal-project-templates" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width:760px; max-width:95vw;">
+            <div class="modal-header"><h3>✨ Plantillas de proyecto</h3><button class="modal-close">&times;</button></div>
+            <div class="modal-body"><p class="hint-text">Una plantilla crea una estructura editable de categorías. No modifica los documentos; si ya hay categorías, pedirá confirmación antes de reemplazarlas.</p><div id="project-template-options" class="cards-container"></div></div>
+            <div class="modal-footer"><button class="btn btn-secondary modal-cancel">Cerrar</button></div>
+        </div>
+    </div>
+
     <!-- Modal: Add/Edit Decoding Memo -->
     <div id="modal-memo" class="modal-backdrop" style="display:none;">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>Decodificar Significado / Nota Analítica</h3>
+                <h3 id="modal-memo-title">Decodificar Significado / Nota Analítica</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
@@ -752,7 +849,7 @@
                 </div>
                 <div class="form-group">
                     <label for="memo-text">Significado Decodificado / Interpretación Cualitativa:</label>
-                    <textarea id="memo-text" rows="4" placeholder="Escribe aquí tu interpretación del significado profundo, contexto, emoción o intención de este pasaje..."></textarea>
+                    <textarea id="memo-text" rows="4" maxlength="1048576" placeholder="Escribe aquí tu interpretación del significado profundo, contexto, emoción o intención de este pasaje..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -762,9 +859,81 @@
         </div>
     </div>
 
+    <!-- Modal: Operational Guide Wizard -->
+    <div id="modal-operational-guide" class="modal-backdrop" style="display:none; z-index:9500;" aria-hidden="true">
+        <div class="modal-card modal-guide-card" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+            <div class="modal-header">
+                <div>
+                    <span class="guide-badge">Inducción Operativa</span>
+                    <h2 id="guide-title" style="margin:0;">Cómo Funciona AnalizadorCualiUY</h2>
+                </div>
+                <button class="modal-close guide-skip-btn" aria-label="Cerrar guía">&times;</button>
+            </div>
+            <div class="modal-body modal-guide-body">
+                <div class="guide-steps-progress">
+                    <span class="step-dot active" data-step="1">1</span>
+                    <span class="step-line"></span>
+                    <span class="step-dot" data-step="2">2</span>
+                    <span class="step-line"></span>
+                    <span class="step-dot" data-step="3">3</span>
+                    <span class="step-line"></span>
+                    <span class="step-dot" data-step="4">4</span>
+                    <span class="step-line"></span>
+                    <span class="step-dot" data-step="5">5</span>
+                </div>
+
+                <div class="guide-step-panel active" data-step="1">
+                    <div class="guide-icon-box">📁</div>
+                    <h3>Paso 1: Cargar o Importar Datos</h3>
+                    <p>Comenzá incorporando entrevistas, documentos u observaciones al proyecto. Hacé clic en <strong>Importar Archivos</strong> (TXT, DOCX, PDF) o en <strong>Cargar Muestra</strong> para explorar datos de prueba precargados.</p>
+                    <div class="guide-tip-box">Tip: Podés guardar tu avance en cualquier momento con el botón <strong>Guardar Proyecto (.json)</strong>.</div>
+                </div>
+
+                <div class="guide-step-panel" data-step="2" style="display:none;">
+                    <div class="guide-icon-box">🏷️</div>
+                    <h3>Paso 2: Organizar el Libro de Códigos</h3>
+                    <p>En el panel izquierdo, creá las categorías y subcategorías temáticas de tu estudio. Asignales colores y redactá criterios de inclusión para mantener la rigurosidad analítica.</p>
+                    <div class="guide-tip-box">Tip: Las subcategorías permiten estructurar dimensiones específicas dentro de un tema general.</div>
+                </div>
+
+                <div class="guide-step-panel" data-step="3" style="display:none;">
+                    <div class="guide-icon-box">✍️</div>
+                    <h3>Paso 3: Seleccionar y Codificar Pasajes</h3>
+                    <p>Seleccioná cualquier fragmento de texto con el mouse en el lector central y elegí la categoría a vincular. También podés usar los atajos de teclado rápido <strong>Ctrl+1 al 9</strong>.</p>
+                    <div class="guide-tip-box">Tip: Los pasajes quedan resaltados en colores y podés desvincularlos en cualquier momento.</div>
+                </div>
+
+                <div class="guide-step-panel" data-step="4" style="display:none;">
+                    <div class="guide-icon-box">📝</div>
+                    <h3>Paso 4: Redactar Memos e Interpretar</h3>
+                    <p>Usá la solapa <strong>Decodificador</strong> en el panel derecho para agregar reflexiones e interpretaciones (memos) a cada cita codificada.</p>
+                    <div class="guide-tip-box">Tip: El memo es donde transformás la cita cruda en razonamiento analítico.</div>
+                </div>
+
+                <div class="guide-step-panel" data-step="5" style="display:none;">
+                    <div class="guide-icon-box">📊</div>
+                    <h3>Paso 5: Matriz Categorial y Exportaciones</h3>
+                    <p>Hacé clic en <strong>Matriz Categorial & Estadísticas</strong> para explorar coocurrencias, frecuencias y gráficos de red. Al finalizar, exportá tus resultados en PDF, Word (DOCX) o CSV.</p>
+                    <div class="guide-tip-box">Tip: El procesamiento es 100% local en tu equipo; tus datos nunca se transmiten a internet.</div>
+                </div>
+            </div>
+            <div class="modal-footer guide-footer">
+                <label class="guide-dont-show">
+                    <input type="checkbox" id="chk-guide-dont-show"> No volver a mostrar automáticamente al iniciar
+                </label>
+                <div class="guide-nav-buttons">
+                    <button id="btn-guide-skip" class="btn btn-outline guide-skip-btn">Saltar</button>
+                    <button id="btn-guide-prev" class="btn btn-secondary" style="display:none;">Anterior</button>
+                    <button id="btn-guide-next" class="btn btn-primary">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Application Script -->
     <script src="project-integrity.js"></script>
     <script src="analytics.js"></script>
+    <script src="pdf-loader.js"></script>
     <script src="public/vendor/pdf-lib.min.js"></script>
     <script src="public/vendor/fontkit.umd.min.js"></script>
     <script src="pdf-report.js"></script>

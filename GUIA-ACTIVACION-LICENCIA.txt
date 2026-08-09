@@ -1,0 +1,23 @@
+GUÍA DE ACTIVACIÓN — ANALIZADORCUALIUY PRO
+
+La activación se realiza una sola vez mediante un archivo de licencia enviado
+por el vendedor.
+
+1. Abra AnalizadorCualiUY Pro.
+2. En la ventana “Activar AnalizadorCualiUY Pro”, copie el código de dispositivo.
+3. Envíe ese código al vendedor. No envíe sus documentos ni proyectos.
+4. Reciba el archivo terminado en .acuy-license.
+5. Vuelva a la aplicación y pulse “Instalar archivo de licencia”.
+6. Seleccione el archivo .acuy-license recibido.
+7. Espere el mensaje “Licencia válida”.
+
+IMPORTANTE
+
+- No cambie el nombre ni edite el archivo de licencia.
+- La licencia puede estar vinculada a esta computadora.
+- Si cambia de computadora, contacte al vendedor antes de reinstalar.
+- Conserve el archivo recibido en un lugar seguro.
+- El vendedor nunca necesita recibir sus documentos de trabajo.
+
+Si la aplicación rechaza la licencia, contacte al vendedor e indique el
+mensaje mostrado. No intente modificar el archivo.

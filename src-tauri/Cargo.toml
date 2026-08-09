@@ -1,6 +1,6 @@
 [package]
 name = "analizador_cuali_uy_pro"
-version = "1.0.0"
+version = "1.0.4"
 description = "AnalizadorCualiUY Pro - Edición comercial de escritorio para análisis cualitativo local"
 authors = ["Prof. Esp. Santiago Hernández"]
 edition = "2021"
@@ -17,11 +17,12 @@ tauri = { version = "2.1", features = [] }
 tauri-plugin-dialog = "2.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+base64 = "0.22.1"
 csv = "1.3"
 pdf-extract = "0.12"
 quick-xml = "0.41"
 zip = { version = "2.4.2", default-features = false, features = ["deflate"] }
-windows-sys = { version = "0.61", features = ["Win32_Storage_FileSystem", "Win32_System_SystemInformation"] }
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security", "Win32_Security_Cryptography", "Win32_Storage_FileSystem", "Win32_System_JobObjects", "Win32_System_SystemInformation", "Win32_System_Threading"] }
 getrandom = "0.4.1"
 
 [profile.release]

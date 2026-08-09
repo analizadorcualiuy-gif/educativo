@@ -1,8 +1,10 @@
 node_modules/
 dist/
+dist-dev/
 dist-beta/
-release/
-internal-unsigned/
+dist-educativa/
+entregas-comerciales/
+compilaciones-internas/
 src-tauri/target/
 src-tauri/gen/
 license-admin/target/
@@ -22,3 +24,7 @@ AnalizadorCualiUY-Pro-Portable/
 *.license-key
 *.issuer-recovery
 license-admin/private-key*
+dev-secrets/
+VENTAS/SALIDAS/
+DEMOS/SALIDAS/
+DEMOS/PUBLICACION-GITHUB/

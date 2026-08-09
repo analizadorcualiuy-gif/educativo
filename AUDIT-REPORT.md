@@ -143,8 +143,15 @@ paquete Pro cualquier parser que no sea necesario.
 
 - **Severidad:** alta y bloqueante para venta.
 - **Afecta:** Beta y Pro.
-- **Evidencia:** 41 paquetes npm únicos y 294 dependencias Rust para Windows;
-  `THIRD_PARTY_NOTICES.txt` reconoce que su inventario inicial no está completo.
+- **Estado de remediación:** **CERRADO TÉCNICAMENTE.** El generador
+  `tools/generate-third-party-inventory.mjs` recorre el grafo Cargo bloqueado
+  para Windows, los paquetes npm de producción instalados y las fuentes
+  distribuidas. Produce un SBOM CycloneDX 1.5 con 337 componentes y un aviso
+  reproducible con 230 textos/atribuciones de licencia únicos.
+- **Evidencia:** `npm run legal:check` compara de forma determinista
+  `SBOM.cdx.json` y `THIRD_PARTY_NOTICES.txt` con `package-lock.json`,
+  `src-tauri/Cargo.lock` y los metadatos instalados; el release falla si falta
+  una expresión o un texto aplicable, o si los archivos quedan desactualizados.
 - **Impacto:** posible incumplimiento de avisos, reproducción de licencias y
   obligaciones de componentes incorporados.
 - **Cierre exigido:** SBOM reproducible, inventario por nombre/versión/licencia,
@@ -313,17 +320,16 @@ oficialmente soportado.
 
 ### AUD-018 — El proceso de release no aplica los gates de calidad
 
-**Estado de remediación:** **PARCIAL.** El script exige commit limpio, etiqueta
+**Estado de remediación:** **CERRADO TÉCNICAMENTE.** El script exige commit limpio, etiqueta
 comercial exacta, `npm ci`, pruebas, auditorías npm/RustSec para Windows, Cargo
 bloqueado, firma y directorio de salida con lista permitida. El canal sin firma
-queda rotulado `internal-unsigned`. Siguen faltando SBOM/licencias completos y
-un commit/tag base existente.
+queda rotulado `internal-unsigned`. También verifica el SBOM CycloneDX y los
+avisos completos antes de compilar y los incorpora a ambos paquetes.
 
-`build-release.ps1` no ejecuta `npm test`, `cargo test`, `npm audit` ni
-`cargo audit`; tampoco comprueba un commit/tag limpio, SBOM, avisos legales o
-QA del paquete. Sólo ejecuta `npm ci` cuando `node_modules` no existe, de modo
-que una carpeta instalada previamente puede no representar exactamente el
-lockfile. `tauri build` tampoco usa explícitamente `--locked`.
+`build-release.ps1` ejecuta `npm ci`, las suites JavaScript/Rust, `npm audit`,
+`cargo audit`, `npm run legal:check` y `tauri build -- --locked`; además exige
+commit limpio, etiqueta comercial exacta, firma/sello de tiempo válidos y una
+lista cerrada de archivos de entrega.
 
 Las pruebas de seguridad actuales son en gran parte aserciones sobre patrones
 de texto. Pueden aprobar aunque el flujo ejecutado sea incorrecto, como ocurre
@@ -332,7 +338,9 @@ con eliminación de categorías, jerarquías y el falso lector PDF.
 **Cierre:** pipeline fail-closed desde un checkout limpio, instalación bloqueada,
 pruebas de comportamiento, auditorías, inventario de licencias, build, firma y
 verificación del contenido final. `-AllowUnsigned` debe quedar reservado a un
-canal interno inequívoco que no produzca artefactos confundibles con releases.
+canal interno inequívoco: sus ejecutables/ZIP llevan `INTERNAL-UNSIGNED`, el
+portable y la entrega incluyen `INTERNAL-UNSIGNED-NO-DISTRIBUIR.txt`, y
+`VERSION.txt` repite la advertencia.
 
 ### AUD-019 — Presentación y aceptación de términos no demostrable
 
@@ -577,7 +585,8 @@ todos estos puntos:
       contradictoria con seguridad, ley o integridad de datos.
 - [ ] Suite funcional y de regresión aprobada.
 - [ ] `npm audit` y `cargo audit` sin vulnerabilidades aplicables.
-- [ ] SBOM y avisos de terceros generados desde los artefactos finales.
+- [x] SBOM y avisos de terceros generados desde el grafo bloqueado usado por el
+      artefacto Windows y verificados por el gate de release.
 - [ ] Beta probada en navegadores soportados sobre HTTPS real.
 - [ ] Instalador y ejecutable firmados y verificados.
 - [ ] Build reproducible desde un commit/tag limpio.
@@ -585,7 +594,7 @@ todos estos puntos:
       máquina Windows limpia.
 - [ ] Restauración de respaldo y manejo de archivos dañados comprobados.
 - [ ] Documentos legales y comerciales revisados para la modalidad real de venta.
-- [ ] Canal `santiherben@gmail.com` y procedimiento de privacidad/soporte
+- [ ] Canal `analizadorcualiuy@gmail.com` y procedimiento de privacidad/soporte
       operativos.
 
 ## Próximo ciclo recomendado

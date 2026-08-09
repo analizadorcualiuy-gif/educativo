@@ -175,7 +175,7 @@
                 const names = activeCategories.map(category => category.name || 'Categoría').join(' + ');
                 segments.push({ text: ` [Solapamiento: ${names}]`, color: '64748B', size: 16 });
             }
-            active.filter(coding => coding.endChar === segment.end && coding.memo).forEach(coding => {
+            active.filter(coding => options.includeMemos !== false && coding.endChar === segment.end && coding.memo).forEach(coding => {
                 const category = categories.get(coding.categoryId) || {};
                 segments.push({ text: ` [Memo ${category.name || 'Categoría'}: ${coding.memo}]`, color: '64748B', size: 16 });
             });
@@ -207,7 +207,7 @@
                 const source = documents.get(coding.docId);
                 body += paragraph(run(`Cita #${index + 1} | Archivo: ${source ? source.title : 'Documento'} | Caracteres ${coding.startChar}-${coding.endChar}`, { bold: true, color: '64748B', size: 17 }), null, { keepNext: true, spacingAfter: 60 });
                 body += textParagraphs(`“${coding.quoteText || ''}”`, { fill: category.color });
-                if (coding.memo) body += paragraph(run(`Decodificacion / memo: ${coding.memo}`, { italic: true, color: '334155', size: 19 }));
+                if (options.includeMemos !== false && coding.memo) body += paragraph(run(`Decodificacion / memo: ${coding.memo}`, { italic: true, color: '334155', size: 19 }));
             });
         });
         return blobFromBody(body, 'Pasajes clasificados por categoria');
@@ -251,15 +251,38 @@
                 `${(categoryMap.get(edge.sourceId) || {}).name || edge.sourceId} ↔ ${(categoryMap.get(edge.targetId) || {}).name || edge.targetId}`,
                 String(edge.count), `${(edge.jaccard * 100).toFixed(1)}%`, `${(edge.documentShare * 100).toFixed(1)}%`
             ])), [4320, 1440, 1800, 1800]);
+            const relationDiagnostics = analytics.diagnostics || {};
+            if (relationDiagnostics.pairScanTruncated) {
+                body += paragraph(run('Aviso: el barrido alcanzó su límite de seguridad; algunas relaciones y sus recuentos pueden ser parciales.', { bold: true, color: '64748B' }));
+            } else if (relationDiagnostics.pairRecordLimitReached) {
+                body += paragraph(run('Aviso: se omitieron relaciones adicionales por el límite de seguridad; las relaciones mostradas conservan sus recuentos completos.', { bold: true, color: '64748B' }));
+            }
+            if (relationDiagnostics.evidenceTruncated) {
+                body += paragraph(run(`Las muestras de evidencia por relación fueron acotadas; se omitieron ${relationDiagnostics.omittedEvidence || 0} evidencias sin alterar las métricas.`, { color: '64748B' }));
+            }
         }
         if (options.includeQuality !== false) {
             body += paragraph(run('5. Control de calidad', { bold: true }), 'Heading1');
+            const overlapDiagnostics = quality.overlapDiagnostics || {};
+            const overlapTotal = Number.isFinite(Number(overlapDiagnostics.totalDetected))
+                ? Number(overlapDiagnostics.totalDetected)
+                : (quality.overlaps || []).length;
+            const duplicateDiagnostics = quality.duplicateDiagnostics || {};
+            const duplicateTotal = Number.isFinite(Number(duplicateDiagnostics.totalDetected))
+                ? Number(duplicateDiagnostics.totalDetected)
+                : (quality.duplicates || []).length;
             body += table([
                 ['Control', 'Resultado'], ['Memos faltantes', String((quality.missingMemos || []).length)],
                 ['Categorías incompletas', String((quality.incompleteCategories || []).length)], ['Documentos sin codificar', String((quality.uncodedDocuments || []).length)],
-                ['Duplicados', String((quality.duplicates || []).length)], ['Solapamientos', String((quality.overlaps || []).length)],
+                ['Duplicados', String(duplicateTotal)], ['Solapamientos', String(overlapTotal)],
                 ['Codificación manual / automática', `${quality.manual || 0} / ${quality.automatic || 0}`]
             ], [6240, 3120]);
+            if (duplicateDiagnostics.truncated) {
+                body += paragraph(run(`Detalle acotado: se conservaron ${duplicateDiagnostics.returned || 0} de ${duplicateTotal} duplicados; el total informado sí es exacto.`, { color: '64748B' }));
+            }
+            if (overlapDiagnostics.truncated) {
+                body += paragraph(run(`Detalle acotado: se conservaron ${overlapDiagnostics.returned || 0} de ${overlapTotal} pares solapados; el total informado sí es exacto.`, { color: '64748B' }));
+            }
         }
         if (options.includeEvidence !== false) {
             body += paragraph(run('6. Evidencias y memos', { bold: true }), 'Heading1');

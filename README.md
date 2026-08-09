@@ -17,7 +17,7 @@ del modelo de licencia indicados en `COMMERCIALIZATION.md`.
 - Identificador Tauri: `uy.santiago.analizadorcuali.pro`
 - Paquete Node: `analizador-cuali-uy-pro`
 - Binario Rust: `analizador_cuali_uy_pro`
-- Datos instalados: `%APPDATA%\AnalizadorCualiUY-Pro`
+- Datos instalados: `%LOCALAPPDATA%\uy.santiago.analizadorcuali.pro`
 - Contrato: `EULA.txt`, mostrado por el instalador NSIS
 
 La edición original no se modifica y ambas pueden coexistir sin compartir el
@@ -34,6 +34,10 @@ npm test
 npx tauri dev
 ```
 
+El servidor de desarrollo genera una raíz pública separada (`dist-dev`) y sólo
+escucha en `127.0.0.1`. El build de Tauri siempre regenera `dist` mediante
+`npm run build:frontend`, por lo que no reutiliza recursos web obsoletos.
+
 ## Beta web de evaluación
 
 La fuente separada está en `web-beta` y la carpeta publicable se genera con:
@@ -42,21 +46,26 @@ La fuente separada está en `web-beta` y la carpeta publicable se genera con:
 .\build-beta.ps1
 ```
 
-El resultado queda en `dist-beta`. Esta edición limita el proyecto a 2
-documentos, 10.000 palabras y 4 categorías totales; conserva el análisis y el
+El resultado queda en `dist-beta`. Esta edición limita el proyecto a 1
+documento, 10.000 palabras y 4 categorías totales; conserva el análisis y el
 guardado local, y exporta únicamente a PDF. El build comprueba que el paquete
 público no conserve referencias a las exportaciones profesionales.
 
 ## Release comercial
 
 ```powershell
+$env:ACUY_CERTIFICATE_THUMBPRINT = "THUMBPRINT_SHA1_DEL_CERTIFICADO"
+$env:ACUY_TIMESTAMP_URL = "https://servidor-de-sello-de-tiempo.example"
 .\build-release.ps1
 ```
 
 El script crea un instalador, un ZIP portable con persistencia propia, los
 avisos legales y un archivo de hashes SHA-256. Un release comercial se detiene
-si el instalador no tiene una firma Authenticode válida. Para compilaciones
-internas sin certificado puede utilizarse `-AllowUnsigned` explícitamente.
+antes de compilar si no encuentra un certificado de firma de código vigente,
+su clave privada o una URL de sello de tiempo. Antes de publicar, verifica la
+firma, el certificado esperado y el sello temporal tanto del ejecutable como
+del instalador. Para compilaciones internas sin certificado puede utilizarse
+`-AllowUnsigned` explícitamente.
 
 No contiene cobros ni cuentas. La edición Pro utiliza activación offline con un
 archivo firmado Ed25519 y no consulta un servidor. La emisión, custodia de la
@@ -70,14 +79,26 @@ clave privada y recuperación se describen en `LICENSE-OPERATIONS.md`.
   descompresión.
 - Los proyectos se guardan fuera de `localStorage` mediante reemplazo atómico,
   sincronización y respaldo.
+- Al actualizar, los archivos administrados se copian una sola vez desde la
+  carpeta Roaming anterior a Local; el origen no se elimina ni se sobrescribe.
+- La recuperación evalúa el estado primario y sus copias como proyectos, no
+  sólo como JSON, y conserva intacto el candidato de respaldo validado.
+- El código de dispositivo existente se conserva para no romper licencias y se
+  protege con DPAPI de ámbito de equipo. Esto dificulta copiar la activación a
+  otro equipo, aunque no sustituye un servidor de activación frente a un
+  atacante con control local completo.
+- Un bloqueo de archivo mantenido durante todo el proceso impide dos instancias
+  simultáneas sobre el mismo estado.
 - La exportación CSV neutraliza prefijos interpretables como fórmulas.
 
 ## Documentación legal incluida
 
 - `EULA.txt`: contrato propuesto para usuario final.
 - `PRIVACY.md`: funcionamiento local y responsabilidades sobre datos.
-- `THIRD_PARTY_NOTICES.txt`: aviso inicial; requiere inventario transitivo antes
-  del lanzamiento.
+- `THIRD_PARTY_NOTICES.txt`: inventario reproducible y textos/atribuciones de
+  licencias para las dependencias alcanzables del build Windows.
+- `SBOM.cdx.json`: SBOM CycloneDX 1.5 generado desde los lockfiles y metadatos
+  instalados; `npm run legal:check` bloquea el release si queda desactualizado.
 - `SECURITY.md`: modelo de seguridad, límites y proceso de publicación.
 - `legal/REVIEW-CHECKLIST.md`: datos y decisiones pendientes de validación.
 

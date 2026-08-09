@@ -1,0 +1,8 @@
+VENTAS — USO PRIVADO DEL VENDEDOR
+
+1. ABRIR-PREPARAR-ENVIO.cmd prepara un ZIP con instalador y documentación.
+   No contiene licencia.
+2. ABRIR-EMITIR-LICENCIAS.cmd se usa después de recibir los códigos de
+   dispositivo. Emite y verifica una licencia Individual o tres de Equipo.
+
+Nunca envíe esta carpeta, sus scripts, sus salidas privadas ni la clave emisora.

@@ -119,8 +119,14 @@
         }
 
         const limits = projectLimits();
-        if (parsed.documents.length > limits.maxDocuments || parsed.categories.length > limits.maxCategories || parsed.codings.length > limits.maxCodings) {
-            throw new Error(`El proyecto supera los límites amplios de esta máquina (${limits.maxDocuments} documentos, ${limits.maxCategories} categorías o ${limits.maxCodings} codificaciones).`);
+        if (parsed.documents.length > limits.maxDocuments) {
+            throw new Error(`El estado guardado contiene ${parsed.documents.length} documentos y esta beta admite hasta ${limits.maxDocuments}.`);
+        }
+        if (parsed.categories.length > limits.maxCategories) {
+            throw new Error(`El estado guardado contiene ${parsed.categories.length} categorías y esta beta admite hasta ${limits.maxCategories}.`);
+        }
+        if (parsed.codings.length > limits.maxCodings) {
+            throw new Error(`El estado guardado contiene ${parsed.codings.length.toLocaleString('es-UY')} codificaciones y esta beta admite hasta ${limits.maxCodings.toLocaleString('es-UY')}.`);
         }
 
         let totalChars = 0;
@@ -351,6 +357,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         }
         renderDecoderList();
         setupNetworkCanvas();
+        document.getElementById('modal-pro-intro').style.display = 'flex';
     }
 
 
@@ -957,6 +964,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
     function setActiveDocument(docId) {
         state.activeDocId = docId;
         renderDocumentList();
+        renderDecoderList();
 
         const doc = state.documents.find(d => d.id === docId);
         const titleEl = document.getElementById('active-doc-title');
@@ -976,7 +984,8 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
 
         emptyState.style.display = 'none';
         textBody.style.display = 'block';
-        marginBar.style.display = 'flex';
+        // Mantiene las coincidencias como una lista vertical desplazable.
+        marginBar.style.display = 'block';
 
         titleEl.textContent = doc.title;
         document.getElementById('stat-words').textContent = `${doc.wordCount || countWords(doc.content)} palabras`;
@@ -1126,13 +1135,19 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         const catFilter = document.getElementById('decoder-filter-code').value;
         container.innerHTML = '';
 
-        let filtered = state.codings;
+        const activeDoc = state.documents.find(document => document.id === state.activeDocId);
+        const context = document.getElementById('decoder-document-context');
+        if (context) context.textContent = activeDoc ? `Documento actual: ${activeDoc.title}` : 'Selecciona un documento para ver sus pasajes.';
+
+                // Aunque la Beta admite pocos documentos, el panel debe acompañar
+        // siempre a la fuente abierta y no mezclar evidencias de otro archivo.
+        let filtered = state.codings.filter(coding => coding.docId === state.activeDocId);
         if (catFilter !== 'ALL') {
-            filtered = state.codings.filter(c => c.categoryId === catFilter);
+            filtered = filtered.filter(coding => coding.categoryId === catFilter);
         }
 
         if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state-sm">No hay decodificaciones registradas.</div>';
+            container.innerHTML = '<div class="empty-state-sm">No hay pasajes codificados para el documento seleccionado.</div>';
             return;
         }
 
@@ -1592,6 +1607,29 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         document.getElementById('modal-export-pdf').style.display = 'flex';
     }
 
+    function preflightBetaPdfExport(doc, categories, codings) {
+        const errors = [];
+        if (!doc) errors.push('No hay documento activo.');
+        if (!categories.length) errors.push('No hay categorías seleccionadas.');
+        const categoryIds = new Set(categories.map(category => category.id));
+        codings.forEach((coding, index) => {
+            if (coding.docId !== doc.id) errors.push(`El pasaje ${index + 1} pertenece a otro documento.`);
+            if (!categoryIds.has(coding.categoryId)) errors.push(`El pasaje ${index + 1} pertenece a una categoría no seleccionada.`);
+            try {
+                if (ProjectIntegrity.canonicalQuote(doc, coding) !== coding.quoteText) {
+                    errors.push(`El texto del pasaje ${index + 1} no coincide con su posición en el documento.`);
+                }
+            } catch (_) {
+                errors.push(`La posición del pasaje ${index + 1} no es válida.`);
+            }
+        });
+        if (errors.length) {
+            alert(`⛔ Exportación detenida.\n\n${errors.slice(0, 5).map(error => `• ${error}`).join('\n')}`);
+            return false;
+        }
+        return confirm(`✅ Verificación previa de PDF Beta\n${doc.title}\n${categories.length} categoría(s) · ${codings.length} pasaje(s) activo(s).\n\n¿Deseas continuar con la exportación?`);
+    }
+
     async function generateCodedDocumentPDF() {
         const checkboxes = document.querySelectorAll('.pdf-cat-checkbox:checked');
         const selectedCatIds = new Set(Array.from(checkboxes).map(cb => cb.value));
@@ -1601,16 +1639,19 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             return;
         }
 
-        document.getElementById('modal-export-pdf').style.display = 'none';
-
         const doc = state.documents.find(d => d.id === state.activeDocId);
-        if (!doc) return;
+        if (!doc) {
+            alert('Abre un documento antes de exportar.');
+            return;
+        }
 
         const docCodings = state.codings.filter(c => c.docId === doc.id && selectedCatIds.has(c.categoryId));
         const sortedCodings = [...docCodings].sort((a, b) => a.startChar - b.startChar);
+        const categories = state.categories.filter(category => selectedCatIds.has(category.id));
+        if (!preflightBetaPdfExport(doc, categories, sortedCodings)) return;
+        document.getElementById('modal-export-pdf').style.display = 'none';
 
         if (window.PdfReportExporter && window.AnalyticsEngine) {
-            const categories = state.categories.filter(category => selectedCatIds.has(category.id));
             const scoped = { documents: [doc], categories, codings: sortedCodings };
             const analytics = window.AnalyticsEngine.analyze(scoped, Object.assign({}, getAnalyticsOptions(), { documentId: '' }));
             const quality = window.AnalyticsEngine.quality(scoped);
@@ -2237,7 +2278,83 @@ ${bodyHtml}
     // 11. Event Listeners & Modals Control
     // ==========================================
 
+    function initOperationalGuideWizard() {
+        const modal = document.getElementById('modal-operational-guide');
+        const openBtn = document.getElementById('btn-open-guide');
+        if (!modal) return;
+
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        const dots = modal.querySelectorAll('.step-dot');
+        const panels = modal.querySelectorAll('.guide-step-panel');
+        const prevBtn = document.getElementById('btn-guide-prev');
+        const nextBtn = document.getElementById('btn-guide-next');
+        const dontShowChk = document.getElementById('chk-guide-dont-show');
+
+        function updateStepView(step) {
+            currentStep = step;
+            dots.forEach(dot => {
+                const stepNum = Number(dot.dataset.step);
+                dot.classList.toggle('active', stepNum === currentStep);
+            });
+            panels.forEach(panel => {
+                const stepNum = Number(panel.dataset.step);
+                panel.style.display = stepNum === currentStep ? 'block' : 'none';
+            });
+
+            if (prevBtn) prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
+            if (nextBtn) nextBtn.textContent = currentStep === totalSteps ? '¡Comenzar!' : 'Siguiente';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            if (dontShowChk && dontShowChk.checked) {
+                try { localStorage.setItem('ACUY_GUIDE_SEEN', 'true'); } catch (e) {}
+            }
+        }
+
+        function openModal() {
+            updateStepView(1);
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        if (openBtn) {
+            openBtn.onclick = openModal;
+        }
+
+        modal.querySelectorAll('.guide-skip-btn').forEach(btn => {
+            btn.onclick = closeModal;
+        });
+
+        if (prevBtn) {
+            prevBtn.onclick = () => {
+                if (currentStep > 1) updateStepView(currentStep - 1);
+            };
+        }
+
+        if (nextBtn) {
+            nextBtn.onclick = () => {
+                if (currentStep < totalSteps) {
+                    updateStepView(currentStep + 1);
+                } else {
+                    closeModal();
+                }
+            };
+        }
+
+        try {
+            const seen = localStorage.getItem('ACUY_GUIDE_SEEN');
+            if (!seen) {
+                setTimeout(openModal, 400);
+            }
+        } catch (e) {}
+    }
+
     function setupEventListeners() {
+        initOperationalGuideWizard();
         document.getElementById('btn-dismiss-banner').onclick = () => {
             document.getElementById('sample-notice-banner').style.display = 'none';
         };
@@ -2364,6 +2481,7 @@ ${bodyHtml}
 
         const btnImportFiles = document.getElementById('btn-import-files');
         const btnImportEmpty = document.getElementById('btn-import-empty');
+        const btnAddDocument = document.getElementById('btn-add-document');
         const openImportDialog = async () => {
             const invoke = getTauriInvoke();
             if (!invoke) {
@@ -2380,6 +2498,7 @@ ${bodyHtml}
         };
         if (btnImportFiles) btnImportFiles.onclick = openImportDialog;
         if (btnImportEmpty) btnImportEmpty.onclick = openImportDialog;
+        if (btnAddDocument) btnAddDocument.onclick = openImportDialog;
 
 
         document.getElementById('btn-open-matrix').onclick = () => {
@@ -2401,6 +2520,8 @@ ${bodyHtml}
             if (contactUrl) window.location.href = contactUrl;
             else alert('El canal de contacto para solicitar AnalizadorCualiUY Pro se configurará antes de publicar esta beta.');
         };
+        const introContactButton = document.getElementById('btn-intro-contact-pro');
+        if (introContactButton && contactButton) introContactButton.onclick = () => contactButton.click();
 
         document.getElementById('btn-clear-cat-filter').onclick = () => {
             state.activeCategoryId = null;
@@ -2615,6 +2736,7 @@ ${bodyHtml}
                 document.getElementById('modal-category').style.display = 'none';
                 document.getElementById('modal-memo').style.display = 'none';
                 document.getElementById('modal-credits').style.display = 'none';
+                document.getElementById('modal-pro-intro').style.display = 'none';
                 document.getElementById('modal-matrix').style.display = 'none';
                 document.getElementById('modal-export-pdf').style.display = 'none';
                 document.getElementById('modal-report-builder').style.display = 'none';

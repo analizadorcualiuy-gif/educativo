@@ -19,7 +19,8 @@ comercial debe elegirlas y expresarlas sin ambigüedad antes de cobrar.
 - Completar la revisión de `legal/REVIEW-CHECKLIST.md` con asesoramiento local.
 - Registrar y comprobar marca/nombre comercial y considerar el Registro de
   Software uruguayo.
-- Generar el inventario completo de dependencias y licencias transitivas.
+- Archivar `SBOM.cdx.json` y `THIRD_PARTY_NOTICES.txt`; el gate comercial los
+  regenera conceptualmente desde los lockfiles y rechaza versiones desactualizadas.
 - Firmar el instalador y el ejecutable con un certificado de firma de código.
 - Desactivar herramientas de desarrollo en producción (ya configurado).
 - Probar instalación, actualización, desinstalación y convivencia con la
@@ -31,11 +32,12 @@ comercial debe elegirlas y expresarlas sin ambigüedad antes de cobrar.
 
 ## Licenciamiento técnico
 
-Esta base no implementa claves ni activación. Para una primera venta manual de
-bajo volumen puede emitirse un Documento de Compra nominativo y entregar el
-instalador firmado. Si se agrega activación, conviene diseñar primero el modelo
-de amenazas, el funcionamiento sin conexión, la recuperación de equipos y la
-privacidad; la política deberá actualizarse antes de recopilar identificadores.
+La edición Pro implementa licencias offline firmadas con Ed25519 y ligadas a un
+identificador de equipo protegido con DPAPI. La clave privada sólo pertenece a
+la herramienta administrativa; la aplicación distribuye únicamente la clave
+pública. La operación, recuperación y rotación se documentan en
+`LICENSE-OPERATIONS.md`. Antes de vender deben definirse la métrica comercial,
+la recuperación de equipos y la política de privacidad aplicable.
 
 No conviene incorporar secretos permanentes, claves privadas ni credenciales de
 pago dentro del cliente de escritorio.

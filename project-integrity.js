@@ -127,24 +127,33 @@
             && coding.endChar > coding.startChar
             && coding.endChar <= text.length);
         const boundaries = new Set([0, text.length]);
-        valid.forEach(coding => {
+        const starts = new Map();
+        const ends = new Map();
+        valid.forEach((coding, codingIndex) => {
             boundaries.add(coding.startChar);
             boundaries.add(coding.endChar);
+            if (!starts.has(coding.startChar)) starts.set(coding.startChar, []);
+            if (!ends.has(coding.endChar)) ends.set(coding.endChar, []);
+            const entry = { coding, codingIndex };
+            starts.get(coding.startChar).push(entry);
+            ends.get(coding.endChar).push(entry);
         });
         const points = [...boundaries].sort((a, b) => a - b);
         const segments = [];
+        const active = new Map();
         for (let index = 0; index < points.length - 1; index++) {
             const start = points[index];
             const end = points[index + 1];
+            (ends.get(start) || []).forEach(entry => active.delete(entry.codingIndex));
+            (starts.get(start) || []).forEach(entry => active.set(entry.codingIndex, entry.coding));
             if (end <= start) continue;
-            const active = valid
-                .filter(coding => coding.startChar < end && coding.endChar > start)
+            const activeCodings = [...active.values()]
                 .sort((a, b) => a.startChar - b.startChar || a.endChar - b.endChar || String(a.id).localeCompare(String(b.id)));
             segments.push({
                 start,
                 end,
                 text: text.slice(start, end),
-                codingIds: active.map(coding => coding.id)
+                codingIds: activeCodings.map(coding => coding.id)
             });
         }
         return segments;

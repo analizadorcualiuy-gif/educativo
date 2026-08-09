@@ -1,0 +1,6 @@
+DEMOS — PREPARACIÓN DE LA BETA
+
+Ejecute ABRIR-PREPARAR-DEMO-BETA.cmd para crear un ZIP en DEMOS\SALIDAS.
+
+Para LinkedIn y redes, publique la carpeta Beta creada en un alojamiento web
+estático y comparta el enlace. No publique el proyecto Pro ni VENTAS.

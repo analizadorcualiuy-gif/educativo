@@ -67,6 +67,18 @@ test('creates a categorized-passages DOCX package', async () => {
     assert.match(raw, /Interpretacion/);
 });
 
+test('can exclude analytical memos from Word exports', async () => {
+    const blob = DocxExporter.createPassagesDocument({
+        categories: [{ id: 'cat-1', name: 'Categoria', code: 'CAT-01', color: '#3B82F6' }],
+        codings: [{ categoryId: 'cat-1', docId: 'doc-1', startChar: 0, endChar: 12, quoteText: 'Cita central', memo: 'Nota excluida' }],
+        documents: [{ id: 'doc-1', title: 'Entrevista.txt' }],
+        date: '2026-08-04',
+        includeMemos: false
+    });
+    const { raw } = await inspect(blob);
+    assert.doesNotMatch(raw, /Nota excluida/);
+});
+
 test('creates an analytical DOCX with fixed-width tables and report sections', async () => {
     const blob = DocxExporter.createAnalyticalReport({
         title: 'Informe analítico', author: 'Equipo', date: '2026-08-04', objective: 'Comprender el corpus', methodology: 'Codificación temática', conclusions: 'Conclusión.',
@@ -82,4 +94,28 @@ test('creates an analytical DOCX with fixed-width tables and report sections', a
     assert.match(raw, /<w:tblW w:w="9360" w:type="dxa"\/>/);
     assert.match(raw, /<w:tblLayout w:type="fixed"\/>/);
     assert.match(raw, /Conclusión/);
+});
+
+test('analytical DOCX reports exact overlap totals and bounded relation evidence', async () => {
+    const blob = DocxExporter.createAnalyticalReport({
+        title: 'Informe acotado', author: 'Equipo', date: '2026-08-08',
+        categories: [{ id: 'cat-1', name: 'Categoría', code: 'CAT-01', color: '#3B82F6' }],
+        documents: [{ id: 'doc-1', title: 'Entrevista.txt' }],
+        codings: [],
+        analytics: {
+            documents: [{ id: 'doc-1' }], totalWords: 100, options: { unit: 'overlap', metric: 'count' }, stats: [], edges: [],
+            diagnostics: { evidenceTruncated: true, omittedEvidence: 249900 }
+        },
+        quality: {
+            coverage: 0, missingMemos: [], incompleteCategories: [], uncodedDocuments: [], duplicates: [], overlaps: [], manual: 0, automatic: 0,
+            duplicateDiagnostics: { truncated: true, totalDetected: 2000, returned: 1000, omitted: 1000, limit: 1000 },
+            overlapDiagnostics: { truncated: true, totalDetected: 499500, returned: 1000, omitted: 498500, limit: 1000 }
+        }
+    });
+    const { raw } = await inspect(blob);
+    assert.match(raw, /<w:t xml:space="preserve">499500<\/w:t>/);
+    assert.match(raw, /<w:t xml:space="preserve">2000<\/w:t>/);
+    assert.match(raw, /se conservaron 1000 de 2000 duplicados/);
+    assert.match(raw, /se conservaron 1000 de 499500 pares solapados/);
+    assert.match(raw, /se omitieron 249900 evidencias sin alterar las métricas/);
 });

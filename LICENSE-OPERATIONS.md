@@ -49,6 +49,13 @@ Para vencimiento se usa `AAAA-MM-DD`. Usar `*` en vez del código sólo cuando l
 modalidad comercial autorice una licencia portable no ligada a instalación.
 Los archivos `.acuy-license` están excluidos de Git.
 
+Desde la versión 1.0.4, el código se conserva pero `device-id.txt` se protege
+con DPAPI de ámbito de equipo. Una instalación anterior migra el código en texto
+sin cambiarlo, de modo que las licencias emitidas siguen funcionando. Copiar la
+carpeta a otro equipo ya no basta para clonar una activación; no obstante, al ser
+un esquema totalmente offline, esto no reemplaza una activación de servidor
+frente a un atacante con control local completo.
+
 ## Verificar antes de enviar
 
 ```powershell

@@ -198,7 +198,7 @@
         text('Las asociaciones describen proximidad dentro del corpus y no implican causalidad. Deben interpretarse junto con las citas, los memos y la búsqueda de casos negativos.', 9);
 
         const evaluationTitle = 'VERSIÓN BETA — INFORME DE EVALUACIÓN';
-        const evaluationFooter = 'AnalizadorCualiUY Beta | Uso de evaluación';
+        const evaluationFooter = 'AnalizadorCualiUY Beta | Uso de evaluación | Desarrollador: S. Hernández';
         for (let index = 0; index < pages.length; index += 1) {
             const target = pages[index];
             if (options.evaluation) {

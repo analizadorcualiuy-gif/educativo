@@ -38,5 +38,5 @@ foreach ($term in $forbidden) {
     }
 }
 
-Copy-Item "$source\BETA-LICENSE.txt", "$source\THIRD_PARTY_NOTICES.txt", "$source\PRIVACY-BETA.html", "$source\_headers", "$source\README.md" -Destination $output -Force
+Copy-Item "$source\BETA-LICENSE.txt", "$source\THIRD_PARTY_NOTICES.txt", "$source\PRIVACY-BETA.html", "$source\_headers", "$source\README.md", "GUIA-PRUEBA-BETA-WINDOWS.txt" -Destination $output -Force
 Write-Host "Beta web generada en $output" -ForegroundColor Green

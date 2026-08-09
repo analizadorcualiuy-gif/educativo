@@ -1,20 +1,22 @@
 {
   "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-config-schema/schema.json",
   "productName": "AnalizadorCualiUY Pro",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "identifier": "uy.santiago.analizadorcuali.pro",
   "build": {
     "frontendDist": "../dist",
-    "devUrl": "http://localhost:1420"
+    "beforeDevCommand": "npm run dev:frontend",
+    "beforeBuildCommand": "npm run build:frontend",
+    "devUrl": "http://127.0.0.1:1420"
   },
   "app": {
     "withGlobalTauri": true,
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none';"
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost; worker-src 'self'; object-src 'none'; base-uri 'none'; frame-src 'none';"
     },
     "windows": [
       {
-        "title": "AnalizadorCualiUY Pro - Prof. Esp. Santiago Hernández",
+        "title": "AnalizadorCualiUY Pro",
         "width": 1280,
         "height": 800,
         "resizable": true,
@@ -42,6 +44,7 @@
       "timestampUrl": "",
       "nsis": {
         "installMode": "currentUser",
+        "startMenuFolder": "AnalizadorCualiUY Pro",
         "languages": ["Spanish"],
         "displayLanguageSelector": false
       }

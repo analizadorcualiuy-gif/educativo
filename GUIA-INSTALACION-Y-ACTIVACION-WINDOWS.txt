@@ -1,0 +1,75 @@
+GUÍA DE INSTALACIÓN Y ACTIVACIÓN
+ANALIZADORCUALIUY PRO PARA WINDOWS
+
+Esta guía acompaña al instalador de AnalizadorCualiUY Pro.
+
+¿QUÉ RECIBIRÁ?
+
+- El instalador de AnalizadorCualiUY Pro para Windows.
+- Esta guía.
+- Luego de la activación, un archivo de licencia con extensión
+  .acuy-license, vinculado a su equipo.
+
+COMPATIBILIDAD
+
+- Windows 10 de 64 bits, versión 1803 o posterior.
+- Windows 11 de 64 bits.
+- Por ahora no es compatible con macOS, Linux, Android ni iOS.
+
+INSTALAR EL PROGRAMA
+
+1. Ubique el archivo instalador recibido, por ejemplo:
+   AnalizadorCualiUY-Pro-Setup-1.0.4.exe
+2. Haga doble clic sobre el instalador.
+3. Lea y acepte el contrato de licencia.
+4. Siga los pasos que aparecen en pantalla.
+5. Al finalizar, abra AnalizadorCualiUY Pro desde el menú Inicio o desde el
+   acceso directo creado en el Escritorio.
+
+La instalación se realiza para el usuario actual de Windows y, normalmente,
+no requiere permisos de administrador.
+
+ACTIVAR LA LICENCIA
+
+La primera vez que abra el programa aparecerá la pantalla de activación.
+
+1. Copie el “Código de este dispositivo”.
+2. Envíe ese código por correo al vendedor, indicando el nombre del titular de
+   la licencia.
+3. Recibirá un archivo terminado en .acuy-license.
+4. Guarde ese archivo en una carpeta fácil de encontrar, por ejemplo
+   Documentos.
+5. Vuelva a AnalizadorCualiUY Pro y pulse “Instalar archivo de licencia”.
+6. Seleccione el archivo .acuy-license recibido.
+7. Cuando aparezca el mensaje “Licencia Pro válida”, la activación habrá
+   terminado. A partir de ese momento el programa abrirá directamente.
+
+IMPORTANTE SOBRE LA LICENCIA
+
+- No modifique ni cambie la extensión del archivo .acuy-license.
+- La licencia puede funcionar únicamente en el equipo cuyo código fue enviado.
+- Si adquirió Pro Equipo, cada integrante debe enviar el código de su propio
+  equipo y recibirá su archivo de licencia correspondiente.
+- Si cambia de computadora, contacte al vendedor antes de instalarla en el
+  nuevo equipo.
+- Conserve el archivo de licencia en un lugar seguro.
+
+PRIVACIDAD Y COPIAS DE RESPALDO
+
+Los documentos y proyectos se procesan localmente en su computadora. El
+vendedor no necesita recibir ni acceder a sus documentos de trabajo.
+
+Guarde periódicamente una copia de respaldo de sus proyectos mediante la
+opción “Guardar Proyecto”. Conserve esa copia en una ubicación segura, por
+ejemplo una carpeta respaldada de su equipo o unidad institucional.
+
+SI NECESITA AYUDA
+
+Al escribir al soporte, indique:
+
+- El paso en el que apareció el problema.
+- El mensaje exacto mostrado por la aplicación.
+- El tipo de Windows que utiliza, si lo conoce.
+
+No envíe sus documentos de análisis ni el contenido de su proyecto para
+resolver problemas de instalación o licencia.

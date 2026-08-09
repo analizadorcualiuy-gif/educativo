@@ -1,0 +1,163 @@
+GUION PARA VIDEO
+INSTALACIÓN, ACTIVACIÓN Y PRIMER RECORRIDO
+ANALIZADORCUALIUY PRO
+
+DURACIÓN SUGERIDA: 6 A 7 MINUTOS
+
+OBJETIVO
+
+Mostrar a una persona sin conocimientos informáticos cómo instalar y activar
+AnalizadorCualiUY Pro y cómo comenzar un proyecto. El video también presenta,
+de forma breve, las herramientas profesionales disponibles.
+
+PREPARACIÓN
+
+- Grabe en una cuenta de prueba de Windows.
+- No muestre códigos de dispositivo, licencias ni documentos personales reales.
+- Tenga preparados un instalador de prueba, una licencia de prueba y dos o
+  tres documentos ficticios.
+- Prepare una categoría ficticia y una plantilla de proyecto para el recorrido.
+
+ESCENA 1 — BIENVENIDA Y PRIVACIDAD (0:00 A 0:25)
+
+EN PANTALLA:
+Escritorio de Windows y el instalador.
+
+LOCUCIÓN:
+“En este video veremos cómo instalar, activar y comenzar a usar
+AnalizadorCualiUY Pro en Windows. El trabajo se realiza localmente en la
+computadora: el programa no necesita enviar los documentos de análisis a un
+servidor para funcionar. Recomendamos igualmente utilizar un equipo protegido
+cuando se trabaje con información sensible.”
+
+ESCENA 2 — INSTALACIÓN (0:25 A 1:05)
+
+EN PANTALLA:
+Hacer doble clic en el instalador y recorrer los pasos de instalación.
+
+LOCUCIÓN:
+“Ubicamos el instalador recibido y hacemos doble clic. Leemos y aceptamos el
+contrato de licencia, y seguimos las indicaciones de Windows. Al finalizar,
+podemos abrir AnalizadorCualiUY Pro desde el menú Inicio o desde el acceso
+directo creado en el Escritorio.”
+
+ESCENA 3 — CÓDIGO DEL DISPOSITIVO (1:05 A 1:40)
+
+EN PANTALLA:
+Abrir la aplicación. Mostrar la pantalla de activación con un código ficticio.
+Pulsar ‘Copiar código’.
+
+LOCUCIÓN:
+“En el primer inicio aparece esta pantalla. Copiamos el código de este
+dispositivo y lo enviamos por correo al vendedor junto con el nombre del
+titular de la licencia. Este código identifica la computadora, pero no contiene
+los documentos ni el contenido del proyecto.”
+
+ESCENA 4 — RECIBIR E INSTALAR LA LICENCIA (1:40 A 2:20)
+
+EN PANTALLA:
+Mostrar un correo ficticio con el archivo .acuy-license. Guardar el archivo.
+Volver a la aplicación, pulsar ‘Instalar archivo de licencia’ y seleccionarlo.
+
+LOCUCIÓN:
+“Luego recibimos un archivo de licencia terminado en .acuy-license. Lo
+guardamos en una carpeta fácil de encontrar. En la aplicación elegimos
+‘Instalar archivo de licencia’, seleccionamos ese archivo y esperamos el
+mensaje de licencia válida. La activación se realiza una sola vez en este
+equipo; luego el programa abrirá directamente.”
+
+ESCENA 5 — PROYECTO Y DOCUMENTOS (2:20 A 3:00)
+
+EN PANTALLA:
+Aplicación abierta. Mostrar ‘Importar Documentos’, incorporar dos documentos
+ficticios y mostrar ‘Guardar Proyecto’.
+
+LOCUCIÓN:
+“Pro permite incorporar varios documentos al mismo proyecto en formato TXT,
+DOCX o PDF. El botón más, en la sección Documentos, permite sumar archivos
+durante el trabajo. Conviene guardar periódicamente el proyecto como copia de
+respaldo.”
+
+ESCENA 6 — FICHA Y GRUPOS DE DOCUMENTOS (3:00 A 3:30)
+
+EN PANTALLA:
+Seleccionar un documento, pulsar ‘Ficha’ y completar Grupo, Caso, Período y
+Notas. Mostrar después el filtro Grupo del panel de análisis.
+
+LOCUCIÓN:
+“Cada documento puede tener una ficha de contexto. Aquí registramos el grupo,
+el caso o participante, el período y notas relevantes. Después podemos filtrar
+los análisis, gráficos y controles de calidad por grupo, sin modificar el texto
+original.”
+
+ESCENA 7 — CATEGORÍAS, CRITERIOS Y PESO DE EVIDENCIA (3:30 A 4:15)
+
+EN PANTALLA:
+Crear o editar una categoría. Mostrar descripción, criterio metodológico y
+palabras clave. Codificar un pasaje y elegir un peso de evidencia en el panel
+derecho.
+
+LOCUCIÓN:
+“Las categorías y subcategorías son editables. Además de su nombre y palabras
+clave, podemos documentar una descripción y un criterio metodológico para dejar
+claro cuándo corresponde aplicar una categoría. Al codificar un pasaje podemos
+asignar un peso de evidencia bajo, medio o alto. Ese peso aparece en la matriz
+y en las exportaciones, sin reemplazar el recuento normal de ocurrencias.”
+
+ESCENA 8 — REVISAR COINCIDENCIAS Y MATRIZ (4:15 A 4:55)
+
+EN PANTALLA:
+Mostrar coincidencias en el margen. Desestimar una con la cruz. Abrir ‘Matriz
+Categorial & Estadísticas’ y mostrar la evidencia ponderada.
+
+LOCUCIÓN:
+“Las coincidencias automáticas siempre se pueden revisar. Si una no corresponde,
+pulsamos la cruz para desestimarla. Desaparece del lector, la barra lateral,
+las métricas y los gráficos. En la matriz vemos ocurrencias, evidencia
+ponderada, pasajes y relaciones entre categorías.”
+
+ESCENA 9 — HERRAMIENTAS PROFESIONALES (4:55 A 5:50)
+
+EN PANTALLA:
+Dentro de la matriz, mostrar los botones ‘Matriz de síntesis’, ‘Consultas’,
+‘Libro de códigos’ y ‘Registro metodológico’. Mostrar también ‘Plantillas de
+proyecto’ en la barra superior.
+
+LOCUCIÓN:
+“La Matriz de síntesis permite redactar una interpretación para cada cruce
+entre documento y categoría. Las Consultas permiten buscar pasajes donde dos
+categorías aparecen juntas, donde una aparece sin otra o donde se encuentran
+cerca en el texto. El Libro de códigos exporta definiciones y criterios de las
+categorías. El Registro metodológico documenta las principales acciones de
+análisis. También hay plantillas editables para entrevistas, análisis documental
+o curricular y observación de aula o campo.”
+
+ESCENA 10 — EXPORTAR RESULTADOS (5:50 A 6:20)
+
+EN PANTALLA:
+Mostrar las opciones de PDF, Word y CSV y el diálogo para elegir la carpeta de
+guardado.
+
+LOCUCIÓN:
+“Pro permite exportar documentos codificados, pasajes, matrices, síntesis,
+libro de códigos, registro metodológico e informes en PDF, Word y CSV según la
+opción elegida. En cada exportación seleccionamos la carpeta y el nombre del
+archivo antes de guardarlo.”
+
+ESCENA 11 — PLAN EQUIPO Y SOPORTE (6:20 A 6:45)
+
+EN PANTALLA:
+Pantalla de activación, sin mostrar datos reales.
+
+LOCUCIÓN:
+“Si adquirió Pro Equipo, cada integrante instala el programa en su propia
+computadora y envía su propio código de dispositivo. Recibirá un archivo de
+licencia para ese equipo. Si cambia de computadora o aparece un error, contacte
+al soporte indicando el mensaje mostrado. No es necesario enviar documentos de
+análisis.”
+
+CIERRE EN PANTALLA
+
+AnalizadorCualiUY Pro
+Licencia de pago único · procesamiento local
+Gracias por utilizar la aplicación.

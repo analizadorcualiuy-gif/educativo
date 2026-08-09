@@ -5,7 +5,7 @@ no requiere servidor, base de datos ni cuenta de usuario.
 
 ## Límites
 
-- 2 documentos por proyecto.
+- 1 documento por proyecto.
 - 10.000 palabras totales.
 - 4 categorías en total, incluidas las subcategorías.
 - Guardado y apertura de proyectos JSON.
@@ -24,7 +24,7 @@ Las copias vendorizadas se comparan por SHA-256 con las dependencias fijadas en
 ## Contacto
 
 El botón para solicitar la versión completa abre un mensaje dirigido a
-`santiherben@gmail.com`, con asunto y texto inicial preparados. Si cambia el
+`analizadorcualiuy@gmail.com`, con asunto y texto inicial preparados. Si cambia el
 canal comercial, actualice `data-contact-url` en `index.html`.
 
 Genere la carpeta publicable desde el directorio Pro:

@@ -97,7 +97,7 @@ fn protect(secret: &[u8]) -> Result<Vec<u8>, String> {
         Foundation::LocalFree,
         Security::Cryptography::{CryptProtectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB},
     };
-    let mut input = CRYPT_INTEGER_BLOB {
+    let input = CRYPT_INTEGER_BLOB {
         cbData: secret.len() as u32,
         pbData: secret.as_ptr() as *mut u8,
     };
@@ -107,7 +107,7 @@ fn protect(secret: &[u8]) -> Result<Vec<u8>, String> {
     };
     let ok = unsafe {
         CryptProtectData(
-            &mut input,
+            &input,
             std::ptr::null(),
             std::ptr::null(),
             std::ptr::null_mut(),
@@ -138,7 +138,7 @@ fn unprotect(encrypted: &[u8]) -> Result<Vec<u8>, String> {
             CryptUnprotectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB,
         },
     };
-    let mut input = CRYPT_INTEGER_BLOB {
+    let input = CRYPT_INTEGER_BLOB {
         cbData: encrypted.len() as u32,
         pbData: encrypted.as_ptr() as *mut u8,
     };
@@ -148,7 +148,7 @@ fn unprotect(encrypted: &[u8]) -> Result<Vec<u8>, String> {
     };
     let ok = unsafe {
         CryptUnprotectData(
-            &mut input,
+            &input,
             std::ptr::null_mut(),
             std::ptr::null(),
             std::ptr::null_mut(),
@@ -306,6 +306,13 @@ fn run() -> Result<(), String> {
     }
 }
 
+fn main() {
+    if let Err(error) = run() {
+        eprintln!("{error}");
+        std::process::exit(1);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -319,12 +326,5 @@ mod tests {
             secret
         );
         assert!(decrypt_recovery(&encrypted, "contraseña totalmente incorrecta").is_err());
-    }
-}
-
-fn main() {
-    if let Err(error) = run() {
-        eprintln!("{error}");
-        std::process::exit(1);
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "analizador-cuali-uy-pro",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "AnalizadorCualiUY Pro - Edición comercial de escritorio para análisis cualitativo local y confidencial",
   "author": "Prof. Esp. Santiago Hernández",
   "license": "SEE LICENSE IN EULA.txt",
@@ -8,8 +8,12 @@
   "type": "module",
   "scripts": {
     "dev": "tauri dev",
-    "build": "tauri build",
+    "dev:frontend": "powershell -NoProfile -ExecutionPolicy Bypass -File ./serve-dev.ps1",
+    "build:frontend": "powershell -NoProfile -ExecutionPolicy Bypass -File ./build-frontend.ps1 -OutputDirectory dist -Minify",
+    "build": "tauri build -- --locked",
     "minify": "terser app.js -o app.min.js --compress --mangle",
+    "legal:generate": "node tools/generate-third-party-inventory.mjs",
+    "legal:check": "node tools/generate-third-party-inventory.mjs --check",
     "test": "node --test tests/*.test.mjs"
   },
   "devDependencies": {

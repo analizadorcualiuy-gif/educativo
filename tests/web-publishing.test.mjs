@@ -13,6 +13,12 @@ test('beta publishes privacy and terms links without absolute confidentiality cl
     assert.doesNotMatch(betaHtml, /100% Local & Confidencial/i);
 });
 
+test('beta makes the Pro contact route prominent and keeps its long notice usable', () => {
+    assert.match(betaHtml, /Hola%20departamento%20de%20ventas%20de%20AnalizadorCualiUY/);
+    assert.match(betaHtml, /class="btn-banner-action beta-contact-cta">Actualizar a Pro</);
+    assert.match(betaHtml, /class="modal-body modal-pro-intro-body"/);
+});
+
 test('beta hosting policy denies framing, sniffing and outbound connections', () => {
     assert.match(headers, /frame-ancestors 'none'/);
     assert.match(headers, /X-Content-Type-Options: nosniff/);
