@@ -2997,7 +2997,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             <html lang="es">
             <head>
                 <meta charset="UTF-8">
-                <title>Reporte Ejecutivo Cualitativo - AnalizadorCualiUY Pro</title>
+                <title>Reporte ejecutivo cualitativo - AnalizadorCualiUY Pro</title>
                 <style>
                     body { font-family: 'Segoe UI', Roboto, sans-serif; padding: 2rem; color: #0f172a; line-height: 1.5; }
                     .header-title { font-size: 1.6rem; margin-bottom: 0.2rem; }
@@ -3008,7 +3008,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             </head>
             <body>
                 <button class="btn-print" onclick="window.print()" style="float:right; padding:0.5rem 1rem; background:#3b82f6; color:#fff; border:none; border-radius:4px; cursor:pointer;">🖨️ Imprimir / Guardar en PDF</button>
-                <h1 class="header-title">Reporte Ejecutivo de Análisis Cualitativo</h1>
+                <h1 class="header-title">Reporte ejecutivo de análisis cualitativo</h1>
                 <div class="meta-info">
                     <strong>AnalizadorCualiUY Pro</strong><br>
                     Fecha de emisión: ${new Date().toLocaleDateString('es-UY')}
@@ -3020,7 +3020,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                     <div><strong>Pasajes Codificados Totales:</strong> ${totalCodings}</div>
                 </div>
 
-                <h2>Matriz Categorial y Evidencias Decodificadas</h2>
+                <h2>Matriz categorial y evidencias decodificadas</h2>
                 ${rowsHtml.join('')}
             </body>
             </html>
@@ -3350,6 +3350,301 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             csvRows.push(`"${escapeCsv(category.code || '')}","${escapeCsv(category.name)}","${escapeCsv(parent ? parent.name : 'Categoría principal')}","${escapeCsv(category.description || '')}","${escapeCsv(category.criteria || '')}","${escapeCsv((category.keywords || []).join(', '))}","${safeColor(category.color)}","${stat.count}","${stat.weightedCount || 0}"\n`);
         });
         universalSaveFile(new Blob(csvRows, { type: 'text/csv;charset=utf-8;' }), `AnalizadorCualiUY_Pro_LibroDeCodigos_${new Date().toISOString().slice(0, 10)}.csv`);
+    }
+
+    let pendingCodebookImportItems = null;
+
+    function generateSampleCodebookCSV() {
+        const csvContent = 'Código,Categoría,Jerarquía,Descripción,Criterios metodológicos,Términos,Color\n' +
+            '"CAT-TD","Transformación Digital","","Uso de tecnologías y automatización","Excluir soporte técnico básico","tecnología, digital, software, sistemas","#3b82f6"\n' +
+            '"SUB-AUT","Automatización de Procesos","Transformación Digital","Optimización y automatización de flujos","","automatización, procesos, bots","#60a5fa"\n' +
+            '"CAT-LID","Liderazgo & Gestión","","Estilos de dirección y motivación de equipos","","liderazgo, equipo, gestión, comunicación","#10b981"\n' +
+            '"CAT-DES","Desafíos & Barreras","","Dificultades y resistencia al cambio","","resistencia, obstáculos, dificultad, problemas","#ef4444"\n';
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        universalSaveFile(blob, 'AnalizadorCualiUY_Plantilla_Libro_Categorias.csv');
+    }
+
+    function parseCodebookCSV(csvText) {
+        if (!csvText || !csvText.trim()) throw new Error('El archivo CSV está vacío.');
+
+        const firstLine = csvText.split(/\r?\n/)[0] || '';
+        const commaCount = (firstLine.match(/,/g) || []).length;
+        const semiCount = (firstLine.match(/;/g) || []).length;
+        const delimiter = semiCount > commaCount ? ';' : ',';
+
+        function parseCSVLines(text, delim) {
+            const rows = [];
+            let currentRow = [];
+            let currentField = '';
+            let insideQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const nextChar = text[i + 1];
+                if (insideQuotes) {
+                    if (char === '"' && nextChar === '"') {
+                        currentField += '"';
+                        i++;
+                    } else if (char === '"') {
+                        insideQuotes = false;
+                    } else {
+                        currentField += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        insideQuotes = true;
+                    } else if (char === delim) {
+                        currentRow.push(currentField.trim());
+                        currentField = '';
+                    } else if (char === '\r' && nextChar === '\n') {
+                        currentRow.push(currentField.trim());
+                        rows.push(currentRow);
+                        currentRow = [];
+                        currentField = '';
+                        i++;
+                    } else if (char === '\n' || char === '\r') {
+                        currentRow.push(currentField.trim());
+                        rows.push(currentRow);
+                        currentRow = [];
+                        currentField = '';
+                    } else {
+                        currentField += char;
+                    }
+                }
+            }
+            if (currentField || currentRow.length) {
+                currentRow.push(currentField.trim());
+                rows.push(currentRow);
+            }
+            return rows.filter(row => row.length > 0 && row.some(cell => cell.length > 0));
+        }
+
+        const rows = parseCSVLines(csvText, delimiter);
+        if (rows.length < 2) throw new Error('El archivo CSV debe incluir una fila de encabezados y al menos una categoría.');
+
+        const normalizeHeader = str => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+        const headers = rows[0].map(h => normalizeHeader(h));
+
+        let codeIdx = headers.findIndex(h => h.includes('codigo') || h.includes('code') || h.includes('etiqueta'));
+        let nameIdx = headers.findIndex(h => h.includes('categoria') || h.includes('nombre') || h.includes('name') || h.includes('subcategoria'));
+        let parentIdx = headers.findIndex(h => h.includes('jerarquia') || h.includes('padre') || h.includes('parent') || h.includes('superior'));
+        let descIdx = headers.findIndex(h => h.includes('descripcion') || h.includes('desc') || h.includes('inclusio'));
+        let criteriaIdx = headers.findIndex(h => h.includes('criterio') || h.includes('exclusio') || h.includes('limite'));
+        let keywordsIdx = headers.findIndex(h => h.includes('termino') || h.includes('palabra') || h.includes('keyword') || h.includes('busqueda'));
+        let colorIdx = headers.findIndex(h => h.includes('color'));
+
+        if (nameIdx === -1) {
+            nameIdx = headers.length > 1 ? 1 : 0;
+        }
+
+        const items = [];
+        for (let r = 1; r < rows.length; r++) {
+            const row = rows[r];
+            const rawName = (nameIdx !== -1 && row[nameIdx] ? row[nameIdx] : (row[0] || '')).trim();
+            if (!rawName) continue;
+
+            const rawCode = (codeIdx !== -1 && row[codeIdx] ? row[codeIdx] : '').trim();
+            const rawParent = (parentIdx !== -1 && row[parentIdx] ? row[parentIdx] : '').trim();
+            const rawDesc = (descIdx !== -1 && row[descIdx] ? row[descIdx] : '').trim();
+            const rawCriteria = (criteriaIdx !== -1 && row[criteriaIdx] ? row[criteriaIdx] : '').trim();
+            const rawKeywords = (keywordsIdx !== -1 && row[keywordsIdx] ? row[keywordsIdx] : '').trim();
+            const rawColor = (colorIdx !== -1 && row[colorIdx] ? row[colorIdx] : '').trim();
+
+            const keywords = rawKeywords ? rawKeywords.split(/[,;]/).map(k => k.trim()).filter(Boolean) : [];
+
+            items.push({
+                code: rawCode,
+                name: rawName,
+                rawParent: rawParent,
+                description: rawDesc,
+                criteria: rawCriteria,
+                keywords: keywords,
+                color: rawColor
+            });
+        }
+
+        if (items.length === 0) throw new Error('No se encontraron filas con nombres de categoría válidos.');
+        return items;
+    }
+
+    function openImportCodebookModal() {
+        pendingCodebookImportItems = null;
+        const fileInput = document.getElementById('codebook-csv-file-input');
+        if (fileInput) fileInput.value = '';
+        const previewBox = document.getElementById('codebook-csv-preview-box');
+        if (previewBox) {
+            previewBox.style.display = 'none';
+            previewBox.innerHTML = '';
+        }
+        const btnProcess = document.getElementById('btn-process-import-codebook');
+        if (btnProcess) btnProcess.disabled = true;
+        document.getElementById('modal-import-codebook').style.display = 'flex';
+    }
+
+    function handleCodebookFileSelection(file) {
+        const previewBox = document.getElementById('codebook-csv-preview-box');
+        const btnProcess = document.getElementById('btn-process-import-codebook');
+        if (!file) {
+            pendingCodebookImportItems = null;
+            if (previewBox) previewBox.style.display = 'none';
+            if (btnProcess) btnProcess.disabled = true;
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const text = e.target.result;
+                const items = parseCodebookCSV(text);
+                pendingCodebookImportItems = items;
+
+                if (previewBox) {
+                    previewBox.style.display = 'block';
+                    previewBox.innerHTML = `
+                        <div style="color:var(--accent-primary, #10b981); font-weight:600; margin-bottom:0.4rem;">
+                            ✅ Se leyeron ${items.length} categoría(s) / subcategoría(s) válidas.
+                        </div>
+                        <ul style="margin:0; padding-left:1.2rem; max-height:120px; overflow-y:auto; color:var(--text-secondary);">
+                            ${items.slice(0, 5).map(it => `<li><strong>${escapeHtml(it.code || 'Auto')}</strong>: ${escapeHtml(it.name)}${it.rawParent ? ` <em>(Padre: ${escapeHtml(it.rawParent)})</em>` : ''}</li>`).join('')}
+                            ${items.length > 5 ? `<li><em>...y ${items.length - 5} categoría(s) más.</em></li>` : ''}
+                        </ul>
+                    `;
+                }
+                if (btnProcess) btnProcess.disabled = false;
+            } catch (err) {
+                pendingCodebookImportItems = null;
+                if (previewBox) {
+                    previewBox.style.display = 'block';
+                    previewBox.innerHTML = `<div style="color:#ef4444; font-weight:600;">❌ Error al leer el archivo: ${escapeHtml(err.message || err)}</div>`;
+                }
+                if (btnProcess) btnProcess.disabled = true;
+            }
+        };
+        reader.onerror = () => {
+            alert('No se pudo leer el archivo seleccionado.');
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
+
+    function processCodebookImport() {
+        if (!pendingCodebookImportItems || pendingCodebookImportItems.length === 0) return;
+
+        const modeRadios = document.getElementsByName('import-codebook-mode');
+        let mode = 'merge';
+        for (const r of modeRadios) {
+            if (r.checked) mode = r.value;
+        }
+
+        if (mode === 'replace' && state.categories.length > 0) {
+            if (!confirm(`⚠️ ¿Deseas reemplazar las ${state.categories.length} categorías actuales? Esta acción desvinculará las codificaciones existentes de las categorías eliminadas.`)) {
+                return;
+            }
+        }
+
+        const defaultColors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6'];
+        let colorIdx = 0;
+
+        const baseCategories = mode === 'replace' ? [] : [...state.categories];
+        const existingCodes = new Set(baseCategories.map(c => (c.code || '').toUpperCase()));
+
+        const lookupMap = new Map();
+        baseCategories.forEach(c => {
+            if (c.code) lookupMap.set(c.code.toUpperCase(), c.id);
+            lookupMap.set(c.name.toLowerCase(), c.id);
+        });
+
+        const newCategories = [];
+        const itemsToResolveParent = [];
+
+        for (let i = 0; i < pendingCodebookImportItems.length; i++) {
+            const item = pendingCodebookImportItems[i];
+            let name = item.name;
+            if (!name) continue;
+
+            let code = item.code;
+            if (!code) {
+                code = generateSuggestedCode(name, null);
+            }
+
+            let uniqueCode = code;
+            let counter = 1;
+            while (existingCodes.has(uniqueCode.toUpperCase())) {
+                uniqueCode = `${code}-${counter++}`;
+            }
+            existingCodes.add(uniqueCode.toUpperCase());
+
+            const newId = `cat-import-${Date.now()}-${i + 1}`;
+            const color = safeColor(item.color) || defaultColors[colorIdx % defaultColors.length];
+            colorIdx++;
+
+            const newCat = {
+                id: newId,
+                parentId: null,
+                code: uniqueCode,
+                name: name,
+                color: color,
+                keywords: Array.isArray(item.keywords) ? item.keywords : [],
+                description: item.description || '',
+                criteria: item.criteria || ''
+            };
+
+            newCategories.push(newCat);
+            lookupMap.set(uniqueCode.toUpperCase(), newId);
+            lookupMap.set(name.toLowerCase(), newId);
+
+            if (item.rawParent) {
+                itemsToResolveParent.push({ cat: newCat, rawParent: item.rawParent });
+            }
+        }
+
+        for (const ref of itemsToResolveParent) {
+            const parentKey = ref.rawParent.trim();
+            const parentId = lookupMap.get(parentKey.toUpperCase()) || lookupMap.get(parentKey.toLowerCase());
+            if (parentId && parentId !== ref.cat.id) {
+                ref.cat.parentId = parentId;
+            }
+        }
+
+        const proposedCategories = [...baseCategories, ...newCategories];
+
+        try {
+            ProjectIntegrity.validateHierarchy(proposedCategories);
+            if (typeof validateProjectObject === 'function') {
+                const candidatePayload = createProjectPayload({ categories: proposedCategories });
+                validateProjectObject(candidatePayload);
+            }
+        } catch (error) {
+            alert(`No se pudo importar el libro de categorías: ${error.message || error}`);
+            return;
+        }
+
+        state.categories = proposedCategories;
+        if (mode === 'replace') {
+            state.codings = [];
+            state.activeCategoryId = state.categories.length > 0 ? state.categories[0].id : null;
+        }
+
+        recordAudit('Importación CSV/Excel', `Se incorporaron ${newCategories.length} categorías al libro de códigos`);
+        saveToStorage();
+
+        let totalAuto = 0;
+        if (state.documents && state.documents.length > 0 && newCategories.length > 0) {
+            if (typeof autoCodeBatch === 'function') {
+                const autoRes = autoCodeBatch(state.documents, newCategories, 'importación CSV');
+                totalAuto = autoRes.addedCount;
+            } else if (typeof autoCodeCategoryInDocument === 'function') {
+                state.documents.forEach(doc => {
+                    newCategories.forEach(cat => {
+                        totalAuto += autoCodeCategoryInDocument(doc.id, cat.id);
+                    });
+                });
+            }
+        }
+
+        renderCodebookList();
+        if (typeof updateQualitativeCharts === 'function') updateQualitativeCharts();
+        document.getElementById('modal-import-codebook').style.display = 'none';
+
+        alert(`✨ ¡Importación exitosa!\n\nSe incorporaron ${newCategories.length} categoría(s) / subcategoría(s) al proyecto.${totalAuto > 0 ? `\nSe identificaron ${totalAuto} pasaje(s) automáticos por palabras clave.` : ''}`);
     }
 
     function exportAuditLogCSV() {
@@ -4781,6 +5076,23 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         };
 
         document.getElementById('btn-add-category').onclick = () => openCategoryModal();
+        const btnImportCodebookCsv = document.getElementById('btn-import-codebook-csv');
+        if (btnImportCodebookCsv) btnImportCodebookCsv.onclick = openImportCodebookModal;
+
+        const btnDownloadTemplate = document.getElementById('btn-download-codebook-template');
+        if (btnDownloadTemplate) btnDownloadTemplate.onclick = generateSampleCodebookCSV;
+
+        const codebookFileInput = document.getElementById('codebook-csv-file-input');
+        if (codebookFileInput) {
+            codebookFileInput.onchange = (e) => {
+                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                handleCodebookFileSelection(file);
+            };
+        }
+
+        const btnProcessImport = document.getElementById('btn-process-import-codebook');
+        if (btnProcessImport) btnProcessImport.onclick = processCodebookImport;
+
         document.getElementById('btn-edit-document-profile').onclick = openDocumentProfileModal;
         document.getElementById('btn-save-document-profile').onclick = saveDocumentProfile;
         document.querySelectorAll('.modal-close, .modal-cancel').forEach(btn => {
@@ -4797,6 +5109,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 document.getElementById('modal-summary-matrix').style.display = 'none';
                 document.getElementById('modal-advanced-query').style.display = 'none';
                 document.getElementById('modal-project-templates').style.display = 'none';
+                document.getElementById('modal-import-codebook').style.display = 'none';
                 memoEditingCodingId = null;
             };
         });
@@ -4982,7 +5295,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
     function openCategoryModal(existingCat = null) {
         populateParentCategorySelect(existingCat ? existingCat.id : null);
         if (existingCat) {
-            document.getElementById('modal-cat-title').textContent = 'Editar Categoría / Subcategoría';
+            document.getElementById('modal-cat-title').textContent = 'Editar categoría / subcategoría';
             document.getElementById('edit-cat-id').value = existingCat.id;
             document.getElementById('cat-name').value = existingCat.name;
             document.getElementById('cat-code').value = existingCat.code || generateSuggestedCode(existingCat.name, existingCat.parentId);
@@ -4992,7 +5305,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             document.getElementById('cat-parent-select').value = existingCat.parentId || 'NONE';
             document.getElementById('cat-color').value = existingCat.color || '#3b82f6';
         } else {
-            document.getElementById('modal-cat-title').textContent = 'Nueva Categoría / Subcategoría';
+            document.getElementById('modal-cat-title').textContent = 'Nueva categoría / subcategoría';
             document.getElementById('edit-cat-id').value = '';
             document.getElementById('cat-name').value = '';
             document.getElementById('cat-code').value = '';

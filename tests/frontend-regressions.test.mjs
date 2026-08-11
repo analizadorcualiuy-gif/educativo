@@ -27,6 +27,7 @@ function loadFrontendHarness() {
             autoCodeCategoryInDocument,
             validateDocxArchiveSafety,
             revalidateLicense,
+            parseCodebookCSV,
             countWords,
             sampleDocuments: SAMPLE_DOCUMENTS,
             sampleCodings: SAMPLE_CODINGS,
@@ -312,4 +313,37 @@ test('frontend recovery and destructive-load guards remain wired', () => {
     assert.match(appSource, /MAX_DOCX_ENTRIES = 2048/);
     assert.match(appSource, /failClosedLicenseRevalidation\(\{ message: `No se pudo revalidar la licencia:/);
     assert.match(appSource, /initOperationalGuideWizard/);
+    assert.match(appSource, /modal-import-codebook/);
 });
+
+test('codebook CSV parser extracts categories, subcategories, keywords and handles comma/semicolon delimiters', () => {
+    const { hooks } = loadFrontendHarness();
+
+    const csvComma = 'Código,Categoría,Jerarquía,Descripción,Criterios,Términos,Color\n' +
+        '"CAT-A","Categoría A","","Descripción A","Criterio A","termino1, termino2","#ef4444"\n' +
+        '"SUB-B","Subcategoría B","CAT-A","Descripción B","","termino3","#3b82f6"\n';
+
+    const itemsComma = hooks.parseCodebookCSV(csvComma);
+    assert.equal(itemsComma.length, 2);
+    assert.equal(itemsComma[0].code, 'CAT-A');
+    assert.equal(itemsComma[0].name, 'Categoría A');
+    assert.equal(itemsComma[0].rawParent, '');
+    assert.deepEqual(Array.from(itemsComma[0].keywords), ['termino1', 'termino2']);
+
+    assert.equal(itemsComma[1].code, 'SUB-B');
+    assert.equal(itemsComma[1].name, 'Subcategoría B');
+    assert.equal(itemsComma[1].rawParent, 'CAT-A');
+    assert.deepEqual(Array.from(itemsComma[1].keywords), ['termino3']);
+
+    const csvSemicolon = 'Código;Categoría;Jerarquía;Descripción;Criterios;Términos;Color\n' +
+        '"CAT-C";"Categoría C";"";"Desc C";"Crit C";"palabra1, palabra2";"#10b981"\n';
+
+    const itemsSemi = hooks.parseCodebookCSV(csvSemicolon);
+    assert.equal(itemsSemi.length, 1);
+    assert.equal(itemsSemi[0].code, 'CAT-C');
+    assert.equal(itemsSemi[0].name, 'Categoría C');
+    assert.deepEqual(Array.from(itemsSemi[0].keywords), ['palabra1', 'palabra2']);
+
+    assert.throws(() => hooks.parseCodebookCSV(''), /El archivo CSV está vacío/);
+});
+

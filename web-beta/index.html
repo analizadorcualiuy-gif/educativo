@@ -130,8 +130,8 @@
 
             <div class="divider-vertical"></div>
 
-            <button id="btn-open-matrix" class="btn btn-primary" title="Ver Matriz Categorial completa, frecuencias y porcentajes">
-                📊 Matriz Categorial & Estadísticas
+            <button id="btn-open-matrix" class="btn btn-primary" title="Ver matriz categorial completa, frecuencias y porcentajes">
+                📊 Matriz categorial y estadísticas
             </button>
 
             <button id="btn-save-project" class="btn btn-outline" title="Guardar todo el proyecto como archivo JSON local">
@@ -237,6 +237,13 @@
                         <button id="btn-auto-code-all" class="btn-action-text" title="🔍 Buscar e identificar todas las ocurrencias en el texto activo">
                             🔍 Buscar Todo
                         </button>
+                        <button id="btn-import-codebook-csv" class="btn-icon-small" title="📥 Importar libro de categorías desde dispositivo (CSV/Excel)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </button>
                         <button id="btn-add-category" class="btn-icon-small" title="Crear Categoría o Subcategoría">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <line x1="12" y1="5" x2="12" y2="19"/>
@@ -336,7 +343,7 @@
             <!-- Application Footer with Credits -->
             <footer class="app-footer">
                 <span>AnalizadorCualiUY Beta • Evaluación local gratuita</span>
-                <span>Matriz Categorial & Gráficos Cualitativos • 100% Local</span>
+                <span>Matriz categorial y gráficos cualitativos • 100% local</span>
             </footer>
         </section>
 
@@ -376,7 +383,7 @@
             <!-- Tab Content 1: Meaning Decoder & Memos -->
             <div id="tab-decoders" class="tab-content active">
                 <div class="tab-header">
-                    <h3>Pasajes y Decodificación de Significados</h3>
+                    <h3>Pasajes y decodificación de significados</h3>
                     <small id="decoder-document-context" style="display:block; margin:0.2rem 0 0.45rem; color:var(--text-muted);"></small>
                     <div class="filter-row">
                         <select id="decoder-filter-code" class="select-sm">
@@ -392,7 +399,7 @@
             <!-- Tab Content 2: Visual Concept Network & Qualitative Charts -->
             <div id="tab-network" class="tab-content">
                 <div class="tab-header">
-                    <h3>Visualización Cualitativa de Datos</h3>
+                    <h3>Visualización cualitativa de datos</h3>
                     
                     <!-- Graph View Selector (Grafo, Heatmap, Barras Proporcionales) -->
                     <div class="chart-type-selector">
@@ -495,7 +502,7 @@
             <!-- Tab Content 3: Multi-Document Search Engine -->
             <div id="tab-search" class="tab-content">
                 <div class="tab-header">
-                    <h3>Búsqueda Global Multi-Archivo</h3>
+                    <h3>Búsqueda global multiarchivo</h3>
                     <div class="global-search-bar">
                         <input type="text" id="global-search-input" placeholder="Buscar término o frase en todos los archivos...">
                         <button id="btn-exec-search" class="btn btn-primary btn-sm">Buscar</button>
@@ -519,8 +526,8 @@
             <!-- Category buttons injected dynamically -->
         </div>
         <div class="toolbar-footer">
-            <button id="btn-quick-new-code" class="btn-text">+ Nueva Categoría</button>
-            <button id="btn-add-memo-quick" class="btn-text-primary">+ Añadir Nota / Decodificación</button>
+            <button id="btn-quick-new-code" class="btn-text">+ Nueva categoría</button>
+            <button id="btn-add-memo-quick" class="btn-text-primary">+ Añadir nota / decodificación</button>
         </div>
     </div>
 
@@ -528,23 +535,23 @@
     <div id="modal-matrix" class="modal-backdrop" style="display:none;">
         <div class="modal-card" style="width: 860px; max-width: 95vw;">
             <div class="modal-header">
-                <h3>📊 Matriz Categorial & Ponderación de Ocurrencias</h3>
+                <h3>📊 Matriz categorial y ponderación de ocurrencias</h3>
                 <button class="modal-close" id="modal-matrix-close">&times;</button>
             </div>
             <div class="modal-body" style="gap:1rem; max-height:75vh; overflow-y:auto;">
                 
                 <!-- Frequency & Percentage Statistics Table -->
                 <div class="matrix-section">
-                    <h4 style="font-size:0.95rem; color:var(--accent-primary); margin-bottom:0.5rem;">Ponderación y Frecuencia por Dimensión / Categoría</h4>
+                    <h4 style="font-size:0.95rem; color:var(--accent-primary); margin-bottom:0.5rem;">Ponderación y frecuencia por dimensión / categoría</h4>
                     <table class="stats-table" id="stats-frequency-table">
                         <thead>
                             <tr>
                                 <th>Código</th>
-                                <th>Categoría / Subcategoría</th>
-                                <th>Términos / Palabras Clave</th>
+                                <th>Categoría / subcategoría</th>
+                                <th>Términos / palabras clave</th>
                                 <th>Ocurrencias</th>
                                 <th>Ponderación (%)</th>
-                                <th>Distribución Visual</th>
+                                <th>Distribución visual</th>
                             </tr>
                         </thead>
                         <tbody id="stats-table-body">
@@ -555,7 +562,7 @@
 
                 <!-- Categorical Matrix per Fragment -->
                 <div class="matrix-section">
-                    <h4 style="font-size:0.95rem; color:var(--accent-primary); margin-bottom:0.5rem;">Matriz Categorial de Fragmentos Coincidentes</h4>
+                    <h4 style="font-size:0.95rem; color:var(--accent-primary); margin-bottom:0.5rem;">Matriz categorial de fragmentos coincidentes</h4>
                     <div id="matrix-fragments-container" class="cards-container">
                         <!-- Injected categorised fragments -->
                     </div>
@@ -606,7 +613,7 @@
     <div id="modal-export-pdf" class="modal-backdrop" style="display:none;">
         <div class="modal-card" style="width: 500px;">
             <div class="modal-header">
-                <h3>🖨️ Exportar Documento Codificado a PDF</h3>
+                <h3>🖨️ Exportar documento codificado a PDF</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body" style="gap:0.75rem;">
@@ -617,7 +624,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary modal-cancel">Cancelar</button>
-                <button id="btn-confirm-pdf-export" class="btn btn-primary">📄 Generar PDF del Documento</button>
+                <button id="btn-confirm-pdf-export" class="btn btn-primary">📄 Generar PDF del documento</button>
             </div>
         </div>
     </div>
@@ -626,7 +633,7 @@
     <div id="modal-student-assignment" class="modal-backdrop" style="display:none; z-index:9600;">
         <div class="modal-card" style="width: 520px;">
             <div class="modal-header">
-                <h3>🎓 Exportar Ficha de Trabajo Práctico (PDF)</h3>
+                <h3>🎓 Exportar ficha de trabajo práctico (PDF)</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body" style="gap:0.85rem;">
@@ -681,39 +688,105 @@
         </div>
     </div>
 
+    <!-- Modal: Import Codebook from CSV/Excel -->
+    <div id="modal-import-codebook" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 720px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>📥 Importar libro de categorías (CSV / Excel)</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="background:var(--bg-tertiary, #f8fafc); border:1px solid var(--border-color, #e2e8f0); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+                    <h4 style="font-size:0.92rem; color:var(--accent-primary, #2563eb); margin:0 0 0.5rem 0; display:flex; align-items:center; gap:0.4rem;">
+                        <span>📄</span> Instructivo: ¿Cómo preparar tu archivo Excel o CSV?
+                    </h4>
+                    <ol style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text-secondary, #475569);">
+                        <li style="margin-bottom:0.3rem;">
+                            Creá una planilla en Excel o Calc con los siguientes <strong>encabezados en la primera fila</strong>:
+                            <div style="margin:0.4rem 0; padding:0.4rem 0.6rem; background:var(--bg-primary, #ffffff); border:1px dashed var(--border-color, #cbd5e1); border-radius:4px; font-family:monospace; font-size:0.8rem; color:var(--text-primary, #0f172a); overflow-x:auto;">
+                                Código,Categoría,Jerarquía,Descripción,Criterios,Términos,Color
+                            </div>
+                        </li>
+                        <li style="margin-bottom:0.3rem;">
+                            <strong>Jerarquía (Opcional):</strong> Para crear subcategorías, escribí en la columna <em>Jerarquía</em> el código o nombre de la categoría principal padre.
+                        </li>
+                        <li style="margin-bottom:0.3rem;">
+                            <strong>Términos (Opcional):</strong> Separá con comas las palabras clave que el sistema usará para buscar automáticamente pasajes en tus textos.
+                        </li>
+                        <li style="margin-bottom:0.3rem;">
+                            <strong>Guardar desde Excel:</strong> Seleccioná <em>Archivo &gt; Guardar como</em> y elegí el tipo <strong>CSV (delimitado por comas) (*.csv)</strong> o CSV UTF-8.
+                        </li>
+                    </ol>
+                    <div style="margin-top:0.75rem; text-align:right;">
+                        <button id="btn-download-codebook-template" type="button" class="btn btn-outline btn-sm">
+                            📄 Descargar plantilla de ejemplo (CSV/Excel)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label style="font-weight:600;">Modo de importación:</label>
+                    <div style="display:flex; gap:1.25rem; margin-top:0.35rem; font-size:0.88rem;">
+                        <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="import-codebook-mode" value="merge" checked>
+                            <span><strong>Añadir</strong> a las categorías actuales (conserva las existentes)</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="import-codebook-mode" value="replace">
+                            <span><strong>Reemplazar</strong> el libro de categorías actual</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="codebook-csv-file-input" style="font-weight:600;">Seleccionar archivo CSV o Excel exportado (.csv):</label>
+                    <input type="file" id="codebook-csv-file-input" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" class="select-full" style="padding:0.4rem;">
+                </div>
+
+                <div id="codebook-csv-preview-box" style="display:none; margin-top:1rem; padding:0.75rem; background:var(--bg-tertiary, #f8fafc); border-radius:6px; border:1px solid var(--border-color, #e2e8f0); font-size:0.84rem;">
+                    <!-- Preview summary populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-process-import-codebook" class="btn btn-primary" disabled>📥 Importar categorías</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Add/Edit Category / Subcategory -->
     <div id="modal-category" class="modal-backdrop" style="display:none;">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 id="modal-cat-title">Nueva Categoría / Subcategoría</h3>
+                <h3 id="modal-cat-title">Nueva categoría / subcategoría</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="edit-cat-id" value="">
                 
                 <div class="form-group">
-                    <label for="cat-parent-select">Categoría Padre (Jerarquía):</label>
+                    <label for="cat-parent-select">Categoría padre (jerarquía):</label>
                     <select id="cat-parent-select" class="select-full">
-                        <option value="NONE">Ninguna (Categoría Principal)</option>
+                        <option value="NONE">Ninguna (categoría principal)</option>
                     </select>
-                    <span class="hint-text">Si seleccionas una Categoría Padre, esta subcategoría heredará automáticamente una escala de color combinada.</span>
+                    <span class="hint-text">Si seleccionas una categoría padre, esta subcategoría heredará automáticamente una escala de color combinada.</span>
                 </div>
                 <div class="form-group">
-                    <label for="cat-name">Nombre de la Categoría / Subcategoría:</label>
+                    <label for="cat-name">Nombre de la categoría / subcategoría:</label>
                     <input type="text" id="cat-name" placeholder="Ej: Informática">
                 </div>
                 <div class="form-group">
-                    <label for="cat-code">Código Sugerido (Alfanumérico / Etiqueta):</label>
+                    <label for="cat-code">Código sugerido (alfanumérico / etiqueta):</label>
                     <input type="text" id="cat-code" placeholder="Ej: CAT-INF o SUBCAT-01">
                     <span class="hint-text">Código corto para la matriz y reportes. Se genera automáticamente si se deja vacío.</span>
                 </div>
                 <div class="form-group">
-                    <label for="cat-keywords">Términos o Variaciones de Búsqueda (Opcional - separados por comas):</label>
+                    <label for="cat-keywords">Términos o variaciones de búsqueda (opcional, separados por comas):</label>
                     <input type="text" id="cat-keywords" placeholder="Ej: informática, computación, software, sistemas">
                     <span class="hint-text">El nombre de la categoría y su código se usarán automáticamente como términos de búsqueda.</span>
                 </div>
                 <div class="form-group">
-                    <label for="cat-color">Color Identificador (Paleta):</label>
+                    <label for="cat-color">Color identificador (paleta):</label>
                     <div class="color-picker-row">
                         <input type="color" id="cat-color" value="#3b82f6">
                         <div class="color-presets">
@@ -728,13 +801,13 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="cat-desc">Descripción / Criterio de Inclusión (Opcional):</label>
+                    <label for="cat-desc">Descripción / criterio de inclusión (opcional):</label>
                     <textarea id="cat-desc" rows="2" placeholder="Describe qué tipo de pasajes pertenecen a esta categoría..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary modal-cancel">Cancelar</button>
-                <button id="btn-save-category" class="btn btn-primary">🔍 Guardar y Buscar Ocurrencias en el Texto</button>
+                <button id="btn-save-category" class="btn btn-primary">🔍 Guardar y buscar ocurrencias en el texto</button>
             </div>
         </div>
     </div>
@@ -743,26 +816,26 @@
     <div id="modal-memo" class="modal-backdrop" style="display:none;">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>Decodificar Significado / Nota Analítica</h3>
+                <h3>Decodificar significado / nota analítica</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="quote-preview">
-                    <strong>Pasaje Seleccionado:</strong>
+                    <strong>Pasaje seleccionado:</strong>
                     <blockquote id="memo-quote-text">""</blockquote>
                 </div>
                 <div class="form-group">
-                    <label for="memo-category-select">Categoría Principal:</label>
+                    <label for="memo-category-select">Categoría principal:</label>
                     <select id="memo-category-select" class="select-full"></select>
                 </div>
                 <div class="form-group">
-                    <label for="memo-text">Significado Decodificado / Interpretación Cualitativa:</label>
+                    <label for="memo-text">Significado decodificado / interpretación cualitativa:</label>
                     <textarea id="memo-text" rows="4" placeholder="Escribe aquí tu interpretación del significado profundo, contexto, emoción o intención de este pasaje..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary modal-cancel">Cancelar</button>
-                <button id="btn-save-memo" class="btn btn-primary">Guardar Decodificación</button>
+                <button id="btn-save-memo" class="btn btn-primary">Guardar decodificación</button>
             </div>
         </div>
     </div>
@@ -773,7 +846,7 @@
             <div class="modal-header">
                 <div>
                     <span class="guide-badge">Inducción Operativa</span>
-                    <h2 id="guide-title" style="margin:0;">Cómo Funciona AnalizadorCualiUY</h2>
+                    <h2 id="guide-title" style="margin:0;">Cómo funciona AnalizadorCualiUY</h2>
                 </div>
                 <button class="modal-close guide-skip-btn" aria-label="Cerrar guía">&times;</button>
             </div>
@@ -792,36 +865,36 @@
 
                 <div class="guide-step-panel active" data-step="1">
                     <div class="guide-icon-box">📁</div>
-                    <h3>Paso 1: Cargar o Importar Datos</h3>
-                    <p>Comenzá incorporando entrevistas, documentos u observaciones al proyecto. Hacé clic en <strong>Importar Archivos</strong> (TXT, DOCX, PDF) o en <strong>Cargar Muestra</strong> para explorar datos de prueba precargados.</p>
-                    <div class="guide-tip-box">Tip: Podés guardar tu avance en cualquier momento con el botón <strong>Guardar Proyecto (.json)</strong>.</div>
+                    <h3>Paso 1: Cargar o importar datos</h3>
+                    <p>Comenzá incorporando entrevistas, documentos u observaciones al proyecto. Hacé clic en <strong>Importar archivos</strong> (TXT, DOCX, PDF) o en <strong>Cargar muestra</strong> para explorar datos de prueba precargados.</p>
+                    <div class="guide-tip-box">Tip: Podés guardar tu avance en cualquier momento con el botón <strong>Guardar proyecto (.json)</strong>.</div>
                 </div>
 
                 <div class="guide-step-panel" data-step="2" style="display:none;">
                     <div class="guide-icon-box">🏷️</div>
-                    <h3>Paso 2: Organizar el Libro de Códigos</h3>
+                    <h3>Paso 2: Organizar el libro de códigos</h3>
                     <p>En el panel izquierdo, creá las categorías y subcategorías temáticas de tu estudio. Asignales colores y redactá criterios de inclusión para mantener la rigurosidad analítica.</p>
                     <div class="guide-tip-box">Tip: Las subcategorías permiten estructurar dimensiones específicas dentro de un tema general.</div>
                 </div>
 
                 <div class="guide-step-panel" data-step="3" style="display:none;">
                     <div class="guide-icon-box">✍️</div>
-                    <h3>Paso 3: Seleccionar y Codificar Pasajes</h3>
+                    <h3>Paso 3: Seleccionar y codificar pasajes</h3>
                     <p>Seleccioná cualquier fragmento de texto con el mouse en el lector central y elegí la categoría a vincular. También podés usar los atajos de teclado rápido <strong>Ctrl+1 al 9</strong>.</p>
                     <div class="guide-tip-box">Tip: Los pasajes quedan resaltados en colores y podés desvincularlos en cualquier momento.</div>
                 </div>
 
                 <div class="guide-step-panel" data-step="4" style="display:none;">
                     <div class="guide-icon-box">📝</div>
-                    <h3>Paso 4: Redactar Memos e Interpretar</h3>
+                    <h3>Paso 4: Redactar memos e interpretar</h3>
                     <p>Usá la solapa <strong>Decodificador</strong> en el panel derecho para agregar reflexiones e interpretaciones (memos) a cada cita codificada.</p>
                     <div class="guide-tip-box">Tip: El memo es donde transformás la cita cruda en razonamiento analítico.</div>
                 </div>
 
                 <div class="guide-step-panel" data-step="5" style="display:none;">
                     <div class="guide-icon-box">📊</div>
-                    <h3>Paso 5: Matriz Categorial y Exportaciones</h3>
-                    <p>Hacé clic en <strong>Matriz Categorial & Estadísticas</strong> para explorar coocurrencias, frecuencias y gráficos de red. Al finalizar, exportá tus resultados en PDF.</p>
+                    <h3>Paso 5: Matriz categorial y exportaciones</h3>
+                    <p>Hacé clic en <strong>Matriz categorial y estadísticas</strong> para explorar coocurrencias, frecuencias y gráficos de red. Al finalizar, exportá tus resultados en PDF.</p>
                     <div class="guide-tip-box">Tip: El procesamiento es 100% local en tu equipo; tus datos nunca se transmiten a internet.</div>
                 </div>
             </div>
