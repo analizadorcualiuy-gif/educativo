@@ -3309,7 +3309,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             }
         });
 
-        const blob = new Blob(csvRows, { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(['\uFEFF', ...csvRows], { type: 'text/csv;charset=utf-8;' });
         universalSaveFile(blob, `AnalizadorCualiUY_Pro_MatrizCategorial_${new Date().toISOString().slice(0, 10)}.csv`);
     }
 
@@ -3349,7 +3349,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             const stat = analytics.statsMap.get(category.id) || { count: 0, weightedCount: 0 };
             csvRows.push(`"${escapeCsv(category.code || '')}","${escapeCsv(category.name)}","${escapeCsv(parent ? parent.name : 'Categoría principal')}","${escapeCsv(category.description || '')}","${escapeCsv(category.criteria || '')}","${escapeCsv((category.keywords || []).join(', '))}","${safeColor(category.color)}","${stat.count}","${stat.weightedCount || 0}"\n`);
         });
-        universalSaveFile(new Blob(csvRows, { type: 'text/csv;charset=utf-8;' }), `AnalizadorCualiUY_Pro_LibroDeCodigos_${new Date().toISOString().slice(0, 10)}.csv`);
+        universalSaveFile(new Blob(['\uFEFF', ...csvRows], { type: 'text/csv;charset=utf-8;' }), `AnalizadorCualiUY_Pro_LibroDeCodigos_${new Date().toISOString().slice(0, 10)}.csv`);
     }
 
     let pendingCodebookImportItems = null;
@@ -3360,12 +3360,13 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             '"SUB-AUT","Automatización de Procesos","Transformación Digital","Optimización y automatización de flujos","","automatización, procesos, bots","#60a5fa"\n' +
             '"CAT-LID","Liderazgo & Gestión","","Estilos de dirección y motivación de equipos","","liderazgo, equipo, gestión, comunicación","#10b981"\n' +
             '"CAT-DES","Desafíos & Barreras","","Dificultades y resistencia al cambio","","resistencia, obstáculos, dificultad, problemas","#ef4444"\n';
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
         universalSaveFile(blob, 'AnalizadorCualiUY_Plantilla_Libro_Categorias.csv');
     }
 
     function parseCodebookCSV(csvText) {
         if (!csvText || !csvText.trim()) throw new Error('El archivo CSV está vacío.');
+        csvText = csvText.replace(/^\uFEFF/, '');
 
         const firstLine = csvText.split(/\r?\n/)[0] || '';
         const commaCount = (firstLine.match(/,/g) || []).length;
@@ -3653,7 +3654,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         state.auditLog.forEach(entry => {
             csvRows.push(`"${new Date(entry.timestamp).toLocaleString('es-UY')}","${escapeCsv(entry.action)}","${escapeCsv(entry.detail)}"\n`);
         });
-        universalSaveFile(new Blob(csvRows, { type: 'text/csv;charset=utf-8;' }), `AnalizadorCualiUY_Pro_RegistroMetodologico_${new Date().toISOString().slice(0, 10)}.csv`);
+        universalSaveFile(new Blob(['\uFEFF', ...csvRows], { type: 'text/csv;charset=utf-8;' }), `AnalizadorCualiUY_Pro_RegistroMetodologico_${new Date().toISOString().slice(0, 10)}.csv`);
     }
 
     function summaryFor(docId, categoryId) {
@@ -3802,7 +3803,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             const count = evidenceCounts.get(key) || 0;
             csvRows.push(`"${escapeCsv(doc.title)}","${escapeCsv((doc.profile || {}).group || '')}","${escapeCsv(category.name)}","${escapeCsv(category.code || '')}","${escapeCsv(summary ? summary.text : '')}","${count}"\n`);
         }));
-        universalSaveFile(new Blob(csvRows, { type: 'text/csv;charset=utf-8;' }), `AnalizadorCualiUY_Pro_MatrizSintesis_${new Date().toISOString().slice(0, 10)}.csv`);
+        universalSaveFile(new Blob(['\uFEFF', ...csvRows], { type: 'text/csv;charset=utf-8;' }), `AnalizadorCualiUY_Pro_MatrizSintesis_${new Date().toISOString().slice(0, 10)}.csv`);
     }
 
     function paragraphKeyFromSpans(spans, coding) {

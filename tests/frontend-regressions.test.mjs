@@ -319,7 +319,7 @@ test('frontend recovery and destructive-load guards remain wired', () => {
 test('codebook CSV parser extracts categories, subcategories, keywords and handles comma/semicolon delimiters', () => {
     const { hooks } = loadFrontendHarness();
 
-    const csvComma = 'Código,Categoría,Jerarquía,Descripción,Criterios,Términos,Color\n' +
+    const csvComma = '\uFEFF' + 'Código,Categoría,Jerarquía,Descripción,Criterios,Términos,Color\n' +
         '"CAT-A","Categoría A","","Descripción A","Criterio A","termino1, termino2","#ef4444"\n' +
         '"SUB-B","Subcategoría B","CAT-A","Descripción B","","termino3","#3b82f6"\n';
 

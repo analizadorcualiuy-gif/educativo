@@ -1763,12 +1763,13 @@ ${bodyHtml}
             '"SUB-AUT","Automatización de Procesos","Transformación Digital","Optimización y automatización de flujos","","automatización, procesos, bots","#60a5fa"\n' +
             '"CAT-LID","Liderazgo & Gestión","","Estilos de dirección y motivación de equipos","","liderazgo, equipo, gestión, comunicación","#10b981"\n' +
             '"CAT-DES","Desafíos & Barreras","","Dificultades y resistencia al cambio","","resistencia, obstáculos, dificultad, problemas","#ef4444"\n';
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
         universalSaveFile(blob, 'AnalizadorCualiUY_Plantilla_Libro_Categorias.csv');
     }
 
     function parseCodebookCSV(csvText) {
         if (!csvText || !csvText.trim()) throw new Error('El archivo CSV está vacío.');
+        csvText = csvText.replace(/^\uFEFF/, '');
 
         const firstLine = csvText.split(/\r?\n/)[0] || '';
         const commaCount = (firstLine.match(/,/g) || []).length;
@@ -2167,7 +2168,7 @@ ${bodyHtml}
             }
         });
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         universalSaveFile(blob, `AnalizadorCualiUY_Beta_MatrizCategorial_${new Date().toISOString().slice(0, 10)}.csv`);
     }
 
