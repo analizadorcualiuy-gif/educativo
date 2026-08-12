@@ -114,6 +114,23 @@
         return typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value) ? value.toLowerCase() : '#3b82f6';
     }
 
+    const CATEGORY_COLOR_PALETTE = [
+        '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6',
+        '#06b6d4', '#f97316', '#84cc16', '#a855f7', '#6366f1',
+        '#eab308', '#14b8a6', '#ef4444', '#0284c7', '#d97706'
+    ];
+
+    function getNextDistinctCategoryColor() {
+        const usedColors = new Set((state.categories || []).map(c => (c.color || '').toLowerCase()));
+        for (const color of CATEGORY_COLOR_PALETTE) {
+            if (!usedColors.has(color.toLowerCase())) {
+                return color;
+            }
+        }
+        const index = (state.categories || []).length;
+        return CATEGORY_COLOR_PALETTE[index % CATEGORY_COLOR_PALETTE.length];
+    }
+
     function validateProjectObject(parsed) {
         ProjectIntegrity.validateProjectMetadata(parsed);
         if (!Array.isArray(parsed.documents) || !Array.isArray(parsed.categories) || !Array.isArray(parsed.codings)) {
@@ -891,6 +908,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             li.style.borderLeft = 'none';
         }
 
+        const isCategoryActive = cat.id === state.activeCategoryId;
         li.innerHTML = `
             <div class="item-title-wrapper">
                 <span class="code-color-dot" style="background:${safeColor(cat.color)}"></span>
@@ -900,7 +918,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             <div style="display:flex; align-items:center; gap:0.2rem;">
                 <button class="btn-cat-action btn-edit-cat" title="Editar categoría '✏️'">✏️</button>
                 <button class="btn-cat-action btn-delete-cat" title="Eliminar categoría '🗑️'">🗑️</button>
-                <button class="btn-scan-cat" title="🔍 Buscar e identificar ocurrencias de '${escapeHtml(cat.name)}'">🔍 Ocurrencias</button>
+                <button class="btn-scan-cat ${isCategoryActive ? 'active-scan' : ''}" title="🔍 Buscar e identificar ocurrencias de '${escapeHtml(cat.name)}'">🔍 Ocurrencias</button>
                 <span class="item-count-badge" title="${count} pasajes">${count}</span>
             </div>
         `;
@@ -2242,7 +2260,15 @@ ${bodyHtml}
         };
 
         const rect = range.getBoundingClientRect();
-        showFloatingToolbar(rect.left + window.scrollX, rect.top + window.scrollY - 60);
+        const textBodyRect = textBody ? textBody.getBoundingClientRect() : rect;
+        const toolbarWidth = 320;
+        let leftPos = (textBodyRect.right > 0 ? textBodyRect.right + 15 : rect.right + 15) + window.scrollX;
+        if (leftPos + toolbarWidth > window.innerWidth + window.scrollX - 10) {
+            leftPos = Math.max(10, window.innerWidth + window.scrollX - toolbarWidth - 20);
+        }
+        const topPos = rect.top + window.scrollY;
+
+        showFloatingToolbar(leftPos, topPos);
     }
 
     function showFloatingToolbar(x, y) {
@@ -3261,7 +3287,7 @@ ${bodyHtml}
             document.getElementById('cat-keywords').value = '';
             document.getElementById('cat-desc').value = '';
             document.getElementById('cat-parent-select').value = 'NONE';
-            document.getElementById('cat-color').value = '#3b82f6';
+            document.getElementById('cat-color').value = getNextDistinctCategoryColor();
         }
         document.getElementById('modal-category').style.display = 'flex';
     }

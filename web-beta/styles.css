@@ -664,6 +664,13 @@ button, input, select, textarea {
 }
 
 /* Qualitative Chart Selectors (Grafo, Heatmap, Barras) */
+.btn-scan-cat.active-scan {
+    background-color: var(--accent-primary);
+    color: #ffffff;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.45);
+    font-weight: 500;
+}
 .chart-type-selector {
     display: flex;
     gap: 0.3rem;
