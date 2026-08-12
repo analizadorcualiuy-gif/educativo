@@ -133,7 +133,10 @@
             <button type="button" class="educational-guide-toggle" aria-expanded="true">Guía educativa <span aria-hidden="true">▾</span></button>
             <div class="educational-guide-content">
                 <p class="educational-guide-intro"><strong>Así se articula un análisis cualitativo:</strong> vas del texto a la evidencia, de la evidencia a la interpretación y de allí a conclusiones justificadas.</p>
-                <button type="button" id="btn-open-student-assignment-modal" class="btn btn-primary" style="width:100%; margin-bottom:1rem;">🎓 Exportar Ficha de Trabajo Práctico (PDF)</button>
+                <button type="button" id="btn-open-student-assignment-modal" class="btn btn-primary" style="width:100%; margin-bottom:0.6rem;">🎓 Exportar Ficha de Trabajo Práctico (PDF)</button>
+                <label style="display:flex; align-items:center; gap:0.45rem; margin:0 0 0.85rem; font-size:0.8rem; color:#134e4a; cursor:pointer;" title="Activar o desactivar globos explicativos al pasar el mouse por los elementos">
+                    <input type="checkbox" id="chk-toggle-educational-popovers"> Mostrar guías al pasar el mouse
+                </label>
                 <section class="educational-cases" aria-labelledby="educational-cases-title">
                     <strong id="educational-cases-title">Casos para practicar</strong>
                     <p>Elegí un caso; incluye una pregunta, dos textos y categorías iniciales. Tu tarea es codificar y escribir memos.</p>
@@ -256,8 +259,9 @@
         popover.innerHTML = `
             <div class="popover-header">
                 <span class="popover-badge">Guía Teórico-Funcional</span>
-                <h4 id="popover-title"></h4>
+                <button type="button" id="btn-dismiss-popover" class="btn-popover-dismiss" title="Ocultar explicaciones emergentes">&times; Ocultar</button>
             </div>
+            <h4 id="popover-title"></h4>
             <div class="popover-body">
                 <div class="popover-box functional-box">
                     <strong>Función Operativa</strong>
@@ -273,6 +277,39 @@
         const titleEl = popover.querySelector('#popover-title');
         const funcEl = popover.querySelector('#popover-functional');
         const theoEl = popover.querySelector('#popover-theoretical');
+        const dismissBtn = popover.querySelector('#btn-dismiss-popover');
+        const chkToggle = document.getElementById('chk-toggle-educational-popovers');
+
+        function isPopoversDisabled() {
+            return localStorage.getItem('educational_popovers_disabled') === 'true';
+        }
+
+        function syncCheckboxState() {
+            if (chkToggle) chkToggle.checked = !isPopoversDisabled();
+        }
+
+        syncCheckboxState();
+
+        if (chkToggle) {
+            chkToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    localStorage.removeItem('educational_popovers_disabled');
+                } else {
+                    localStorage.setItem('educational_popovers_disabled', 'true');
+                    popover.classList.remove('is-visible');
+                    popover.hidden = true;
+                }
+            });
+        }
+
+        if (dismissBtn) {
+            dismissBtn.addEventListener('click', () => {
+                localStorage.setItem('educational_popovers_disabled', 'true');
+                popover.classList.remove('is-visible');
+                popover.hidden = true;
+                syncCheckboxState();
+            });
+        }
 
         let activeTimer = null;
 
@@ -282,6 +319,7 @@
                 target.classList.add('educational-sector-target');
                 target.setAttribute('data-sector-title', item.title);
                 target.addEventListener('mouseenter', () => {
+                    if (isPopoversDisabled()) return;
                     clearTimeout(activeTimer);
                     titleEl.textContent = item.title;
                     funcEl.textContent = item.functional;
