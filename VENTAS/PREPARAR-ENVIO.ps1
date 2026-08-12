@@ -11,7 +11,7 @@ function SafeName([string]$Value) {
 }
 
 $root = Split-Path -Parent $PSScriptRoot
-$releaseRoots = @(Join-Path $root 'entregas-comerciales', Join-Path $root 'compilaciones-internas')
+$releaseRoots = @( (Join-Path $root 'entregas-comerciales'), (Join-Path $root 'compilaciones-internas') )
 $versions = @(
     Get-ChildItem $releaseRoots -Directory -ErrorAction SilentlyContinue |
     Group-Object Name | ForEach-Object {
