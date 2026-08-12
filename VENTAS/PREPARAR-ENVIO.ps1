@@ -12,13 +12,50 @@ function SafeName([string]$Value) {
 
 $root = Split-Path -Parent $PSScriptRoot
 $releaseRoot = Join-Path $root 'entregas-comerciales'
-$versions = @(Get-ChildItem $releaseRoot -Directory -ErrorAction SilentlyContinue | Sort-Object Name -Descending)
+$versions = @(Get-ChildItem $releaseRoot -Directory -ErrorAction SilentlyContinue | Sort-Object {
+    try { [version]$_.Name } catch { $_.Name }
+} -Descending)
 if ($versions.Count -eq 0) { throw 'No hay una entrega comercial. Primero ejecute build-release.ps1.' }
 
-Write-Host 'Versiones disponibles:' -ForegroundColor Cyan
-for ($i = 0; $i -lt $versions.Count; $i++) { Write-Host "[$($i + 1)] $($versions[$i].Name)" }
-do { $selected = Read-Host 'Número de versión' } while ($selected -notmatch '^\d+$' -or [int]$selected -lt 1 -or [int]$selected -gt $versions.Count)
-$release = $versions[[int]$selected - 1]
+$latestVersion = $versions[0]
+$release = $null
+
+Write-Host "Última versión disponible: $($latestVersion.Name)" -ForegroundColor Cyan
+$inputVal = (Read-Host "¿Desea usar la versión $($latestVersion.Name)? [S/n] (Enter para Sí, N para elegir otra versión, o ingrese número/versión directamente)").Trim()
+
+if ([string]::IsNullOrWhiteSpace($inputVal) -or $inputVal -match '^(s|si|sí|y|yes)$') {
+    $release = $latestVersion
+} elseif ($inputVal -match '^\d+$' -and [int]$inputVal -ge 1 -and [int]$inputVal -le $versions.Count) {
+    $release = $versions[[int]$inputVal - 1]
+} else {
+    $matchedByName = $versions | Where-Object { $_.Name -ieq $inputVal }
+    if ($matchedByName) {
+        $release = $matchedByName[0]
+    }
+}
+
+if (-not $release) {
+    do {
+        Write-Host 'Versiones disponibles:' -ForegroundColor Cyan
+        for ($i = 0; $i -lt $versions.Count; $i++) { Write-Host "[$($i + 1)] $($versions[$i].Name)" }
+        $selected = (Read-Host "Seleccione por número (ej. 1) o escriba la versión (ej. $($latestVersion.Name))").Trim()
+
+        if ($selected -match '^\d+$' -and [int]$selected -ge 1 -and [int]$selected -le $versions.Count) {
+            $release = $versions[[int]$selected - 1]
+        } else {
+            $matchedByName = $versions | Where-Object { $_.Name -ieq $selected }
+            if ($matchedByName) {
+                $release = $matchedByName[0]
+            }
+        }
+
+        if (-not $release) {
+            Write-Host "Opción o versión no válida: '$selected'. Intente nuevamente." -ForegroundColor Yellow
+        }
+    } while (-not $release)
+}
+
+Write-Host "Versión seleccionada: $($release.Name)" -ForegroundColor Green
 $buyer = Required 'Nombre de la persona, equipo o institución'
 
 Write-Host '[1] Instalador recomendado  [2] Portable  [3] Ambos' -ForegroundColor Cyan
