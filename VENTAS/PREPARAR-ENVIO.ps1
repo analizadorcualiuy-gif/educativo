@@ -11,11 +11,17 @@ function SafeName([string]$Value) {
 }
 
 $root = Split-Path -Parent $PSScriptRoot
-$releaseRoot = Join-Path $root 'entregas-comerciales'
-$versions = @(Get-ChildItem $releaseRoot -Directory -ErrorAction SilentlyContinue | Sort-Object {
-    try { [version]$_.Name } catch { $_.Name }
-} -Descending)
-if ($versions.Count -eq 0) { throw 'No hay una entrega comercial. Primero ejecute build-release.ps1.' }
+$releaseRoots = @(Join-Path $root 'entregas-comerciales', Join-Path $root 'compilaciones-internas')
+$versions = @(
+    Get-ChildItem $releaseRoots -Directory -ErrorAction SilentlyContinue |
+    Group-Object Name | ForEach-Object {
+        $comm = $_.Group | Where-Object { $_.Parent.Name -eq 'entregas-comerciales' }
+        if ($comm) { $comm[0] } else { $_.Group[0] }
+    } | Sort-Object {
+        try { [version]$_.Name } catch { $_.Name }
+    } -Descending
+)
+if ($versions.Count -eq 0) { throw 'No hay entregas comerciales ni compilaciones internas. Primero ejecute build-release.ps1.' }
 
 $latestVersion = $versions[0]
 $release = $null
