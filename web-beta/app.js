@@ -787,12 +787,48 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                     </svg>
                     <span>${escapeHtml(doc.title)}</span>
                 </div>
-                <span class="item-count-badge" title="${count} pasajes codificados">${count}</span>
+                <div style="display:flex; align-items:center; gap:0.25rem;">
+                    <button class="btn-doc-action btn-delete-doc" title="Eliminar documento del análisis">&times;</button>
+                    <span class="item-count-badge" title="${count} pasajes codificados">${count}</span>
+                </div>
             `;
+
+            const deleteBtn = li.querySelector('.btn-delete-doc');
+            if (deleteBtn) {
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteDocument(doc.id);
+                };
+            }
 
             li.onclick = () => setActiveDocument(doc.id);
             listEl.appendChild(li);
         });
+    }
+
+    function deleteDocument(docId) {
+        const doc = state.documents.find(d => d.id === docId);
+        if (!doc) return;
+        if (!confirm(`¿Deseas eliminar el documento "${doc.title}" del análisis? Esta acción también eliminará todos sus pasajes codificados.`)) {
+            return;
+        }
+
+        state.documents = state.documents.filter(d => d.id !== docId);
+        state.codings = state.codings.filter(c => c.docId !== docId);
+
+        if (state.activeDocId === docId) {
+            state.activeDocId = state.documents.length > 0 ? state.documents[0].id : null;
+        }
+
+        saveToStorage();
+
+        checkNoticeBanner();
+        renderDocumentList();
+        refreshAnalyticsDocumentFilter();
+        renderCodebookList();
+        renderDecoderList();
+        setActiveDocument(state.activeDocId);
+        updateQualitativeCharts();
     }
 
     function populateParentCategorySelect(excludedCategoryId = null) {

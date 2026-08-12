@@ -627,6 +627,31 @@ button, input, select, textarea {
     background-color: var(--border-color);
 }
 
+/* Document Action Buttons (Delete ❌) */
+.btn-doc-action {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    opacity: 0.4;
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.item-row:hover .btn-doc-action {
+    opacity: 0.7;
+}
+.btn-doc-action:hover {
+    opacity: 1 !important;
+    color: var(--danger, #dc2626);
+    background-color: rgba(220, 38, 38, 0.12);
+}
+
 .cat-code-badge {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.68rem;

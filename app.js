@@ -1839,8 +1839,19 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                     </svg>
                     <span>${escapeHtml(doc.title)}</span>${group ? `<small style="color:var(--text-muted); margin-left:0.25rem;">${escapeHtml(group)}</small>` : ''}
                 </div>
-                <span class="item-count-badge" title="${count} pasajes codificados">${count}</span>
+                <div style="display:flex; align-items:center; gap:0.25rem;">
+                    <button class="btn-doc-action btn-delete-doc" title="Eliminar documento del análisis">&times;</button>
+                    <span class="item-count-badge" title="${count} pasajes codificados">${count}</span>
+                </div>
             `;
+
+            const deleteBtn = li.querySelector('.btn-delete-doc');
+            if (deleteBtn) {
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteDocument(doc.id);
+                };
+            }
 
             li.onclick = () => setActiveDocument(doc.id);
             listEl.appendChild(li);
@@ -1851,6 +1862,39 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             notice.textContent = `Se muestran ${visibleDocuments.length.toLocaleString()} de ${filtered.length.toLocaleString()} documentos. Usa el filtro para acotar la lista.`;
             listEl.appendChild(notice);
         }
+    }
+
+    function deleteDocument(docId) {
+        const doc = state.documents.find(d => d.id === docId);
+        if (!doc) return;
+        if (!confirm(`¿Deseas eliminar el documento "${doc.title}" del análisis? Esta acción también eliminará todos sus pasajes codificados.`)) {
+            return;
+        }
+
+        const proposedDocuments = state.documents.filter(d => d.id !== docId);
+        const proposedCodings = state.codings.filter(c => c.docId !== docId);
+        const proposedAuditLog = auditLogWith('Documento eliminado', doc.title);
+
+        let nextActiveDocId = state.activeDocId;
+        if (state.activeDocId === docId) {
+            nextActiveDocId = proposedDocuments.length > 0 ? proposedDocuments[0].id : null;
+        }
+
+        if (!commitProjectMutation({
+            documents: proposedDocuments,
+            codings: proposedCodings,
+            auditLog: proposedAuditLog
+        }, 'No se pudo eliminar el documento')) return;
+
+        state.activeDocId = nextActiveDocId;
+
+        checkNoticeBanner();
+        renderDocumentList();
+        refreshAnalyticsDocumentFilter();
+        renderCodebookList();
+        renderDecoderList();
+        setActiveDocument(state.activeDocId);
+        updateQualitativeCharts();
     }
 
     function populateParentCategorySelect(excludedCategoryId = null) {
