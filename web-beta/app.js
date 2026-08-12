@@ -2262,12 +2262,14 @@ ${bodyHtml}
         const rect = range.getBoundingClientRect();
         const textBodyRect = textBody ? textBody.getBoundingClientRect() : rect;
         const toolbarWidth = 320;
-        let leftPos = (textBodyRect.right > 0 ? textBodyRect.right + 15 : rect.right + 15) + window.scrollX;
-        if (leftPos + toolbarWidth > window.innerWidth + window.scrollX - 10) {
-            leftPos = Math.max(10, window.innerWidth + window.scrollX - toolbarWidth - 20);
-        }
-        const topPos = rect.top + window.scrollY;
 
+        let leftPos = textBodyRect.right + 15 + window.scrollX;
+        const maxAllowedLeft = window.innerWidth + window.scrollX - toolbarWidth - 10;
+        if (leftPos > maxAllowedLeft) {
+            leftPos = maxAllowedLeft;
+        }
+
+        const topPos = rect.top + window.scrollY;
         showFloatingToolbar(leftPos, topPos);
     }
 

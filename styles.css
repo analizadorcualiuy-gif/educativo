@@ -913,8 +913,9 @@ button, input, select, textarea {
 }
 
 .text-body {
-    max-width: 820px;
-    margin: 0 auto;
+    max-width: 780px;
+    margin-left: 2rem;
+    margin-right: 340px;
     font-family: 'Inter', Georgia, serif;
     font-size: 1.05rem;
     line-height: 1.8;
