@@ -38,6 +38,12 @@ El servidor de desarrollo genera una raíz pública separada (`dist-dev`) y sól
 escucha en `127.0.0.1`. El build de Tauri siempre regenera `dist` mediante
 `npm run build:frontend`, por lo que no reutiliza recursos web obsoletos.
 
+## Novedades y Usabilidad
+
+- **Importación y exportación de libro de categorías (CSV/Excel):** Soporta delimidades de coma y punto y coma, jerarquía de subcategorías, términos de búsqueda e inclusión de firmas de orden de bytes UTF-8 (**UTF-8 BOM** `\uFEFF`) para compatibilidad directa e inmediata en Microsoft Excel en Windows.
+- **Asistente e Inducción Operativa (`💡 Ver tutorial`):** Modal interactivo flotante en 5 pasos que guía al usuario en la carga de datos, estructuración del libro de códigos, codificación de pasajes, memos y exportación flexible.
+- **Capitalización ortográfica estándar en español:** Interfaz adaptada al formato tipo oración (Sentence case) en botones, leyendas, encabezados y modales.
+
 ## Beta web de evaluación
 
 La fuente separada está en `web-beta` y la carpeta publicable se genera con:
