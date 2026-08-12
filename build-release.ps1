@@ -112,7 +112,8 @@ try {
     $product = "AnalizadorCualiUY-Pro"
     # compilaciones-internas conserva el nombre visible del canal histórico
     # internal-unsigned; entregas-comerciales nunca admite binarios sin firma.
-    $channel = if ($AllowUnsigned) { "compilaciones-internas" } else { "entregas-comerciales" }
+    $channelName = if ($AllowUnsigned) { "compilaciones-internas" } else { "entregas-comerciales" }
+    $channel = Join-Path $root $channelName
     $releaseDir = Join-Path $channel $version
     $customerDocuments = @(
         "GUIA-INSTALACION-WINDOWS.txt",
@@ -219,7 +220,7 @@ try {
         throw "La clave pública Ed25519 del producto no es válida."
     }
 
-    $nsisDirectory = "src-tauri\target\release\bundle\nsis"
+    $nsisDirectory = Join-Path $root "src-tauri\target\release\bundle\nsis"
     if (Test-Path -LiteralPath $nsisDirectory) {
         Get-ChildItem -LiteralPath $nsisDirectory -Filter "*_$version_*setup.exe" -File |
             Remove-Item -Force
@@ -236,7 +237,7 @@ try {
         throw "Tauri debía generar exactamente un instalador NSIS para $version; encontró $($setupCandidates.Count)."
     }
     $setup = $setupCandidates[0]
-    $exe = "src-tauri\target\release\analizador_cuali_uy_pro.exe"
+    $exe = Join-Path $root "src-tauri\target\release\analizador_cuali_uy_pro.exe"
     if (-not (Test-Path -LiteralPath $exe -PathType Leaf)) {
         throw "No se encontró el ejecutable release de AnalizadorCualiUY Pro."
     }
