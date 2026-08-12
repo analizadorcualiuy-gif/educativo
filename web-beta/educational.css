@@ -78,6 +78,7 @@
 .educational-sector-popover.is-visible {
     opacity: 1;
     transform: translateY(0);
+    pointer-events: auto !important;
 }
 
 .educational-sector-popover .popover-header {
@@ -90,20 +91,24 @@
 }
 
 .btn-popover-dismiss {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #cbd5e1;
-    font-size: 0.72rem;
-    padding: 2px 8px;
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
     cursor: pointer;
+    pointer-events: auto !important;
+    user-select: none;
     transition: all 0.15s ease;
 }
 
 .btn-popover-dismiss:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.4);
     border-color: #ef4444;
     color: #ffffff;
+    transform: scale(1.03);
 }
 
 .educational-sector-popover .popover-badge {

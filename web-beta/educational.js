@@ -284,11 +284,17 @@
             return localStorage.getItem('educational_popovers_disabled') === 'true';
         }
 
-        function syncCheckboxState() {
+        function syncAllControls() {
             if (chkToggle) chkToggle.checked = !isPopoversDisabled();
+            const bannerBtn = document.getElementById('btn-toggle-banner-popovers');
+            if (bannerBtn) {
+                const disabled = isPopoversDisabled();
+                bannerBtn.textContent = disabled ? '💡 Guías: Desactivadas' : '💡 Guías: Activas';
+                bannerBtn.style.background = disabled ? '#475569' : '#0d9488';
+            }
         }
 
-        syncCheckboxState();
+        syncAllControls();
 
         if (chkToggle) {
             chkToggle.addEventListener('change', (e) => {
@@ -299,19 +305,44 @@
                     popover.classList.remove('is-visible');
                     popover.hidden = true;
                 }
-            });
-        }
-
-        if (dismissBtn) {
-            dismissBtn.addEventListener('click', () => {
-                localStorage.setItem('educational_popovers_disabled', 'true');
-                popover.classList.remove('is-visible');
-                popover.hidden = true;
-                syncCheckboxState();
+                syncAllControls();
             });
         }
 
         let activeTimer = null;
+        let isMouseOverPopover = false;
+
+        popover.addEventListener('mouseenter', () => {
+            isMouseOverPopover = true;
+            clearTimeout(activeTimer);
+        });
+
+        popover.addEventListener('mouseleave', () => {
+            isMouseOverPopover = false;
+            activeTimer = setTimeout(() => {
+                if (!isMouseOverPopover) {
+                    popover.classList.remove('is-visible');
+                    popover.hidden = true;
+                }
+            }, 300);
+        });
+
+        function handleDismiss(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            localStorage.setItem('educational_popovers_disabled', 'true');
+            popover.classList.remove('is-visible');
+            popover.hidden = true;
+            isMouseOverPopover = false;
+            syncAllControls();
+        }
+
+        if (dismissBtn) {
+            dismissBtn.addEventListener('click', handleDismiss);
+            dismissBtn.addEventListener('mousedown', handleDismiss);
+        }
 
         sectorHelp.forEach(item => {
             const targets = document.querySelectorAll(item.selector);
@@ -319,7 +350,7 @@
                 target.classList.add('educational-sector-target');
                 target.setAttribute('data-sector-title', item.title);
                 target.addEventListener('mouseenter', () => {
-                    if (isPopoversDisabled()) return;
+                    if (isPopoversDisabled() || isMouseOverPopover) return;
                     clearTimeout(activeTimer);
                     titleEl.textContent = item.title;
                     funcEl.textContent = item.functional;
@@ -343,9 +374,11 @@
 
                 target.addEventListener('mouseleave', () => {
                     activeTimer = setTimeout(() => {
-                        popover.classList.remove('is-visible');
-                        popover.hidden = true;
-                    }, 250);
+                        if (!isMouseOverPopover) {
+                            popover.classList.remove('is-visible');
+                            popover.hidden = true;
+                        }
+                    }, 300);
                 });
             });
         });
@@ -409,12 +442,56 @@
         }
     }
 
+    function addBannerGuideToggle() {
+        const banner = document.querySelector('.beta-edition-banner');
+        if (!banner) return;
+        const btn = document.createElement('button');
+        btn.id = 'btn-toggle-banner-popovers';
+        btn.type = 'button';
+        btn.className = 'btn-banner-action';
+        btn.style.marginLeft = '0.5rem';
+        btn.style.marginRight = '0.5rem';
+
+        function updateBtn() {
+            const disabled = localStorage.getItem('educational_popovers_disabled') === 'true';
+            btn.textContent = disabled ? '💡 Guías: Desactivadas' : '💡 Guías: Activas';
+            btn.style.background = disabled ? '#475569' : '#0d9488';
+        }
+
+        updateBtn();
+
+        btn.addEventListener('click', () => {
+            const disabled = localStorage.getItem('educational_popovers_disabled') === 'true';
+            if (disabled) {
+                localStorage.removeItem('educational_popovers_disabled');
+            } else {
+                localStorage.setItem('educational_popovers_disabled', 'true');
+                const popover = document.getElementById('educational-sector-popover');
+                if (popover) {
+                    popover.classList.remove('is-visible');
+                    popover.hidden = true;
+                }
+            }
+            updateBtn();
+            const chkToggle = document.getElementById('chk-toggle-educational-popovers');
+            if (chkToggle) chkToggle.checked = (localStorage.getItem('educational_popovers_disabled') !== 'true');
+        });
+
+        const contactBtn = document.getElementById('btn-contact-pro');
+        if (contactBtn) {
+            banner.insertBefore(btn, contactBtn);
+        } else {
+            banner.appendChild(btn);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.classList.add('edition-educational');
         document.title = 'AnalizadorCualiUY Educativa — Aprender análisis cualitativo';
         makeGuide();
         addContextualHelp();
         setupSectorPopovers();
+        addBannerGuideToggle();
         addProCallsToAction();
         setupStudentAssignmentModal();
     });
