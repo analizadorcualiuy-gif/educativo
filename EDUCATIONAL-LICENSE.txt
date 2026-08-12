@@ -1,0 +1,22 @@
+LICENCIA DE EVALUACIÓN — ANALIZADORCUALIUY BETA
+
+Copyright © 2026 S. Hernández. Todos los derechos reservados.
+
+Se concede al usuario una licencia personal, limitada, no exclusiva e
+intransferible para utilizar esta edición Educativa con fines de uso formativo,
+investigación o docencia. No se autoriza vender, sublicenciar, redistribuir,
+modificar ni presentar el software como obra propia.
+
+Estas restricciones corresponden a los componentes originales de
+AnalizadorCualiUY. Los componentes de terceros se rigen por sus propias
+licencias, que se conservan junto con el sitio. En particular, PDF.js se ofrece
+bajo Apache License 2.0 y Mammoth.js bajo BSD 2-Clause; nada en esta licencia
+reduce los derechos concedidos por esas licencias.
+
+La edición Educativa se suministra sin garantía y puede contener errores. El usuario
+es responsable de conservar copias de seguridad de sus proyectos. Los
+documentos y análisis se procesan localmente en el navegador; el sitio no los
+envía a servidores externos.
+
+La versión completa y los permisos adicionales se solicitan directamente al
+autor mediante el canal de contacto publicado en la aplicación.
