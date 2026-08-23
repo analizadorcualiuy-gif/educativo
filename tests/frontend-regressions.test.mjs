@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 
+await import('../analytics.js');
 await import('../project-integrity.js');
 const integrity = globalThis.ProjectIntegrity;
 const appSource = await readFile(new URL('../app.js', import.meta.url), 'utf8');
@@ -11,6 +12,12 @@ function loadFrontendHarness() {
     const source = appSource.replace(
         '    // Launch App',
         `    globalThis.__frontendHooks = {
+            generateNetworkInterpretation,
+            generateHeatmapInterpretation,
+            generateBarsInterpretation,
+            generateQualityInterpretation,
+            exportActiveChartPNG,
+            exportActiveChartSVG,
             findNormalizedMatches,
             normalizedAnalyticsThreshold,
             validateProjectObject,
@@ -346,4 +353,44 @@ test('codebook CSV parser extracts categories, subcategories, keywords and handl
 
     assert.throws(() => hooks.parseCodebookCSV(''), /El archivo CSV está vacío/);
 });
+
+test('qualitative chart interpretation generators produce detailed qualitative summaries', () => {
+    const { hooks } = loadFrontendHarness();
+    const analytics = globalThis.AnalyticsEngine.analyze({
+        documents: [
+            { id: 'd1', title: 'Doc 1', content: 'Texto de prueba sobre educación e inclusión social.', wordCount: 8 }
+        ],
+        categories: [
+            { id: 'c1', name: 'Educación', code: 'EDU', color: '#3b82f6' },
+            { id: 'c2', name: 'Inclusión', code: 'INC', color: '#10b981' }
+        ],
+        codings: [
+            { id: 'cod1', docId: 'd1', categoryId: 'c1', startChar: 0, endChar: 15, quoteText: 'Texto de prueba' },
+            { id: 'cod2', docId: 'd1', categoryId: 'c2', startChar: 5, endChar: 25, quoteText: 'de prueba sobre' }
+        ]
+    }, { unit: 'paragraph', metric: 'jaccard' });
+
+    const netInterp = hooks.generateNetworkInterpretation(analytics);
+    assert.match(netInterp, /Red cualitativa compuesta por 2 categorías/);
+    assert.match(netInterp, /Guía cualitativa:/);
+
+    const heatInterp = hooks.generateHeatmapInterpretation(analytics);
+    assert.match(heatInterp, /Matriz de coocurrencia entre 2 categorías/);
+    assert.match(heatInterp, /Guía cualitativa:/);
+
+    const barsInterp = hooks.generateBarsInterpretation(analytics);
+    assert.match(barsInterp, /Comparación proporcional de 2 categorías/);
+    assert.match(barsInterp, /Guía cualitativa:/);
+
+    const qualityReport = globalThis.AnalyticsEngine.quality({
+        documents: [{ id: 'd1', title: 'Doc 1', content: 'Texto', wordCount: 1 }],
+        categories: [{ id: 'c1', name: 'Educación', code: 'EDU' }],
+        codings: [{ id: 'cod1', docId: 'd1', categoryId: 'c1', startChar: 0, endChar: 5, quoteText: 'Texto', memo: 'Memo 1' }]
+    }, {});
+
+    const qualInterp = hooks.generateQualityInterpretation(qualityReport);
+    assert.match(qualInterp, /Diagnóstico global de codificación/);
+    assert.match(qualInterp, /Guía cualitativa:/);
+});
+
 

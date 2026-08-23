@@ -172,6 +172,7 @@
         viewMode: 'standard', // 'standard' | 'tiers'
         graphLayout: 'circular',
         activeChartType: 'network', // 'network' | 'heatmap' | 'bars' | 'quality'
+        customChartInterpretations: { network: '', heatmap: '', bars: '', quality: '' },
         analyticsUnit: 'paragraph',
         analyticsMetric: 'jaccard',
         analyticsCategoryMode: 'main',
@@ -2606,12 +2607,152 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             .slice(0, MAX_VISUAL_CATEGORIES);
     }
 
+    function generateNetworkInterpretation(analytics) {
+        if (!analytics || !analytics.categories || analytics.categories.length === 0) {
+            return 'No hay categorías ni datos suficientes para analizar la red de conceptos.';
+        }
+        const totalCats = analytics.categories.length;
+        const totalEdges = (analytics.edges || []).filter(e => !e.unavailable && e.count > 0).length;
+        const unitLabel = state.analyticsUnit || 'párrafo';
+        const metric = metricLabel();
+
+        const sortedCats = [...analytics.categories].sort((a, b) => {
+            const statA = analytics.statsMap.get(a.id) || { count: 0 };
+            const statB = analytics.statsMap.get(b.id) || { count: 0 };
+            return statB.count - statA.count;
+        });
+        const topCat = sortedCats[0];
+        const topStat = analytics.statsMap.get(topCat.id) || { count: 0, docCount: 0, documentShare: 0 };
+
+        const sortedEdges = [...(analytics.edges || [])].filter(e => !e.unavailable && e.count > 0).sort((a, b) => b.metricValue - a.metricValue);
+        let topPairText = '';
+        if (sortedEdges.length > 0) {
+            const topEdge = sortedEdges[0];
+            const src = analytics.categoryMap.get(topEdge.sourceId);
+            const tgt = analytics.categoryMap.get(topEdge.targetId);
+            if (src && tgt) {
+                topPairText = ` La relación de coocurrencia más fuerte se observa entre "${src.name}" y "${tgt.name}" (métrica ${metric}: ${formatMetric(topEdge)}, ${topEdge.count} pasajes).`;
+            }
+        } else {
+            topPairText = ' No se registran relaciones de coocurrencia bajo el umbral actual.';
+        }
+
+        const connectedSet = new Set((analytics.edges || []).flatMap(e => [e.sourceId, e.targetId]));
+        const isolatedCount = totalCats - analytics.categories.filter(c => connectedSet.has(c.id)).length;
+        let isolationText = isolatedCount > 0 ? ` Existen ${isolatedCount} categorías sin relaciones significativas en este nivel.` : ' Todas las categorías forman una red interconectada.';
+
+        return `Red cualitativa compuesta por ${totalCats} categorías y ${totalEdges} asociaciones en el nivel de ${unitLabel}.${topPairText} La categoría central con mayor evidencia es "${topCat.name}" (presente en ${topStat.docCount} documentos, ${(topStat.documentShare * 100).toFixed(0)}% del corpus, ${topStat.count} pasajes).${isolationText}\n💡 Guía cualitativa: Nodos más grandes reflejan mayor presencia; conexiones más gruesas indican mayor convergencia temática.`;
+    }
+
+    function generateHeatmapInterpretation(analytics) {
+        if (!analytics || !analytics.categories || analytics.categories.length === 0) {
+            return 'Carga documentos y categorías para visualizar la matriz de coocurrencia.';
+        }
+        const visualCats = analyticsVisualCategories(analytics);
+        const totalCells = visualCats.length * visualCats.length;
+        const sortedEdges = [...(analytics.edges || [])].filter(e => !e.unavailable && e.count > 0).sort((a, b) => b.metricValue - a.metricValue);
+        let peakText = '';
+        if (sortedEdges.length > 0) {
+            const peak = sortedEdges[0];
+            const src = analytics.categoryMap.get(peak.sourceId);
+            const tgt = analytics.categoryMap.get(peak.targetId);
+            if (src && tgt) {
+                peakText = ` La máxima densidad de coocurrencia ocurre en la intersección "${src.name}" × "${tgt.name}" (${formatMetric(peak)}).`;
+            }
+        }
+        const activePairs = sortedEdges.length;
+        const activePct = totalCells > 0 ? ((activePairs * 2) / totalCells * 100).toFixed(1) : '0.0';
+
+        return `Matriz de coocurrencia entre ${visualCats.length} categorías principales (${state.analyticsUnit}, métrica: ${metricLabel()}).${peakText} Se identifican ${activePairs} pares de coocurrencia activos (${activePct}% de densidad de la matriz).\n💡 Guía cualitativa: Las celdas de intensidad superior marcan solapamientos o proximidades contextuales frecuentes entre los códigos analizados.`;
+    }
+
+    function generateBarsInterpretation(analytics) {
+        if (!analytics || !analytics.categories || analytics.categories.length === 0) {
+            return 'Sin categorías para comparar.';
+        }
+        const sortedByDensity = [...analytics.categories].sort((a, b) => (analytics.statsMap.get(b.id)?.perThousand || 0) - (analytics.statsMap.get(a.id)?.perThousand || 0));
+        const sortedByCoverage = [...analytics.categories].sort((a, b) => (analytics.statsMap.get(b.id)?.documentShare || 0) - (analytics.statsMap.get(a.id)?.documentShare || 0));
+
+        const topDensity = sortedByDensity[0];
+        const topDensityStat = analytics.statsMap.get(topDensity.id) || { perThousand: 0, count: 0 };
+        const topCoverage = sortedByCoverage[0];
+        const topCoverageStat = analytics.statsMap.get(topCoverage.id) || { docCount: 0, documentShare: 0 };
+
+        const totalDocs = analytics.documents.length || 1;
+        const lowDensity = sortedByDensity.filter(c => (analytics.statsMap.get(c.id)?.perThousand || 0) < 1).length;
+
+        return `Comparación proporcional de ${analytics.categories.length} categorías en el corpus (${analytics.documents.length} documentos). La categoría con mayor densidad es "${topDensity.name}" (${topDensityStat.perThousand.toFixed(1)} pasajes/1.000 pal., ${topDensityStat.count} pasajes). La categoría de mayor cobertura documental es "${topCoverage.name}" (presente en ${topCoverageStat.docCount}/${totalDocs} docs, ${(topCoverageStat.documentShare * 100).toFixed(0)}%).${lowDensity > 0 ? ` Hay ${lowDensity} categorías con baja densidad (<1/1k pal.).` : ''}\n💡 Guía cualitativa: Barra sólida = frecuencia absoluta; Barra suave = tasa normalizada por volumen textual.`;
+    }
+
+    function generateQualityInterpretation(report) {
+        if (!report) return 'Diagnóstico de calidad no disponible.';
+        const cov = (report.coverage * 100).toFixed(1);
+        const missingMemosCount = (report.missingMemos || []).length;
+        const incompleteCount = (report.incompleteCategories || []).length;
+        const uncodedDocsCount = (report.uncodedDocuments || []).length;
+        const duplicatesCount = (report.duplicates || []).length;
+        const overlapsCount = (report.overlaps || []).length;
+
+        let statusText = [];
+        if (missingMemosCount > 0) statusText.push(`${missingMemosCount} pasajes sin memo interpretativo`);
+        if (incompleteCount > 0) statusText.push(`${incompleteCount} categorías incompletas`);
+        if (uncodedDocsCount > 0) statusText.push(`${uncodedDocsCount} documentos sin codificar`);
+        if (duplicatesCount > 0) statusText.push(`${duplicatesCount} codificaciones duplicadas`);
+        if (overlapsCount > 0) statusText.push(`${overlapsCount} solapamientos detectados`);
+
+        const statusSummary = statusText.length > 0 ? ` Hallazgos a revisar: ${statusText.join(', ')}.` : ' El corpus no presenta inconsistencias metodológicas detectables.';
+
+        return `Diagnóstico global de codificación. Cobertura total: ${cov}% del texto analizado (${report.codedChars.toLocaleString('es-UY')} de ${report.totalChars.toLocaleString('es-UY')} caracteres). Citas totales: ${report.totalCodings} (Manual: ${report.manual}, Automática: ${report.automatic}).${statusSummary}\n💡 Guía cualitativa: Mantener memos explicativos en cada cita fortalece la validez interna y la triangulación del reporte.`;
+    }
+
+    function getActiveChartInterpretation(analytics, report) {
+        const type = state.activeChartType || 'network';
+        if (state.customChartInterpretations && state.customChartInterpretations[type]) {
+            return {
+                text: state.customChartInterpretations[type],
+                isCustom: true
+            };
+        }
+        let autoText = '';
+        if (type === 'network') autoText = generateNetworkInterpretation(analytics);
+        else if (type === 'heatmap') autoText = generateHeatmapInterpretation(analytics);
+        else if (type === 'bars') autoText = generateBarsInterpretation(analytics);
+        else if (type === 'quality') autoText = generateQualityInterpretation(report || window.AnalyticsEngine.quality(state, { documentId: state.analyticsDocumentId, documentGroup: state.analyticsDocumentGroup }));
+        return {
+            text: autoText,
+            isCustom: false
+        };
+    }
+
+    function updateInterpretationBox(analytics, report) {
+        const bodyEl = document.getElementById('chart-interpretation-body');
+        const titleEl = document.querySelector('.chart-interpretation-title');
+        if (!bodyEl) return;
+
+        const activeInterp = getActiveChartInterpretation(analytics, report);
+        bodyEl.textContent = activeInterp.text;
+        if (titleEl) {
+            titleEl.innerHTML = activeInterp.isCustom 
+                ? '💡 Interpretación Analítica Cualitativa <small style="color:var(--accent-primary); font-weight:normal;">(Nota personalizada)</small>'
+                : '💡 Interpretación Analítica Cualitativa';
+        }
+    }
+
     function updateQualitativeCharts() {
         ['network', 'heatmap', 'bars', 'quality'].forEach(type => {
             const el = document.getElementById(`chart-container-${type}`);
             if (el) el.style.display = state.activeChartType === type ? 'block' : 'none';
         });
-        document.getElementById('graph-toolbar-container').style.display = state.activeChartType === 'network' ? 'flex' : 'none';
+        const toolbar = document.getElementById('graph-toolbar-container');
+        if (toolbar) {
+            toolbar.style.display = 'flex';
+            const layoutRow = toolbar.querySelector('.graph-toolbar-row:first-child');
+            if (layoutRow) layoutRow.style.display = state.activeChartType === 'network' ? 'flex' : 'none';
+            const btnReset = document.getElementById('btn-reset-network');
+            if (btnReset) btnReset.style.display = state.activeChartType === 'network' ? 'inline-block' : 'none';
+        }
+        const analytics = getAnalytics();
+        let report = null;
         if (state.activeChartType === 'network') {
             updateNetworkCanvas();
         } else if (state.activeChartType === 'heatmap') {
@@ -2619,8 +2760,10 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         } else if (state.activeChartType === 'bars') {
             renderProportionalBars();
         } else if (state.activeChartType === 'quality') {
+            report = window.AnalyticsEngine.quality(state, { documentId: state.analyticsDocumentId, documentGroup: state.analyticsDocumentGroup });
             renderQualityDashboard();
         }
+        updateInterpretationBox(analytics, report);
     }
 
     function renderQualitativeHeatmap() {
@@ -4227,8 +4370,8 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         if (!canvas) return;
 
         const rect = canvas.parentElement.getBoundingClientRect();
-        canvas.width = rect.width || 340;
-        canvas.height = rect.height || 380;
+        canvas.width = rect.width || 600;
+        canvas.height = Math.max(400, rect.height || 480);
 
         canvas.removeEventListener('mousedown', onCanvasMouseDown);
         canvas.removeEventListener('mousemove', onCanvasMouseMove);
@@ -4392,62 +4535,556 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         });
     }
 
-    function exportGraphPNG() {
-        const canvas = document.getElementById('network-canvas');
-        if (!canvas) return;
+    function drawHeatmapToCanvas(ctx, analytics, startX, startY, availableWidth) {
+        const visualCats = analyticsVisualCategories(analytics);
+        if (!visualCats.length) return startY + 40;
+
+        const labelWidth = Math.min(220, availableWidth * 0.25);
+        const colWidth = Math.max(35, (availableWidth - labelWidth) / visualCats.length);
+
+        const rowHeight = 32;
+        const headerHeight = 38;
+
+        ctx.fillStyle = state.theme === 'dark' ? '#1e293b' : '#e2e8f0';
+        ctx.fillRect(startX, startY, availableWidth, headerHeight);
+        ctx.fillStyle = state.theme === 'dark' ? '#94a3b8' : '#475569';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Categoría', startX + 10, startY + 23);
+
+        ctx.textAlign = 'center';
+        visualCats.forEach((cat, colIdx) => {
+            const x = startX + labelWidth + colIdx * colWidth;
+            const code = (cat.code || cat.name).slice(0, 6);
+            ctx.fillText(code, x + colWidth / 2, startY + 23);
+        });
+
+        const visualIds = new Set(visualCats.map(c => c.id));
+        const visualEdges = (analytics.edges || []).filter(e => visualIds.has(e.sourceId) && visualIds.has(e.targetId));
+        const maxValue = Math.max(0.0001, ...visualEdges.map(e => e.metricValue));
+
+        let currentY = startY + headerHeight;
+
+        visualCats.forEach((catA, rowIdx) => {
+            ctx.fillStyle = (rowIdx % 2 === 0) 
+                ? (state.theme === 'dark' ? '#0f172a' : '#ffffff') 
+                : (state.theme === 'dark' ? '#1e293b' : '#f8fafc');
+            ctx.fillRect(startX, currentY, availableWidth, rowHeight);
+
+            ctx.beginPath();
+            ctx.arc(startX + 12, currentY + rowHeight / 2, 5, 0, Math.PI * 2);
+            ctx.fillStyle = safeColor(catA.color);
+            ctx.fill();
+
+            ctx.fillStyle = state.theme === 'dark' ? '#f8fafc' : '#0f172a';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'left';
+            const catName = catA.name.length > 25 ? catA.name.slice(0, 23) + '...' : catA.name;
+            ctx.fillText(catName, startX + 24, currentY + 20);
+
+            ctx.textAlign = 'center';
+            visualCats.forEach((catB, colIdx) => {
+                const cellX = startX + labelWidth + colIdx * colWidth;
+                if (catA.id === catB.id) {
+                    const stat = analytics.statsMap.get(catA.id) || { count: 0 };
+                    ctx.fillStyle = state.theme === 'dark' ? '#334155' : '#e2e8f0';
+                    ctx.fillRect(cellX + 2, currentY + 2, colWidth - 4, rowHeight - 4);
+                    ctx.fillStyle = state.theme === 'dark' ? '#ffffff' : '#000000';
+                    ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText(String(stat.count), cellX + colWidth / 2, currentY + 20);
+                } else {
+                    const edge = analytics.matrix[catA.id] && analytics.matrix[catA.id][catB.id];
+                    const visible = edge && (!state.analyticsHideZeros || edge.count > 0);
+                    if (visible) {
+                        const alpha = 0.15 + 0.75 * (edge.metricValue / maxValue);
+                        ctx.fillStyle = hexToRgba(safeColor(catA.color), alpha);
+                        ctx.fillRect(cellX + 2, currentY + 2, colWidth - 4, rowHeight - 4);
+
+                        const textVal = formatMetric(edge);
+                        ctx.fillStyle = state.theme === 'dark' ? '#ffffff' : '#0f172a';
+                        ctx.font = '10px sans-serif';
+                        ctx.fillText(textVal, cellX + colWidth / 2, currentY + 20);
+                    } else {
+                        ctx.fillStyle = state.theme === 'dark' ? '#64748b' : '#94a3b8';
+                        ctx.font = '10px sans-serif';
+                        ctx.fillText('·', cellX + colWidth / 2, currentY + 20);
+                    }
+                }
+            });
+
+            currentY += rowHeight;
+        });
+
+        ctx.textAlign = 'left';
+        return currentY + 20;
+    }
+
+    function drawBarsToCanvas(ctx, analytics, startX, startY, availableWidth) {
+        const sorted = [...analytics.categories].sort((a, b) => (analytics.statsMap.get(b.id)?.perThousand || 0) - (analytics.statsMap.get(a.id)?.perThousand || 0)).slice(0, MAX_VISUAL_CATEGORIES);
+        if (!sorted.length) return startY + 40;
+
+        const visibleStats = sorted.map(c => analytics.statsMap.get(c.id));
+        const maxCount = Math.max(1, ...visibleStats.map(s => s.count));
+        const maxRate = Math.max(0.001, ...visibleStats.map(s => s.perThousand));
+
+        let currentY = startY;
+        const rowHeight = 50;
+
+        sorted.forEach(cat => {
+            const stat = analytics.statsMap.get(cat.id);
+
+            ctx.beginPath();
+            ctx.arc(startX + 6, currentY + 10, 4, 0, Math.PI * 2);
+            ctx.fillStyle = safeColor(cat.color);
+            ctx.fill();
+
+            ctx.fillStyle = state.theme === 'dark' ? '#f8fafc' : '#0f172a';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(cat.name, startX + 16, currentY + 14);
+
+            ctx.fillStyle = state.theme === 'dark' ? '#94a3b8' : '#64748b';
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'right';
+            const infoText = `${stat.count} pasajes · ${stat.perThousand.toFixed(1)}/1k pal. · Docs: ${stat.docCount}/${analytics.documents.length}`;
+            ctx.fillText(infoText, startX + availableWidth, currentY + 14);
+
+            ctx.textAlign = 'left';
+            const barY = currentY + 22;
+            const barWidthMax = availableWidth;
+            const absWidth = (stat.count / maxCount) * barWidthMax;
+            const rateWidth = (stat.perThousand / maxRate) * barWidthMax;
+
+            ctx.fillStyle = safeColor(cat.color);
+            ctx.fillRect(startX, barY, Math.max(4, absWidth), 8);
+
+            ctx.fillStyle = hexToRgba(safeColor(cat.color), 0.45);
+            ctx.fillRect(startX, barY + 11, Math.max(4, rateWidth), 8);
+
+            currentY += rowHeight;
+        });
+
+        return currentY + 20;
+    }
+
+    function drawQualityToCanvas(ctx, report, startX, startY, availableWidth) {
+        if (!report) return startY + 40;
+        const cards = [
+            ['Cobertura', `${(report.coverage * 100).toFixed(1)}%`, `${report.codedChars} / ${report.totalChars} chars`],
+            ['Memos faltantes', String((report.missingMemos || []).length), 'pasajes sin interpretación'],
+            ['Categorías incompletas', String((report.incompleteCategories || []).length), 'sin código o criterio'],
+            ['Documentos sin codificar', String((report.uncodedDocuments || []).length), 'documentos vacíos'],
+            ['Duplicados', String((report.duplicates || []).length), 'codificaciones idénticas'],
+            ['Solapamientos', String((report.overlaps || []).length), 'pares superpuestos'],
+            ['Categorías 1 solo doc', String((report.singleDocumentCategories || []).length), 'revisar transferibilidad'],
+            ['Manual / automática', `${report.manual} / ${report.automatic}`, `${report.totalCodings} codificaciones`]
+        ];
+
+        const cols = 2;
+        const gap = 12;
+        const cardWidth = (availableWidth - gap) / cols;
+        const cardHeight = 65;
+
+        let currentY = startY;
+
+        cards.forEach((card, idx) => {
+            const col = idx % cols;
+            const row = Math.floor(idx / cols);
+            const x = startX + col * (cardWidth + gap);
+            const y = startY + row * (cardHeight + gap);
+
+            ctx.fillStyle = state.theme === 'dark' ? '#1e293b' : '#f8fafc';
+            ctx.strokeStyle = state.theme === 'dark' ? '#334155' : '#cbd5e1';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(x, y, cardWidth, cardHeight, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = state.theme === 'dark' ? '#3b82f6' : '#2563eb';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.fillText(card[1], x + 12, y + 26);
+
+            ctx.fillStyle = state.theme === 'dark' ? '#f8fafc' : '#0f172a';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText(card[0], x + 12, y + 44);
+
+            ctx.fillStyle = state.theme === 'dark' ? '#94a3b8' : '#64748b';
+            ctx.font = '10px sans-serif';
+            ctx.fillText(card[2], x + 12, y + 57);
+
+            if (col === cols - 1) {
+                currentY = y + cardHeight + gap;
+            }
+        });
+
+        return currentY + 15;
+    }
+
+    function chartTypeTitle(type) {
+        if (type === 'network') return 'Red de Coocurrencia Categorial';
+        if (type === 'heatmap') return 'Matriz de Coocurrencia (Heatmap)';
+        if (type === 'bars') return 'Comparación Proporcional de Categorías';
+        return 'Diagnóstico de Calidad de Codificación';
+    }
+
+    function exportActiveChartPNG() {
+        const type = state.activeChartType || 'network';
         const analytics = getAnalytics();
+        const report = window.AnalyticsEngine.quality(state, { documentId: state.analyticsDocumentId, documentGroup: state.analyticsDocumentGroup });
+
         if (!preflightExport({
-            label: 'Gráfico de red (PNG)',
+            label: `Gráfico: ${chartTypeTitle(type)} (PNG)`,
             documents: analytics.documents,
             categories: analytics.categories,
             codings: analytics.codings,
-            scopeDescription: `Alcance actual: ${state.analyticsDocumentId ? 'documento seleccionado' : state.analyticsDocumentGroup ? `grupo “${state.analyticsDocumentGroup}”` : 'todo el corpus'}; ${categoryModeLabel()}.`,
+            scopeDescription: `Alcance actual: ${state.analyticsDocumentId ? 'documento seleccionado' : state.analyticsDocumentGroup ? `grupo "${state.analyticsDocumentGroup}"` : 'todo el corpus'}; ${categoryModeLabel()}.`,
             requireDocument: true,
             requireCategory: true
         })) return;
-        canvas.toBlob(function(blob) {
-            if (blob) universalSaveFile(blob, `AnalizadorCualiUY_Pro_RedVisual_${new Date().toISOString().slice(0, 10)}.png`);
+
+        const interpretationObj = getActiveChartInterpretation(analytics, report);
+        const interpText = interpretationObj.text;
+
+        const canvasWidth = 1000;
+        const padding = 35;
+        const availableWidth = canvasWidth - padding * 2;
+
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.font = '12px sans-serif';
+
+        const rawLines = interpText.split('\n');
+        const wrappedLines = [];
+        rawLines.forEach(line => {
+            const words = line.split(' ');
+            let currentLine = '';
+            words.forEach(word => {
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
+                if (tempCtx.measureText(testLine).width > availableWidth - 35) {
+                    wrappedLines.push(currentLine);
+                    currentLine = word;
+                } else {
+                    currentLine = testLine;
+                }
+            });
+            if (currentLine) wrappedLines.push(currentLine);
+        });
+
+        const interpBoxHeight = 50 + wrappedLines.length * 18;
+
+        let graphicHeight = 450;
+        if (type === 'heatmap') {
+            const visualCats = analyticsVisualCategories(analytics);
+            graphicHeight = 40 + (visualCats.length + 1) * 32;
+        } else if (type === 'bars') {
+            const sorted = [...analytics.categories].slice(0, MAX_VISUAL_CATEGORIES);
+            graphicHeight = sorted.length * 50 + 20;
+        } else if (type === 'quality') {
+            graphicHeight = 310;
+        }
+
+        const headerHeight = 110;
+        const totalHeight = headerHeight + graphicHeight + interpBoxHeight + 50;
+
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = canvasWidth;
+        offscreenCanvas.height = totalHeight;
+        const ctx = offscreenCanvas.getContext('2d');
+
+        const bgColor = state.theme === 'dark' ? '#0b1329' : '#ffffff';
+        const cardBg = state.theme === 'dark' ? '#1e293b' : '#f8fafc';
+        const textColor = state.theme === 'dark' ? '#ffffff' : '#0f172a';
+        const mutedColor = state.theme === 'dark' ? '#94a3b8' : '#64748b';
+        const accentColor = '#3b82f6';
+        const borderColor = state.theme === 'dark' ? '#334155' : '#cbd5e1';
+
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, canvasWidth, totalHeight);
+
+        ctx.fillStyle = accentColor;
+        ctx.font = 'bold 20px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('AnalizadorCualiUY Pro', padding, 40);
+
+        ctx.fillStyle = textColor;
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText(chartTypeTitle(type), padding, 65);
+
+        ctx.fillStyle = mutedColor;
+        ctx.font = '11px sans-serif';
+        const metadataLine = `Alcance: ${state.analyticsDocumentId ? 'documento seleccionado' : state.analyticsDocumentGroup ? `grupo "${state.analyticsDocumentGroup}"` : 'Todo el corpus'} | Unidad: ${state.analyticsUnit} | Métrica: ${metricLabel()} | Fecha: ${new Date().toLocaleDateString('es-UY')}`;
+        ctx.fillText(metadataLine, padding, 85);
+
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding, 98);
+        ctx.lineTo(canvasWidth - padding, 98);
+        ctx.stroke();
+
+        let currentY = 115;
+        if (type === 'network') {
+            const networkCanvas = document.getElementById('network-canvas');
+            if (networkCanvas) {
+                ctx.drawImage(networkCanvas, padding, currentY, availableWidth, graphicHeight);
+            }
+            currentY += graphicHeight + 20;
+        } else if (type === 'heatmap') {
+            currentY = drawHeatmapToCanvas(ctx, analytics, padding, currentY, availableWidth);
+        } else if (type === 'bars') {
+            currentY = drawBarsToCanvas(ctx, analytics, padding, currentY, availableWidth);
+        } else if (type === 'quality') {
+            currentY = drawQualityToCanvas(ctx, report, padding, currentY, availableWidth);
+        }
+
+        const boxY = currentY;
+        ctx.fillStyle = cardBg;
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(padding, boxY, availableWidth, interpBoxHeight, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = accentColor;
+        ctx.fillRect(padding, boxY, 5, interpBoxHeight);
+
+        ctx.fillStyle = accentColor;
+        ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('💡 Interpretación Analítica Cualitativa' + (interpretationObj.isCustom ? ' (Nota personalizada)' : ''), padding + 18, boxY + 24);
+
+        ctx.fillStyle = textColor;
+        ctx.font = '12px sans-serif';
+        wrappedLines.forEach((l, idx) => {
+            ctx.fillText(l, padding + 18, boxY + 46 + idx * 18);
+        });
+
+        offscreenCanvas.toBlob(function(blob) {
+            if (blob) universalSaveFile(blob, `AnalizadorCualiUY_Pro_${type}_${new Date().toISOString().slice(0, 10)}.png`);
         }, 'image/png');
     }
 
-    function exportGraphSVG() {
-        const canvas = document.getElementById('network-canvas');
-        if (!canvas) return;
+    function exportActiveChartSVG() {
+        const type = state.activeChartType || 'network';
         const analytics = getAnalytics();
+        const report = window.AnalyticsEngine.quality(state, { documentId: state.analyticsDocumentId, documentGroup: state.analyticsDocumentGroup });
+
         if (!preflightExport({
-            label: 'Gráfico de red (SVG)',
+            label: `Gráfico: ${chartTypeTitle(type)} (SVG)`,
             documents: analytics.documents,
             categories: analytics.categories,
             codings: analytics.codings,
-            scopeDescription: `Alcance actual: ${state.analyticsDocumentId ? 'documento seleccionado' : state.analyticsDocumentGroup ? `grupo “${state.analyticsDocumentGroup}”` : 'todo el corpus'}; ${categoryModeLabel()}.`,
+            scopeDescription: `Alcance actual: ${state.analyticsDocumentId ? 'documento seleccionado' : state.analyticsDocumentGroup ? `grupo "${state.analyticsDocumentGroup}"` : 'todo el corpus'}; ${categoryModeLabel()}.`,
             requireDocument: true,
             requireCategory: true
         })) return;
-        const w = canvas.width;
-        const h = canvas.height;
 
-        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="background-color:${state.theme === 'dark' ? '#0b1329' : '#ffffff'}; font-family:sans-serif;">\n`;
+        const interpretationObj = getActiveChartInterpretation(analytics, report);
+        const interpText = interpretationObj.text;
+        const w = 900;
 
-        canvasLinks.forEach(link => {
-            const s = canvasNodes.find(n => n.id === link.sourceId);
-            const t = canvasNodes.find(n => n.id === link.targetId);
-            if (!s || !t) return;
-            const strokeColor = state.theme === 'dark' ? '#475569' : '#cbd5e1';
-            const normalized = state.analyticsMetric === 'count' ? Math.min(1, link.count / Math.max(1, ...canvasLinks.map(item => item.count))) : link.metricValue;
-            svg += `  <line x1="${s.x}" y1="${s.y}" x2="${t.x}" y2="${t.y}" stroke="${strokeColor}" stroke-opacity="${0.2 + normalized * 0.75}" stroke-width="${1 + normalized * 7}" />\n`;
-        });
+        let svgBody = '';
+        let graphicHeight = 450;
 
-        canvasNodes.forEach(node => {
-            svg += `  <circle cx="${node.x}" cy="${node.y}" r="${node.radius}" fill="${node.color}" stroke="#ffffff" stroke-width="2" />\n`;
-            svg += `  <text x="${node.x}" y="${node.y + node.radius + 14}" fill="${state.theme === 'dark' ? '#ffffff' : '#000000'}" font-size="12" text-anchor="middle">${escapeHtml(node.name)}</text>\n`;
-            const nodeMetric = state.analyticsNodeSize === 'count' ? `${node.count} citas` : (state.analyticsNodeSize === 'perThousand' ? `${node.perThousand.toFixed(1)}/1k` : `${(node.documentShare * 100).toFixed(0)}% docs`);
-            svg += `  <text x="${node.x}" y="${node.y + 3}" fill="${state.theme === 'dark' ? '#e2e8f0' : '#334155'}" font-size="10" text-anchor="middle">${nodeMetric}</text>\n`;
+        if (type === 'network') {
+            canvasLinks.forEach(link => {
+                const s = canvasNodes.find(n => n.id === link.sourceId);
+                const t = canvasNodes.find(n => n.id === link.targetId);
+                if (!s || !t) return;
+                const strokeColor = state.theme === 'dark' ? '#475569' : '#cbd5e1';
+                const normalized = state.analyticsMetric === 'count' ? Math.min(1, link.count / Math.max(1, ...canvasLinks.map(item => item.count))) : link.metricValue;
+                svgBody += `  <line x1="${s.x}" y1="${s.y + 110}" x2="${t.x}" y2="${t.y + 110}" stroke="${strokeColor}" stroke-opacity="${0.2 + normalized * 0.75}" stroke-width="${1 + normalized * 7}" />\n`;
+            });
+            canvasNodes.forEach(node => {
+                svgBody += `  <circle cx="${node.x}" cy="${node.y + 110}" r="${node.radius}" fill="${node.color}" stroke="#ffffff" stroke-width="2" />\n`;
+                svgBody += `  <text x="${node.x}" y="${node.y + node.radius + 124}" fill="${state.theme === 'dark' ? '#ffffff' : '#000000'}" font-size="12" text-anchor="middle" font-weight="bold">${escapeHtml(node.name)}</text>\n`;
+            });
+        } else if (type === 'heatmap') {
+            const visualCats = analyticsVisualCategories(analytics);
+            const colW = (w - 200) / visualCats.length;
+            graphicHeight = (visualCats.length + 1) * 32 + 30;
+
+            svgBody += `  <rect x="35" y="115" width="${w - 70}" height="32" fill="${state.theme === 'dark' ? '#1e293b' : '#e2e8f0'}" />\n`;
+            svgBody += `  <text x="45" y="136" fill="${state.theme === 'dark' ? '#94a3b8' : '#475569'}" font-size="11" font-weight="bold">Categoría</text>\n`;
+            visualCats.forEach((cat, colIdx) => {
+                const cx = 200 + colIdx * colW + colW / 2;
+                svgBody += `  <text x="${cx}" y="136" fill="${state.theme === 'dark' ? '#94a3b8' : '#475569'}" font-size="11" font-weight="bold" text-anchor="middle">${escapeHtml((cat.code || cat.name).slice(0, 6))}</text>\n`;
+            });
+
+            const visualIds = new Set(visualCats.map(c => c.id));
+            const visualEdges = (analytics.edges || []).filter(e => visualIds.has(e.sourceId) && visualIds.has(e.targetId));
+            const maxValue = Math.max(0.0001, ...visualEdges.map(e => e.metricValue));
+
+            visualCats.forEach((catA, rIdx) => {
+                const ry = 147 + rIdx * 32;
+                const rowBg = (rIdx % 2 === 0) ? (state.theme === 'dark' ? '#0f172a' : '#ffffff') : (state.theme === 'dark' ? '#1e293b' : '#f8fafc');
+                svgBody += `  <rect x="35" y="${ry}" width="${w - 70}" height="32" fill="${rowBg}" />\n`;
+                svgBody += `  <circle cx="45" cy="${ry + 16}" r="5" fill="${safeColor(catA.color)}" />\n`;
+                svgBody += `  <text x="56" y="${ry + 20}" fill="${state.theme === 'dark' ? '#ffffff' : '#0f172a'}" font-size="11" font-weight="bold">${escapeHtml(catA.name.slice(0, 22))}</text>\n`;
+
+                visualCats.forEach((catB, cIdx) => {
+                    const cellX = 200 + cIdx * colW;
+                    if (catA.id === catB.id) {
+                        const stat = analytics.statsMap.get(catA.id) || { count: 0 };
+                        svgBody += `  <rect x="${cellX + 2}" y="${ry + 2}" width="${colW - 4}" height="28" fill="${state.theme === 'dark' ? '#334155' : '#cbd5e1'}" />\n`;
+                        svgBody += `  <text x="${cellX + colW / 2}" y="${ry + 20}" fill="${state.theme === 'dark' ? '#ffffff' : '#000000'}" font-size="11" font-weight="bold" text-anchor="middle">${stat.count}</text>\n`;
+                    } else {
+                        const edge = analytics.matrix[catA.id] && analytics.matrix[catA.id][catB.id];
+                        const visible = edge && (!state.analyticsHideZeros || edge.count > 0);
+                        if (visible) {
+                            const alpha = 0.15 + 0.75 * (edge.metricValue / maxValue);
+                            svgBody += `  <rect x="${cellX + 2}" y="${ry + 2}" width="${colW - 4}" height="28" fill="${safeColor(catA.color)}" fill-opacity="${alpha.toFixed(2)}" />\n`;
+                            svgBody += `  <text x="${cellX + colW / 2}" y="${ry + 20}" fill="${state.theme === 'dark' ? '#ffffff' : '#0f172a'}" font-size="10" text-anchor="middle">${formatMetric(edge)}</text>\n`;
+                        }
+                    }
+                });
+            });
+        } else if (type === 'bars') {
+            const sorted = [...analytics.categories].sort((a, b) => (analytics.statsMap.get(b.id)?.perThousand || 0) - (analytics.statsMap.get(a.id)?.perThousand || 0)).slice(0, MAX_VISUAL_CATEGORIES);
+            const visibleStats = sorted.map(c => analytics.statsMap.get(c.id));
+            const maxCount = Math.max(1, ...visibleStats.map(s => s.count));
+            graphicHeight = sorted.length * 50 + 20;
+
+            sorted.forEach((cat, rIdx) => {
+                const stat = analytics.statsMap.get(cat.id);
+                const ry = 115 + rIdx * 50;
+                const barW = Math.max(10, (stat.count / maxCount) * (w - 250));
+
+                svgBody += `  <circle cx="45" cy="${ry + 12}" r="5" fill="${safeColor(cat.color)}" />\n`;
+                svgBody += `  <text x="56" y="${ry + 16}" fill="${state.theme === 'dark' ? '#ffffff' : '#0f172a'}" font-size="12" font-weight="bold">${escapeHtml(cat.name)}</text>\n`;
+                svgBody += `  <text x="${w - 35}" y="${ry + 16}" fill="${state.theme === 'dark' ? '#94a3b8' : '#64748b'}" font-size="11" text-anchor="end">${stat.count} pasajes · ${stat.perThousand.toFixed(1)}/1k pal.</text>\n`;
+                svgBody += `  <rect x="35" y="${ry + 24}" width="${barW}" height="10" fill="${safeColor(cat.color)}" rx="3" />\n`;
+            });
+        } else if (type === 'quality') {
+            graphicHeight = 300;
+            const cards = [
+                ['Cobertura', `${(report.coverage * 100).toFixed(1)}%`, `${report.codedChars} / ${report.totalChars} chars`],
+                ['Memos faltantes', String((report.missingMemos || []).length), 'pasajes sin interpretación'],
+                ['Categorías incompletas', String((report.incompleteCategories || []).length), 'sin código o criterio'],
+                ['Documentos sin codificar', String((report.uncodedDocuments || []).length), 'documentos vacíos'],
+                ['Duplicados', String((report.duplicates || []).length), 'codificaciones idénticas'],
+                ['Solapamientos', String((report.overlaps || []).length), 'pares superpuestos'],
+                ['Categorías 1 solo doc', String((report.singleDocumentCategories || []).length), 'revisar transferibilidad'],
+                ['Manual / automática', `${report.manual} / ${report.automatic}`, `${report.totalCodings} codificaciones`]
+            ];
+
+            const cardW = (w - 85) / 2;
+            cards.forEach((card, idx) => {
+                const col = idx % 2;
+                const row = Math.floor(idx / 2);
+                const cx = 35 + col * (cardW + 15);
+                const cy = 115 + row * 70;
+
+                svgBody += `  <rect x="${cx}" y="${cy}" width="${cardW}" height="60" fill="${state.theme === 'dark' ? '#1e293b' : '#f8fafc'}" stroke="${state.theme === 'dark' ? '#334155' : '#cbd5e1'}" rx="6" />\n`;
+                svgBody += `  <text x="${cx + 12}" y="${cy + 25}" fill="#3b82f6" font-size="18" font-weight="bold">${card[1]}</text>\n`;
+                svgBody += `  <text x="${cx + 12}" y="${cy + 42}" fill="${state.theme === 'dark' ? '#ffffff' : '#0f172a'}" font-size="12" font-weight="bold">${card[0]}</text>\n`;
+                svgBody += `  <text x="${cx + 12}" y="${cy + 54}" fill="${state.theme === 'dark' ? '#94a3b8' : '#64748b'}" font-size="10">${card[2]}</text>\n`;
+            });
+        }
+
+        const boxY = 120 + graphicHeight;
+        const boxLines = interpText.split('\n');
+        const boxHeight = 45 + boxLines.length * 18;
+        const totalH = boxY + boxHeight + 40;
+
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${totalH}" viewBox="0 0 ${w} ${totalH}" style="background-color:${state.theme === 'dark' ? '#0b1329' : '#ffffff'}; font-family:sans-serif;">\n`;
+        svg += `  <text x="35" y="40" fill="#3b82f6" font-size="20" font-weight="bold">AnalizadorCualiUY Pro</text>\n`;
+        svg += `  <text x="35" y="65" fill="${state.theme === 'dark' ? '#ffffff' : '#0f172a'}" font-size="16" font-weight="bold">${chartTypeTitle(type)}</text>\n`;
+        svg += `  <text x="35" y="85" fill="${state.theme === 'dark' ? '#94a3b8' : '#64748b'}" font-size="11">Alcance: ${state.analyticsDocumentId ? 'documento' : 'corpus'} | Unidad: ${state.analyticsUnit} | Métrica: ${metricLabel()} | ${new Date().toLocaleDateString('es-UY')}</text>\n`;
+        svg += `  <line x1="35" y1="98" x2="${w - 35}" y2="98" stroke="${state.theme === 'dark' ? '#334155' : '#cbd5e1'}" />\n`;
+
+        svg += svgBody;
+
+        svg += `  <rect x="35" y="${boxY}" width="${w - 70}" height="${boxHeight}" fill="${state.theme === 'dark' ? '#1e293b' : '#f8fafc'}" stroke="#3b82f6" stroke-width="2" rx="8" />\n`;
+        svg += `  <rect x="35" y="${boxY}" width="5" height="${boxHeight}" fill="#3b82f6" />\n`;
+        svg += `  <text x="52" y="${boxY + 24}" fill="#3b82f6" font-size="13" font-weight="bold">💡 Interpretación Analítica Cualitativa${interpretationObj.isCustom ? ' (Nota personalizada)' : ''}</text>\n`;
+
+        boxLines.forEach((line, idx) => {
+            svg += `  <text x="52" y="${boxY + 44 + idx * 18}" fill="${state.theme === 'dark' ? '#ffffff' : '#0f172a'}" font-size="11">${escapeHtml(line)}</text>\n`;
         });
 
         svg += `</svg>`;
 
         const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-        universalSaveFile(blob, `AnalizadorCualiUY_Pro_RedVisual_${new Date().toISOString().slice(0, 10)}.svg`);
+        universalSaveFile(blob, `AnalizadorCualiUY_Pro_${type}_${new Date().toISOString().slice(0, 10)}.svg`);
+    }
+
+    async function exportActiveChartCSV() {
+        const analytics = runAnalytics();
+        const report = window.AnalyticsEngine.quality(state, { documentId: state.analyticsDocumentId, documentGroup: state.analyticsDocumentGroup });
+        const activeInterp = getActiveChartInterpretation(analytics, report);
+        const chartType = state.activeChartType || 'network';
+        const docLabel = getScopeLabel();
+
+        const rows = [];
+        rows.push(['ANALIZADOR CUALIUY PRO - REPORTED DATOS Y SÍNTESIS CUALITATIVA']);
+        rows.push(['Fecha y Hora:', new Date().toLocaleString('es-UY')]);
+        rows.push(['Tipo de Gráfico:', chartType === 'network' ? 'Red de Coocurrencia' : chartType === 'heatmap' ? 'Matriz Heatmap' : chartType === 'bars' ? 'Barras Proporcionales' : 'Diagnóstico de Calidad']);
+        rows.push(['Alcance Analítico:', docLabel]);
+        rows.push(['Unidad de Análisis:', state.analyticsUnit]);
+        rows.push(['Métrica de Asociación:', state.analyticsMetric]);
+        rows.push([]);
+        rows.push(['--- INTERPRETACIÓN ANALÍTICA CUALITATIVA ---']);
+        rows.push([activeInterp.text]);
+        rows.push([]);
+        rows.push(['--- DATOS ESTRUCTURADOS DEL GRÁFICO ---']);
+
+        if (chartType === 'network' || chartType === 'heatmap') {
+            rows.push(['Categoría Origen', 'Categoría Destino', 'Recuento Coocurrencias', `Métrica (${state.analyticsMetric})`, 'Estado']);
+            const edges = (analytics.edges || []).filter(e => !e.unavailable && e.count > 0);
+            edges.forEach(e => {
+                const src = analytics.categoryMap.get(e.sourceId);
+                const tgt = analytics.categoryMap.get(e.targetId);
+                if (src && tgt) {
+                    rows.push([
+                        src.name,
+                        tgt.name,
+                        e.count,
+                        e.metricValue.toFixed(4),
+                        'Coocurrencia Activa'
+                    ]);
+                }
+            });
+        } else if (chartType === 'bars') {
+            rows.push(['Categoría', 'Frecuencia (Citas)', 'Tasa por 1.000 palabras', 'Presencia Documental', 'Proporción Corpus (%)']);
+            (analytics.stats || []).forEach(st => {
+                rows.push([
+                    st.name,
+                    st.count,
+                    st.ratePerThousandWords.toFixed(2),
+                    `${st.docCount} docs`,
+                    (st.documentShare * 100).toFixed(1) + '%'
+                ]);
+            });
+        } else if (chartType === 'quality') {
+            rows.push(['Métrica de Diagnóstico', 'Valor Numérico', 'Estado Metodológico']);
+            rows.push(['Texto Codificado (Caracteres)', report.codedChars, `${((report.codedChars / Math.max(1, report.totalChars)) * 100).toFixed(1)}% cobertura`]);
+            rows.push(['Citas Totales', report.totalCodings, 'Codificaciones en corpus']);
+            rows.push(['Codificaciones Manuales', report.manual, 'Generadas por el investigador']);
+            rows.push(['Codificaciones Automáticas', report.automatic, 'Generadas por palabras clave']);
+            rows.push(['Citas sin Memo', report.uncodedMemosCount || 0, report.uncodedMemosCount > 0 ? 'Atención: faltan memos' : 'OK']);
+            rows.push(['Documentos sin Codificar', report.uncodedDocsCount || 0, report.uncodedDocsCount > 0 ? 'Documentos limpios' : 'OK']);
+        }
+
+        const csvContent = rows.map(row => 
+            row.map(cell => {
+                let text = String(cell ?? '');
+                if (text.startsWith('=') || text.startsWith('+') || text.startsWith('-') || text.startsWith('@')) {
+                    text = "'" + text;
+                }
+                if (text.includes('"') || text.includes(',') || text.includes('\n')) {
+                    text = '"' + text.replace(/"/g, '""') + '"';
+                }
+                return text;
+            }).join(',')
+        ).join('\r\n');
+
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const fileName = `AnalizadorCualiUY_${chartType}_${new Date().toISOString().slice(0, 10)}.csv`;
+        await universalSaveFile(blob, fileName);
     }
 
     function onCanvasMouseDown(e) {
@@ -5117,12 +5754,167 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             recalculateGraphLayout();
             updateNetworkCanvas();
         };
-        document.getElementById('btn-export-png').onclick = exportGraphPNG;
-        document.getElementById('btn-export-svg').onclick = exportGraphSVG;
+        document.getElementById('btn-export-png').onclick = exportActiveChartPNG;
+        document.getElementById('btn-export-svg').onclick = exportActiveChartSVG;
+        const btnExportChartCsv = document.getElementById('btn-export-chart-csv');
+        if (btnExportChartCsv) btnExportChartCsv.onclick = exportActiveChartCSV;
         document.getElementById('btn-reset-network').onclick = () => {
             recalculateGraphLayout();
             updateNetworkCanvas();
         };
+
+        // Chart Interpretation Editor Event Handlers
+        const btnEditInterp = document.getElementById('btn-edit-interpretation');
+        if (btnEditInterp) {
+            btnEditInterp.onclick = () => {
+                const editorEl = document.getElementById('chart-interpretation-editor');
+                const textareaEl = document.getElementById('chart-interpretation-textarea');
+                if (!editorEl || !textareaEl) return;
+                const isHidden = editorEl.style.display === 'none';
+                if (isHidden) {
+                    const analytics = getAnalytics();
+                    const activeInterp = getActiveChartInterpretation(analytics);
+                    textareaEl.value = activeInterp.text;
+                    editorEl.style.display = 'block';
+                } else {
+                    editorEl.style.display = 'none';
+                }
+            };
+        }
+
+        const btnSaveInterp = document.getElementById('btn-save-interpretation');
+        if (btnSaveInterp) {
+            btnSaveInterp.onclick = () => {
+                const editorEl = document.getElementById('chart-interpretation-editor');
+                const textareaEl = document.getElementById('chart-interpretation-textarea');
+                if (!textareaEl) return;
+                const type = state.activeChartType || 'network';
+                if (!state.customChartInterpretations) state.customChartInterpretations = {};
+                state.customChartInterpretations[type] = textareaEl.value.trim();
+                if (editorEl) editorEl.style.display = 'none';
+                saveToStorage();
+                updateQualitativeCharts();
+            };
+        }
+
+        const btnResetInterp = document.getElementById('btn-reset-interpretation');
+        if (btnResetInterp) {
+            btnResetInterp.onclick = () => {
+                const editorEl = document.getElementById('chart-interpretation-editor');
+                const type = state.activeChartType || 'network';
+                if (state.customChartInterpretations) {
+                    state.customChartInterpretations[type] = '';
+                }
+                if (editorEl) editorEl.style.display = 'none';
+                saveToStorage();
+                updateQualitativeCharts();
+            };
+        }
+
+        const btnToggleInterp = document.getElementById('btn-toggle-interpretation');
+        const btnCloseInterp = document.getElementById('btn-close-interpretation');
+        const contentWrapper = document.getElementById('chart-interpretation-content-wrapper');
+
+        if (btnToggleInterp && contentWrapper) {
+            btnToggleInterp.onclick = () => {
+                const isHidden = contentWrapper.style.display === 'none';
+                contentWrapper.style.display = isHidden ? 'block' : 'none';
+                btnToggleInterp.textContent = isHidden ? '👁️ Ocultar' : '💡 Mostrar interpretación';
+            };
+        }
+
+        if (btnCloseInterp && contentWrapper) {
+            btnCloseInterp.onclick = () => {
+                contentWrapper.style.display = 'none';
+                if (btnToggleInterp) btnToggleInterp.textContent = '💡 Mostrar interpretación';
+            };
+        }
+
+        // Methodological Hover Explanations for Analytics Controls
+        function setupAnalyticsOptionHoverHelp() {
+            const helpTextEl = document.getElementById('analytics-option-help-text');
+            if (!helpTextEl) return;
+
+            const defaultText = 'Pasa el cursor sobre cualquier opción (unidad, métrica, nivel, umbral) para ver qué implica metodológicamente y qué aporta a tu análisis.';
+
+            const optionDescriptions = {
+                // Unidades
+                'paragraph': 'Párrafo | Qué implica: Agrupa citas dentro del mismo párrafo. Qué aporta: Evalúa convergencia cualitativa en bloques narrativos continuos (unidad estándar recomendada).',
+                'sentence': 'Oración | Qué implica: Limita la asociación a la misma frase u oración. Qué aporta: Mide máxima proximidad lingüística e inmediatez sintáctica.',
+                'window': 'Ventana de palabras | Qué implica: Evalúa contigüidad en ±N palabras consecutivas. Qué aporta: Analiza fluidez temática sin depender de los saltos de párrafo del autor.',
+                'overlap': 'Solapamiento directo | Qué implica: Exige coincidencia exacta de caracteres o citas superpuestas. Qué aporta: Revela pasajes donde dos categorías fueron codificadas simultáneamente.',
+                'document': 'Documento completo | Qué implica: Evalúa co-presencia en todo el caso o entrevista. Qué aporta: Mide coexistencia temática global sin requerir cercanía física estricta.',
+                
+                // Métricas
+                'jaccard': 'Índice Jaccard (0 a 1) | Qué implica: Mide la proporción de solapamiento respecto al total combinado. Qué aporta: Normaliza la asociación eliminando el sesgo de categorías ultra frecuentes.',
+                'count': 'Recuento | Qué implica: Frecuencia absoluta de pasajes compartidos. Qué aporta: Muestra el volumen bruto directo de evidencia cualitativa entre dos conceptos.',
+                'documentShare': '% Documentos | Qué implica: Porcentaje de documentos donde coexisten ambas categorías. Qué aporta: Mide la representatividad y saturación de la relación en el corpus.',
+
+                // Nivel categorial
+                'main': 'Categorías principales | Qué implica: Agrupa subcategorías en sus padres. Qué aporta: Genera un mapa conceptual macro y sintético ideal para informes ejecutivos o finales.',
+                'all': 'Árbol completo | Qué implica: Muestra todas las subcategorías individualmente. Qué aporta: Permite un análisis cualitativo micro de alta resolución discursiva.',
+
+                // Tamaño de nodos
+                'node-documentShare': 'Presencia documental | Qué implica: El tamaño del nodo refleja el % de casos en que aparece. Qué aporta: Identifica categorías transversales a la muestra.',
+                'node-count': 'Frecuencia absoluta | Qué implica: El tamaño del nodo refleja el número total de pasajes. Qué aporta: Destaca categorías con mayor riqueza discursiva citada.',
+                'node-perThousand': 'Por 1.000 palabras | Qué implica: Frecuencia ajustada por la longitud total. Qué aporta: Elimina el sesgo de extensión entre documentos largos y cortos.',
+
+                // Ventana
+                'win-50': 'Ventana ±50 palabras | Qué implica: Proximidad estrecha de ~3 oraciones. Qué aporta: Captura asociación cualitativa de alta inmediatez.',
+                'win-100': 'Ventana ±100 palabras | Qué implica: Proximidad media de ~1 párrafo corto. Qué aporta: Equilibrio ideal entre contexto discursivo y relevancia temática.',
+                'win-250': 'Ventana ±250 palabras | Qué implica: Proximidad amplia de ~1 página. Qué aporta: Captura relaciones temáticas en discusiones extensas.',
+
+                // Diseños de grafo
+                'layout-circular': 'Circular Radial | Qué implica: Distribuye los nodos en una circunferencia. Qué aporta: Facilita comparar la densidad de conexiones entre todas las categorías.',
+                'layout-grid': 'Distribución Grilla | Qué implica: Organiza las categorías en cuadrícula uniforme. Qué aporta: Ideal para inspección visual estructurada sin solapamientos.',
+                'layout-force': 'Red Libre (Fuerza) | Qué implica: Algoritmo de atracción/repulsión física. Qué aporta: Atrae categorías con alta coocurrencia formando clusters temáticos visuales.',
+
+                // Pestañas
+                'chart-type-network': 'Red / Grafo | Qué implica: Red relacional interactiva. Qué aporta: Visualiza la estructura del sistema categorial y núcleos cualitativos centrales.',
+                'chart-type-heatmap': 'Coocurrencias (Heatmap) | Qué implica: Matriz cruzada de intensidad. Qué aporta: Permite auditar cuantitativamente cada par de categorías.',
+                'chart-type-bars': 'Comparación de Barras | Qué implica: Gráfico de barras normalizadas. Qué aporta: Muestra densidad por 1.000 palabras y presencia documental.',
+                'chart-type-quality': 'Calidad de Codificación | Qué implica: Tablero de auditoría metodológica. Qué aporta: Garantiza la validez cualitativa (cobertura, memos, duplicados).'
+            };
+
+            function setHelpText(key) {
+                if (optionDescriptions[key]) {
+                    helpTextEl.textContent = optionDescriptions[key];
+                } else {
+                    helpTextEl.textContent = defaultText;
+                }
+            }
+
+            document.querySelectorAll('.analytics-toolbar select, .analytics-toolbar input, .btn-chart-type, #graph-layout-select').forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    let key = element.value || element.id;
+                    if (element.id === 'analytics-node-size') key = 'node-' + element.value;
+                    if (element.id === 'cooccurrence-window') key = 'win-' + element.value;
+                    if (element.id === 'graph-layout-select') key = 'layout-' + element.value;
+                    setHelpText(key);
+                });
+                element.addEventListener('change', () => {
+                    let key = element.value || element.id;
+                    if (element.id === 'analytics-node-size') key = 'node-' + element.value;
+                    if (element.id === 'cooccurrence-window') key = 'win-' + element.value;
+                    if (element.id === 'graph-layout-select') key = 'layout-' + element.value;
+                    setHelpText(key);
+                });
+                element.addEventListener('mouseleave', () => {
+                    helpTextEl.textContent = defaultText;
+                });
+            });
+
+            document.querySelectorAll('.analytics-toolbar option').forEach(opt => {
+                opt.addEventListener('mouseenter', () => {
+                    let key = opt.value;
+                    const parent = opt.parentElement;
+                    if (parent && parent.id === 'analytics-node-size') key = 'node-' + opt.value;
+                    if (parent && parent.id === 'cooccurrence-window') key = 'win-' + opt.value;
+                    setHelpText(key);
+                });
+            });
+        }
+        setupAnalyticsOptionHoverHelp();
 
         // Filters in Sidebars
         document.getElementById('filter-docs').oninput = renderDocumentList;
@@ -5183,9 +5975,85 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 document.getElementById('modal-advanced-query').style.display = 'none';
                 document.getElementById('modal-project-templates').style.display = 'none';
                 document.getElementById('modal-import-codebook').style.display = 'none';
+                const citationModal = document.getElementById('modal-citation');
+                if (citationModal) citationModal.style.display = 'none';
                 memoEditingCodingId = null;
             };
         });
+
+        // Citation Modal Handlers
+        let activeCitationFormat = 'apa7';
+
+        function getProductCitationInfo() {
+            let editionName = 'Pro';
+            if (typeof window !== 'undefined' && window.location && window.location.href.includes('educativa')) {
+                editionName = 'Educativa';
+            } else if (typeof document !== 'undefined' && document.title && document.title.includes('Educativa')) {
+                editionName = 'Educativa';
+            } else if (typeof document !== 'undefined' && document.title && document.title.includes('Beta')) {
+                editionName = 'Beta';
+            }
+
+            const fullProductName = `AnalizadorCualiUY ${editionName}`;
+            const year = '2026';
+            const version = '1.0.4';
+            const url = 'https://analizadorcuali.uy';
+
+            return {
+                apa7: `Hernández, S. (${year}). ${fullProductName} (Versión ${version}) [Software de computación]. ${url}`,
+                bibtex: `@software{Hernandez_${fullProductName.replace(/\s+/g, '_')}_${year},\n  author = {Hernández, Santiago},\n  title = {${fullProductName}: Software de Análisis Cualitativo Local y Confidencial},\n  version = {${version}},\n  year = {${year}},\n  url = {${url}}\n}`,
+                chicago: `Hernández, Santiago. ${year}. ${fullProductName}. Versión ${version}. Software de computación. ${url}.`,
+                mla9: `Hernández, Santiago. ${fullProductName}. Versión ${version}, ${year}, ${url}.`,
+                iso690: `HERNÁNDEZ, Santiago, ${year}. ${fullProductName} [software]. Versión ${version}. Disponible en: ${url}`
+            };
+        }
+
+        function updateCitationTextBox() {
+            const box = document.getElementById('citation-text-box');
+            if (!box) return;
+            const info = getProductCitationInfo();
+            box.value = info[activeCitationFormat] || info.apa7;
+        }
+
+        function openCitationModal() {
+            updateCitationTextBox();
+            const citationModal = document.getElementById('modal-citation');
+            if (citationModal) citationModal.style.display = 'flex';
+        }
+
+        const btnCiteSoftware = document.getElementById('btn-cite-software');
+        if (btnCiteSoftware) btnCiteSoftware.onclick = openCitationModal;
+
+        const btnCiteFromCredits = document.getElementById('btn-open-citation-from-credits');
+        if (btnCiteFromCredits) btnCiteFromCredits.onclick = openCitationModal;
+
+        document.querySelectorAll('.btn-citation-format').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.btn-citation-format').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeCitationFormat = btn.dataset.format || 'apa7';
+                updateCitationTextBox();
+            };
+        });
+
+        const btnCopyCitation = document.getElementById('btn-copy-citation');
+        if (btnCopyCitation) {
+            btnCopyCitation.onclick = () => {
+                const box = document.getElementById('citation-text-box');
+                const toast = document.getElementById('citation-copied-toast');
+                if (!box) return;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(box.value);
+                } else {
+                    box.select();
+                    document.execCommand('copy');
+                }
+                if (toast) {
+                    toast.style.opacity = '1';
+                    setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+                }
+            };
+        }
 
         // Color Presets in Modal
         document.querySelectorAll('.color-preset').forEach(preset => {

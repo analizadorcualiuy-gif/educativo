@@ -336,6 +336,7 @@ button, input, select, textarea {
     flex-direction: column;
     min-width: 240px;
     min-height: 0;
+    overflow-y: auto;
 }
 
 .pane-analysis {
@@ -628,6 +629,126 @@ button, input, select, textarea {
     box-shadow: 0 0 8px rgba(59, 130, 246, 0.45);
     font-weight: 500;
 }
+
+/* Qualitative Chart Analytical Interpretation Box */
+.chart-interpretation-box {
+    margin-top: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent-primary);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.chart-interpretation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.chart-interpretation-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.badge-help-sm {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    margin-left: 0.3rem;
+}
+
+/* Chart Visual Legends */
+.chart-legend-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.35rem 0.6rem;
+    margin-bottom: 0.6rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+}
+
+.analytics-option-help-strip {
+    margin-top: 0.4rem;
+    padding: 0.35rem 0.65rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.76rem;
+    color: var(--accent-primary);
+    min-height: 2.2em;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.15s ease;
+}
+
+.analytics-option-help-strip span {
+    color: var(--text-primary);
+    font-weight: 400;
+}
+
+.chart-legend-bar .legend-title {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.legend-swatch-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.legend-color-box {
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.chart-interpretation-title {
+    font-weight: 600;
+    color: var(--accent-primary);
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.chart-interpretation-body {
+    color: var(--text-primary);
+    white-space: pre-line;
+}
+
+.chart-interpretation-editor {
+    margin-top: 0.5rem;
+}
+
+.chart-interpretation-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+    justify-content: flex-end;
+}
+
 .chart-type-selector {
     display: flex;
     gap: 0.3rem;
@@ -638,7 +759,7 @@ button, input, select, textarea {
     border: 1px solid var(--border-color);
 }
 
-.btn-chart-type {
+.btn-chart-type, .btn-citation-format {
     flex: 1;
     background: transparent;
     border: none;
@@ -651,7 +772,7 @@ button, input, select, textarea {
     transition: all 0.15s ease;
 }
 
-.btn-chart-type.active {
+.btn-chart-type.active, .btn-citation-format.active {
     background-color: var(--accent-primary);
     color: #ffffff;
     font-weight: 600;
@@ -1086,14 +1207,21 @@ button, input, select, textarea {
 
 .tab-content {
     display: none;
-    flex: 1;
+    flex: 1 1 auto;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 0.85rem;
 }
 
 .tab-content.active {
     display: flex;
+}
+
+#tab-network, #tab-decoder, #tab-search {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-bottom: 3rem !important;
 }
 
 .tab-header {
@@ -1195,12 +1323,14 @@ button, input, select, textarea {
 
 /* Canvas Visual Network */
 .canvas-wrapper {
-    flex: 1;
     position: relative;
     background-color: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
+    min-height: 420px;
+    height: 480px;
+    flex-shrink: 0;
 }
 
 #network-canvas {

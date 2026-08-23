@@ -148,6 +148,14 @@
                 <span>Acerca de / Créditos</span>
             </button>
 
+            <button id="btn-cite-software" class="btn btn-outline" title="Obtener la cita académica oficial de AnalizadorCualiUY para publicaciones y tesis">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                <span>📖 Citar este software</span>
+            </button>
+
             <button id="btn-open-guide" class="btn btn-outline" title="Ver guía tutorial e inducción operativa">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"/>
@@ -400,52 +408,57 @@
                     </div>
 
                     <div class="analytics-toolbar" aria-label="Opciones analíticas">
-                        <label>Nivel categorial
+                        <label title="Nivel de desagregación del libro de códigos">Nivel categorial
                             <select id="analytics-category-mode" class="select-sm">
-                                <option value="main">Categorías principales</option>
-                                <option value="all">Árbol completo</option>
+                                <option value="main" title="Sintetiza subcategorías en sus categorías superiores para informes macro">Categorías principales</option>
+                                <option value="all" title="Muestra individualmente cada categoría y subcategoría para análisis micro">Árbol completo</option>
                             </select>
                         </label>
-                        <label>Tamaño de nodos
+                        <label title="Propiedad representada por el tamaño del nodo en el grafo">Tamaño de nodos
                             <select id="analytics-node-size" class="select-sm">
-                                <option value="documentShare">Presencia documental</option>
-                                <option value="count">Frecuencia</option>
-                                <option value="perThousand">Por 1.000 palabras</option>
+                                <option value="documentShare" title="Destaca categorías transversales presentes en más documentos del corpus">Presencia documental</option>
+                                <option value="count" title="Destaca categorías con mayor número total de citas o pasajes codificados">Frecuencia</option>
+                                <option value="perThousand" title="Normaliza la frecuencia por cada 1.000 palabras para eliminar el sesgo de extensión">Por 1.000 palabras</option>
                             </select>
                         </label>
-                        <label>Unidad
+                        <label title="Delimita la proximidad textual requerida entre categorías para considerar coocurrencia">Unidad
                             <select id="cooccurrence-unit" class="select-sm">
-                                <option value="paragraph">Párrafo</option>
-                                <option value="sentence">Oración</option>
-                                <option value="document">Documento</option>
-                                <option value="window">Ventana</option>
-                                <option value="overlap">Solapamiento</option>
+                                <option value="paragraph" title="Párrafo: Mide convergencia en el mismo bloque narrativo o argumento continuo">Párrafo</option>
+                                <option value="sentence" title="Oración: Exige inmediatez sintáctica dentro de la misma frase">Oración</option>
+                                <option value="window" title="Ventana: Evalúa contigüidad temática fluida dentro de N palabras consecutivas">Ventana</option>
+                                <option value="overlap" title="Solapamiento: Exige coincidencia exacta de caracteres o pasaje compartido">Solapamiento</option>
+                                <option value="document" title="Documento: Mide la co-presencia global dentro de la misma entrevista o caso">Documento</option>
                             </select>
                         </label>
-                        <label>Métrica
+                        <label title="Algoritmo de cálculo para la fuerza de asociación entre categorías">Métrica
                             <select id="association-metric" class="select-sm">
-                                <option value="jaccard">Jaccard</option>
-                                <option value="count">Recuento</option>
-                                <option value="documentShare">% documentos</option>
+                                <option value="jaccard" title="Índice Jaccard (0 a 1): Mide solapamiento relativo sin sesgo por alta frecuencia">Jaccard</option>
+                                <option value="count" title="Recuento: Muestra el volumen bruto absoluto de coocurrencias compartidas">Recuento</option>
+                                <option value="documentShare" title="% Documentos: Porcentaje de casos donde coexisten ambas categorías">% documentos</option>
                             </select>
                         </label>
-                        <label>Ventana
+                        <label title="Extensión en número de palabras a cada lado para el modo Ventana">Ventana
                             <select id="cooccurrence-window" class="select-sm">
-                                <option value="50">±50</option>
-                                <option value="100" selected>±100</option>
-                                <option value="250">±250</option>
+                                <option value="50" title="Ventana estrecha (±50 palabras): Alta proximidad temática">±50</option>
+                                <option value="100" selected title="Ventana estándar (±100 palabras): Proximidad conceptual media">±100</option>
+                                <option value="250" title="Ventana amplia (±250 palabras): Contexto discursivo amplio">±250</option>
                             </select>
                         </label>
-                        <label>Documento
-                            <select id="analytics-document-filter" class="select-sm"><option value="">Todo el corpus</option></select>
+                        <label title="Filtra los datos por un documento individual del corpus">Documento
+                            <select id="analytics-document-filter" class="select-sm"><option value="" title="Analiza todo el corpus de documentos">Todo el corpus</option></select>
                         </label>
-                        <label>Grupo
-                            <select id="analytics-group-filter" class="select-sm"><option value="">Todos</option></select>
+                        <label title="Filtra los datos por un grupo o atributo de documentos (ej: informantes clave)">Grupo
+                            <select id="analytics-group-filter" class="select-sm"><option value="" title="Incluye todos los grupos de documentos">Todos</option></select>
                         </label>
-                        <label>Umbral
-                            <input id="analytics-threshold" class="input-sm" type="number" min="0" step="0.05" value="0">
+                        <label title="Filtro de intensidad mínima para limpiar ruido visual en la red">Umbral
+                            <input id="analytics-threshold" class="input-sm" type="number" min="0" step="0.05" value="0" title="Ingresa el valor mínimo de asociación requerida para mostrar una conexión">
                         </label>
-                        <label class="check-inline"><input id="analytics-hide-zeros" type="checkbox" checked> Ocultar ceros</label>
+                        <label class="check-inline" title="Oculta pares de categorías sin coocurrencia registrada"><input id="analytics-hide-zeros" type="checkbox" checked> Ocultar ceros</label>
+                    </div>
+
+                    <!-- Dynamic Methodological Explanation Bar -->
+                    <div id="analytics-option-help-strip" class="analytics-option-help-strip">
+                        💡 <span id="analytics-option-help-text">Pasa el cursor sobre cualquier opción (unidad, métrica, nivel, umbral) para ver qué implica metodológicamente y qué aporta a tu análisis.</span>
                     </div>
 
                     <div id="graph-toolbar-container" class="graph-toolbar">
@@ -460,6 +473,7 @@
                         <div class="graph-toolbar-row">
                             <button id="btn-export-png" class="btn-sm btn-outline" title="Exportar gráfico como imagen PNG">📷 Exportar PNG</button>
                             <button id="btn-export-svg" class="btn-sm btn-outline" title="Exportar gráfico como archivo vectorial SVG">📐 Exportar SVG</button>
+                            <button id="btn-export-chart-csv" class="btn-sm btn-outline" title="Exportar datos del gráfico e interpretación cualitativa a CSV">📊 Exportar Datos (CSV)</button>
                             <button id="btn-reset-network" class="btn-sm btn-secondary" title="Restablecer posiciones">Reiniciar</button>
                         </div>
                     </div>
@@ -469,24 +483,71 @@
 
                 <!-- Container 1: Network Canvas Graph -->
                 <div id="chart-container-network" class="canvas-wrapper">
+                    <div class="chart-legend-bar">
+                        <span class="legend-title">Guía visual de red:</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:var(--accent-primary);"></span> Nodos = Categorías (tamaño por presencia)</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:var(--border-color); height:3px;"></span> Enlaces = Coocurrencia (grosor por intensidad)</span>
+                    </div>
                     <canvas id="network-canvas" role="img" aria-label="Red de asociaciones entre categorías cualitativas"></canvas>
                 </div>
 
                 <!-- Container 2: Qualitative Co-occurrence Heatmap Crosstab -->
                 <div id="chart-container-heatmap" class="heatmap-wrapper" style="display:none;">
+                    <div class="chart-legend-bar">
+                        <span class="legend-title">Escala de intensidad:</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-color);"></span> Cero</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:rgba(46, 204, 113, 0.25);"></span> Baja</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:rgba(46, 204, 113, 0.55);"></span> Media</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:rgba(46, 204, 113, 0.9);"></span> Alta</span>
+                    </div>
                     <div id="heatmap-description" class="heatmap-info">Matriz categoría × categoría según la unidad y métrica seleccionadas.</div>
                     <div id="heatmap-table-wrapper" class="heatmap-table-container"></div>
                 </div>
 
                 <!-- Container 3: Proportional Bar Chart -->
                 <div id="chart-container-bars" class="bars-wrapper" style="display:none;">
+                    <div class="chart-legend-bar">
+                        <span class="legend-title">Métricas de comparación:</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:var(--accent-primary);"></span> Frecuencia (Citas pasajes)</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:#3498db;"></span> Densidad (Tasa / 1.000 palabras)</span>
+                    </div>
                     <div id="bars-description" class="heatmap-info">Comparación normalizada por 1.000 palabras, frecuencia y presencia documental.</div>
                     <div id="proportional-bars-list" class="cards-container"></div>
                 </div>
 
                 <div id="chart-container-quality" class="quality-wrapper" style="display:none;">
+                    <div class="chart-legend-bar">
+                        <span class="legend-title">Indicadores de calidad:</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:#2ecc71;"></span> Cobertura & Memos</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:#f1c40f;"></span> Revisiones Pendientes</span>
+                    </div>
                     <div class="heatmap-info">Diagnóstico del corpus y tareas pendientes antes de cerrar el análisis.</div>
                     <div id="quality-dashboard" class="quality-dashboard"></div>
+                </div>
+
+                <!-- Global Analytical Interpretation Box for Active Chart -->
+                <div id="chart-interpretation-box" class="chart-interpretation-box">
+                    <div class="chart-interpretation-header">
+                        <span class="chart-interpretation-title">
+                            💡 Interpretación Analítica Cualitativa
+                            <span class="badge-help-sm" title="Síntesis cualitativa basada en los datos cargados. Haz clic en el botón de la derecha para plegar o desplegar esta tarjeta.">Guía visual</span>
+                        </span>
+                        <div class="chart-interpretation-header-actions">
+                            <button id="btn-edit-interpretation" class="btn-sm btn-outline" title="Editar o agregar notas personalizadas al gráfico para exportaciones">✏️ Editar nota</button>
+                            <button id="btn-toggle-interpretation" class="btn-sm btn-outline" title="Ocultar o mostrar la interpretación del gráfico">👁️ Ocultar</button>
+                            <button id="btn-close-interpretation" class="btn-close-sm" title="Cerrar la tarjeta de interpretación">&times;</button>
+                        </div>
+                    </div>
+                    <div id="chart-interpretation-content-wrapper">
+                        <div id="chart-interpretation-body" class="chart-interpretation-body"></div>
+                        <div id="chart-interpretation-editor" class="chart-interpretation-editor" style="display:none;">
+                            <textarea id="chart-interpretation-textarea" class="textarea-sm" rows="3" placeholder="Ingresa observaciones o interpretaciones cualitativas personalizadas para este gráfico..."></textarea>
+                            <div class="chart-interpretation-actions">
+                                <button id="btn-save-interpretation" class="btn-sm btn-primary">Guardar nota</button>
+                                <button id="btn-reset-interpretation" class="btn-sm btn-outline">Restablecer síntesis automática</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="chart-drilldown" class="chart-drilldown" style="display:none;">
@@ -720,8 +781,41 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button id="btn-open-citation-from-credits" class="btn btn-outline">📖 Citar software</button>
                 <button id="btn-view-license-file" class="btn btn-outline">📜 Ver EULA</button>
                 <button class="btn btn-primary modal-cancel">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Citar este software -->
+    <div id="modal-citation" class="modal-backdrop" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="citation-modal-title">
+        <div class="modal-card" style="width:640px; max-width:96vw;">
+            <div class="modal-header">
+                <h3 id="citation-modal-title">📖 Citar AnalizadorCualiUY</h3>
+                <button class="modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:1rem; font-size:0.85rem;">
+                <p style="color:var(--text-secondary); margin:0;">
+                    Si utilizas <strong>AnalizadorCualiUY</strong> en tus investigaciones, artículos o tesis de posgrado, puedes incluir la referencia en el formato de tu preferencia:
+                </p>
+                <div class="chart-type-selector" style="margin-top:0.3rem;" aria-label="Estándar de cita académica">
+                    <button class="btn-citation-format active" data-format="apa7">APA 7ª ed.</button>
+                    <button class="btn-citation-format" data-format="bibtex">BibTeX</button>
+                    <button class="btn-citation-format" data-format="chicago">Chicago 17ª</button>
+                    <button class="btn-citation-format" data-format="mla9">MLA 9ª</button>
+                    <button class="btn-citation-format" data-format="iso690">ISO 690</button>
+                </div>
+                <div style="position:relative;">
+                    <textarea id="citation-text-box" class="textarea-sm" rows="5" readonly style="font-family:monospace; font-size:0.82rem; width:100%; padding:0.65rem; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:6px; color:var(--text-primary); resize:none;"></textarea>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span id="citation-copied-toast" style="font-size:0.8rem; color:var(--accent-primary); font-weight:600; opacity:0; transition:opacity 0.2s ease;">✓ ¡Cita copiada al portapapeles!</span>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button id="btn-copy-citation" class="btn btn-primary btn-sm">📋 Copiar cita</button>
+                        <button class="btn btn-outline btn-sm modal-cancel">Cerrar</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

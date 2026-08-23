@@ -60,6 +60,7 @@
         viewMode: 'standard', // 'standard' | 'tiers'
         graphLayout: 'circular',
         activeChartType: 'network', // 'network' | 'heatmap' | 'bars' | 'quality'
+        customChartInterpretations: { network: '', heatmap: '', bars: '', quality: '' },
         analyticsUnit: 'paragraph',
         analyticsMetric: 'jaccard',
         analyticsCategoryMode: 'main',
@@ -1332,12 +1333,152 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         panel.style.display = 'block';
     }
 
+    function generateNetworkInterpretation(analytics) {
+        if (!analytics || !analytics.categories || analytics.categories.length === 0) {
+            return 'No hay categorías ni datos suficientes para analizar la red de conceptos.';
+        }
+        const totalCats = analytics.categories.length;
+        const totalEdges = (analytics.edges || []).filter(e => !e.unavailable && e.count > 0).length;
+        const unitLabel = state.analyticsUnit || 'párrafo';
+        const metric = metricLabel();
+
+        const sortedCats = [...analytics.categories].sort((a, b) => {
+            const statA = analytics.statsMap.get(a.id) || { count: 0 };
+            const statB = analytics.statsMap.get(b.id) || { count: 0 };
+            return statB.count - statA.count;
+        });
+        const topCat = sortedCats[0];
+        const topStat = analytics.statsMap.get(topCat.id) || { count: 0, docCount: 0, documentShare: 0 };
+
+        const sortedEdges = [...(analytics.edges || [])].filter(e => !e.unavailable && e.count > 0).sort((a, b) => b.metricValue - a.metricValue);
+        let topPairText = '';
+        if (sortedEdges.length > 0) {
+            const topEdge = sortedEdges[0];
+            const src = analytics.categoryMap.get(topEdge.sourceId);
+            const tgt = analytics.categoryMap.get(topEdge.targetId);
+            if (src && tgt) {
+                topPairText = ` La relación de coocurrencia más fuerte se observa entre "${src.name}" y "${tgt.name}" (métrica ${metric}: ${formatMetric(topEdge)}, ${topEdge.count} pasajes).`;
+            }
+        } else {
+            topPairText = ' No se registran relaciones de coocurrencia bajo el umbral actual.';
+        }
+
+        const connectedSet = new Set((analytics.edges || []).flatMap(e => [e.sourceId, e.targetId]));
+        const isolatedCount = totalCats - analytics.categories.filter(c => connectedSet.has(c.id)).length;
+        let isolationText = isolatedCount > 0 ? ` Existen ${isolatedCount} categorías sin relaciones significativas en este nivel.` : ' Todas las categorías forman una red interconectada.';
+
+        return `Red cualitativa compuesta por ${totalCats} categorías y ${totalEdges} asociaciones en el nivel de ${unitLabel}.${topPairText} La categoría central con mayor evidencia es "${topCat.name}" (presente en ${topStat.docCount} documentos, ${(topStat.documentShare * 100).toFixed(0)}% del corpus, ${topStat.count} pasajes).${isolationText}\n💡 Guía cualitativa: Nodos más grandes reflejan mayor presencia; conexiones más gruesas indican mayor convergencia temática.`;
+    }
+
+    function generateHeatmapInterpretation(analytics) {
+        if (!analytics || !analytics.categories || analytics.categories.length === 0) {
+            return 'Carga documentos y categorías para visualizar la matriz de coocurrencia.';
+        }
+        const visualCats = analyticsVisualCategories(analytics);
+        const totalCells = visualCats.length * visualCats.length;
+        const sortedEdges = [...(analytics.edges || [])].filter(e => !e.unavailable && e.count > 0).sort((a, b) => b.metricValue - a.metricValue);
+        let peakText = '';
+        if (sortedEdges.length > 0) {
+            const peak = sortedEdges[0];
+            const src = analytics.categoryMap.get(peak.sourceId);
+            const tgt = analytics.categoryMap.get(peak.targetId);
+            if (src && tgt) {
+                peakText = ` La máxima densidad de coocurrencia ocurre en la intersección "${src.name}" × "${tgt.name}" (${formatMetric(peak)}).`;
+            }
+        }
+        const activePairs = sortedEdges.length;
+        const activePct = totalCells > 0 ? ((activePairs * 2) / totalCells * 100).toFixed(1) : '0.0';
+
+        return `Matriz de coocurrencia entre ${visualCats.length} categorías principales (${state.analyticsUnit}, métrica: ${metricLabel()}).${peakText} Se identifican ${activePairs} pares de coocurrencia activos (${activePct}% de densidad de la matriz).\n💡 Guía cualitativa: Las celdas de intensidad superior marcan solapamientos o proximidades contextuales frecuentes entre los códigos analizados.`;
+    }
+
+    function generateBarsInterpretation(analytics) {
+        if (!analytics || !analytics.categories || analytics.categories.length === 0) {
+            return 'Sin categorías para comparar.';
+        }
+        const sortedByDensity = [...analytics.categories].sort((a, b) => (analytics.statsMap.get(b.id)?.perThousand || 0) - (analytics.statsMap.get(a.id)?.perThousand || 0));
+        const sortedByCoverage = [...analytics.categories].sort((a, b) => (analytics.statsMap.get(b.id)?.documentShare || 0) - (analytics.statsMap.get(a.id)?.documentShare || 0));
+
+        const topDensity = sortedByDensity[0];
+        const topDensityStat = analytics.statsMap.get(topDensity.id) || { perThousand: 0, count: 0 };
+        const topCoverage = sortedByCoverage[0];
+        const topCoverageStat = analytics.statsMap.get(topCoverage.id) || { docCount: 0, documentShare: 0 };
+
+        const totalDocs = analytics.documents.length || 1;
+        const lowDensity = sortedByDensity.filter(c => (analytics.statsMap.get(c.id)?.perThousand || 0) < 1).length;
+
+        return `Comparación proporcional de ${analytics.categories.length} categorías en el corpus (${analytics.documents.length} documentos). La categoría con mayor densidad es "${topDensity.name}" (${topDensityStat.perThousand.toFixed(1)} pasajes/1.000 pal., ${topDensityStat.count} pasajes). La categoría de mayor cobertura documental es "${topCoverage.name}" (presente en ${topCoverageStat.docCount}/${totalDocs} docs, ${(topCoverageStat.documentShare * 100).toFixed(0)}%).${lowDensity > 0 ? ` Hay ${lowDensity} categorías con baja densidad (<1/1k pal.).` : ''}\n💡 Guía cualitativa: Barra sólida = frecuencia absoluta; Barra suave = tasa normalizada por volumen textual.`;
+    }
+
+    function generateQualityInterpretation(report) {
+        if (!report) return 'Diagnóstico de calidad no disponible.';
+        const cov = (report.coverage * 100).toFixed(1);
+        const missingMemosCount = (report.missingMemos || []).length;
+        const incompleteCount = (report.incompleteCategories || []).length;
+        const uncodedDocsCount = (report.uncodedDocuments || []).length;
+        const duplicatesCount = (report.duplicates || []).length;
+        const overlapsCount = (report.overlaps || []).length;
+
+        let statusText = [];
+        if (missingMemosCount > 0) statusText.push(`${missingMemosCount} pasajes sin memo interpretativo`);
+        if (incompleteCount > 0) statusText.push(`${incompleteCount} categorías incompletas`);
+        if (uncodedDocsCount > 0) statusText.push(`${uncodedDocsCount} documentos sin codificar`);
+        if (duplicatesCount > 0) statusText.push(`${duplicatesCount} codificaciones duplicadas`);
+        if (overlapsCount > 0) statusText.push(`${overlapsCount} solapamientos detectados`);
+
+        const statusSummary = statusText.length > 0 ? ` Hallazgos a revisar: ${statusText.join(', ')}.` : ' El corpus no presenta inconsistencias metodológicas detectables.';
+
+        return `Diagnóstico global de codificación. Cobertura total: ${cov}% del texto analizado (${report.codedChars.toLocaleString('es-UY')} de ${report.totalChars.toLocaleString('es-UY')} caracteres). Citas totales: ${report.totalCodings} (Manual: ${report.manual}, Automática: ${report.automatic}).${statusSummary}\n💡 Guía cualitativa: Mantener memos explicativos en cada cita fortalece la validez interna y la triangulación del reporte.`;
+    }
+
+    function getActiveChartInterpretation(analytics, report) {
+        const type = state.activeChartType || 'network';
+        if (state.customChartInterpretations && state.customChartInterpretations[type]) {
+            return {
+                text: state.customChartInterpretations[type],
+                isCustom: true
+            };
+        }
+        let autoText = '';
+        if (type === 'network') autoText = generateNetworkInterpretation(analytics);
+        else if (type === 'heatmap') autoText = generateHeatmapInterpretation(analytics);
+        else if (type === 'bars') autoText = generateBarsInterpretation(analytics);
+        else if (type === 'quality') autoText = generateQualityInterpretation(report || window.AnalyticsEngine.quality(state, { documentId: state.analyticsDocumentId, documentGroup: state.analyticsDocumentGroup }));
+        return {
+            text: autoText,
+            isCustom: false
+        };
+    }
+
+    function updateInterpretationBox(analytics, report) {
+        const bodyEl = document.getElementById('chart-interpretation-body');
+        const titleEl = document.querySelector('.chart-interpretation-title');
+        if (!bodyEl) return;
+
+        const activeInterp = getActiveChartInterpretation(analytics, report);
+        bodyEl.textContent = activeInterp.text;
+        if (titleEl) {
+            titleEl.innerHTML = activeInterp.isCustom 
+                ? '💡 Interpretación Analítica Cualitativa <small style="color:var(--accent-primary); font-weight:normal;">(Nota personalizada)</small>'
+                : '💡 Interpretación Analítica Cualitativa';
+        }
+    }
+
     function updateQualitativeCharts() {
         ['network', 'heatmap', 'bars', 'quality'].forEach(type => {
             const el = document.getElementById(`chart-container-${type}`);
             if (el) el.style.display = state.activeChartType === type ? 'block' : 'none';
         });
-        document.getElementById('graph-toolbar-container').style.display = state.activeChartType === 'network' ? 'flex' : 'none';
+        const toolbar = document.getElementById('graph-toolbar-container');
+        if (toolbar) {
+            toolbar.style.display = 'flex';
+            const layoutRow = toolbar.querySelector('.graph-toolbar-row:first-child');
+            if (layoutRow) layoutRow.style.display = state.activeChartType === 'network' ? 'flex' : 'none';
+            const btnReset = document.getElementById('btn-reset-network');
+            if (btnReset) btnReset.style.display = state.activeChartType === 'network' ? 'inline-block' : 'none';
+        }
+        const analytics = getAnalytics();
+        let report = null;
         if (state.activeChartType === 'network') {
             updateNetworkCanvas();
         } else if (state.activeChartType === 'heatmap') {
@@ -1345,8 +1486,10 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         } else if (state.activeChartType === 'bars') {
             renderProportionalBars();
         } else if (state.activeChartType === 'quality') {
+            report = window.AnalyticsEngine.quality(state, { documentId: state.analyticsDocumentId, documentGroup: state.analyticsDocumentGroup });
             renderQualityDashboard();
         }
+        updateInterpretationBox(analytics, report);
     }
 
     function renderQualitativeHeatmap() {
@@ -2346,8 +2489,8 @@ ${bodyHtml}
         if (!canvas) return;
 
         const rect = canvas.parentElement.getBoundingClientRect();
-        canvas.width = rect.width || 340;
-        canvas.height = rect.height || 380;
+        canvas.width = rect.width || 600;
+        canvas.height = Math.max(400, rect.height || 480);
 
         canvas.removeEventListener('mousedown', onCanvasMouseDown);
         canvas.removeEventListener('mousemove', onCanvasMouseMove);
@@ -2930,6 +3073,236 @@ ${bodyHtml}
             this.classList.add('active');
             updateQualitativeCharts();
         };
+
+        const btnEditInterp = document.getElementById('btn-edit-interpretation');
+        if (btnEditInterp) {
+            btnEditInterp.onclick = () => {
+                const editorEl = document.getElementById('chart-interpretation-editor');
+                const textareaEl = document.getElementById('chart-interpretation-textarea');
+                if (!editorEl || !textareaEl) return;
+                const isHidden = editorEl.style.display === 'none';
+                if (isHidden) {
+                    const analytics = getAnalytics();
+                    const activeInterp = getActiveChartInterpretation(analytics);
+                    textareaEl.value = activeInterp.text;
+                    editorEl.style.display = 'block';
+                } else {
+                    editorEl.style.display = 'none';
+                }
+            };
+        }
+
+        const btnSaveInterp = document.getElementById('btn-save-interpretation');
+        if (btnSaveInterp) {
+            btnSaveInterp.onclick = () => {
+                const editorEl = document.getElementById('chart-interpretation-editor');
+                const textareaEl = document.getElementById('chart-interpretation-textarea');
+                if (!textareaEl) return;
+                const type = state.activeChartType || 'network';
+                if (!state.customChartInterpretations) state.customChartInterpretations = {};
+                state.customChartInterpretations[type] = textareaEl.value.trim();
+                if (editorEl) editorEl.style.display = 'none';
+                saveToStorage();
+                updateQualitativeCharts();
+            };
+        }
+
+        const btnResetInterp = document.getElementById('btn-reset-interpretation');
+        if (btnResetInterp) {
+            btnResetInterp.onclick = () => {
+                const editorEl = document.getElementById('chart-interpretation-editor');
+                const type = state.activeChartType || 'network';
+                if (state.customChartInterpretations) {
+                    state.customChartInterpretations[type] = '';
+                }
+                if (editorEl) editorEl.style.display = 'none';
+                saveToStorage();
+                updateQualitativeCharts();
+            };
+        }
+
+        const btnToggleInterp = document.getElementById('btn-toggle-interpretation');
+        const btnCloseInterp = document.getElementById('btn-close-interpretation');
+        const contentWrapper = document.getElementById('chart-interpretation-content-wrapper');
+
+        if (btnToggleInterp && contentWrapper) {
+            btnToggleInterp.onclick = () => {
+                const isHidden = contentWrapper.style.display === 'none';
+                contentWrapper.style.display = isHidden ? 'block' : 'none';
+                btnToggleInterp.textContent = isHidden ? '👁️ Ocultar' : '💡 Mostrar interpretación';
+            };
+        }
+
+        if (btnCloseInterp && contentWrapper) {
+            btnCloseInterp.onclick = () => {
+                contentWrapper.style.display = 'none';
+                if (btnToggleInterp) btnToggleInterp.textContent = '💡 Mostrar interpretación';
+            };
+        }
+
+        // Methodological Hover Explanations for Analytics Controls
+        function setupAnalyticsOptionHoverHelp() {
+            const helpTextEl = document.getElementById('analytics-option-help-text');
+            if (!helpTextEl) return;
+
+            const defaultText = 'Pasa el cursor sobre cualquier opción (unidad, métrica, nivel, umbral) para ver qué implica metodológicamente y qué aporta a tu análisis.';
+
+            const optionDescriptions = {
+                // Unidades
+                'paragraph': 'Párrafo | Qué implica: Agrupa citas dentro del mismo párrafo. Qué aporta: Evalúa convergencia cualitativa en bloques narrativos continuos (unidad estándar recomendada).',
+                'sentence': 'Oración | Qué implica: Limita la asociación a la misma frase u oración. Qué aporta: Mide máxima proximidad lingüística e inmediatez sintáctica.',
+                'window': 'Ventana de palabras | Qué implica: Evalúa contigüidad en ±N palabras consecutivas. Qué aporta: Analiza fluidez temática sin depender de los saltos de párrafo del autor.',
+                'overlap': 'Solapamiento directo | Qué implica: Exige coincidencia exacta de caracteres o citas superpuestas. Qué aporta: Revela pasajes donde dos categorías fueron codificadas simultáneamente.',
+                'document': 'Documento completo | Qué implica: Evalúa co-presencia en todo el caso o entrevista. Qué aporta: Mide coexistencia temática global sin requerir cercanía física estricta.',
+                
+                // Métricas
+                'jaccard': 'Índice Jaccard (0 a 1) | Qué implica: Mide la proporción de solapamiento respecto al total combinado. Qué aporta: Normaliza la asociación eliminando el sesgo de categorías ultra frecuentes.',
+                'count': 'Recuento | Qué implica: Frecuencia absoluta de pasajes compartidos. Qué aporta: Muestra el volumen bruto directo de evidencia cualitativa entre dos conceptos.',
+                'documentShare': '% Documentos | Qué implica: Porcentaje de documentos donde coexisten ambas categorías. Qué aporta: Mide la representatividad y saturación de la relación en el corpus.',
+
+                // Nivel categorial
+                'main': 'Categorías principales | Qué implica: Agrupa subcategorías en sus padres. Qué aporta: Genera un mapa conceptual macro y sintético ideal para informes ejecutivos o finales.',
+                'all': 'Árbol completo | Qué implica: Muestra todas las subcategorías individualmente. Qué aporta: Permite un análisis cualitativo micro de alta resolución discursiva.',
+
+                // Tamaño de nodos
+                'node-documentShare': 'Presencia documental | Qué implica: El tamaño del nodo refleja el % de casos en que aparece. Qué aporta: Identifica categorías transversales a la muestra.',
+                'node-count': 'Frecuencia absoluta | Qué implica: El tamaño del nodo refleja el número total de pasajes. Qué aporta: Destaca categorías con mayor riqueza discursiva citada.',
+                'node-perThousand': 'Por 1.000 palabras | Qué implica: Frecuencia ajustada por la longitud total. Qué aporta: Elimina el sesgo de extensión entre documentos largos y cortos.',
+
+                // Ventana
+                'win-50': 'Ventana ±50 palabras | Qué implica: Proximidad estrecha de ~3 oraciones. Qué aporta: Captura asociación cualitativa de alta inmediatez.',
+                'win-100': 'Ventana ±100 palabras | Qué implica: Proximidad media de ~1 párrafo corto. Qué aporta: Equilibrio ideal entre contexto discursivo y relevancia temática.',
+                'win-250': 'Ventana ±250 palabras | Qué implica: Proximidad amplia de ~1 página. Qué aporta: Captura relaciones temáticas en discusiones extensas.',
+
+                // Diseños de grafo
+                'layout-circular': 'Circular Radial | Qué implica: Distribuye los nodos en una circunferencia. Qué aporta: Facilita comparar la densidad de conexiones entre todas las categorías.',
+                'layout-grid': 'Distribución Grilla | Qué implica: Organiza las categorías en cuadrícula uniforme. Qué aporta: Ideal para inspección visual estructurada sin solapamientos.',
+                'layout-force': 'Red Libre (Fuerza) | Qué implica: Algoritmo de atracción/repulsión física. Qué aporta: Atrae categorías con alta coocurrencia formando clusters temáticos visuales.',
+
+                // Pestañas
+                'chart-type-network': 'Red / Grafo | Qué implica: Red relacional interactiva. Qué aporta: Visualiza la estructura del sistema categorial y núcleos cualitativos centrales.',
+                'chart-type-heatmap': 'Coocurrencias (Heatmap) | Qué implica: Matriz cruzada de intensidad. Qué aporta: Permite auditar cuantitativamente cada par de categorías.',
+                'chart-type-bars': 'Comparación de Barras | Qué implica: Gráfico de barras normalizadas. Qué aporta: Muestra densidad por 1.000 palabras y presencia documental.',
+                'chart-type-quality': 'Calidad de Codificación | Qué implica: Tablero de auditoría metodológica. Qué aporta: Garantiza la validez cualitativa (cobertura, memos, duplicados).'
+            };
+
+            function setHelpText(key) {
+                if (optionDescriptions[key]) {
+                    helpTextEl.textContent = optionDescriptions[key];
+                } else {
+                    helpTextEl.textContent = defaultText;
+                }
+            }
+
+            document.querySelectorAll('.analytics-toolbar select, .analytics-toolbar input, .btn-chart-type, #graph-layout-select').forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    let key = element.value || element.id;
+                    if (element.id === 'analytics-node-size') key = 'node-' + element.value;
+                    if (element.id === 'cooccurrence-window') key = 'win-' + element.value;
+                    if (element.id === 'graph-layout-select') key = 'layout-' + element.value;
+                    setHelpText(key);
+                });
+                element.addEventListener('change', () => {
+                    let key = element.value || element.id;
+                    if (element.id === 'analytics-node-size') key = 'node-' + element.value;
+                    if (element.id === 'cooccurrence-window') key = 'win-' + element.value;
+                    if (element.id === 'graph-layout-select') key = 'layout-' + element.value;
+                    setHelpText(key);
+                });
+                element.addEventListener('mouseleave', () => {
+                    helpTextEl.textContent = defaultText;
+                });
+            });
+
+            document.querySelectorAll('.analytics-toolbar option').forEach(opt => {
+                opt.addEventListener('mouseenter', () => {
+                    let key = opt.value;
+                    const parent = opt.parentElement;
+                    if (parent && parent.id === 'analytics-node-size') key = 'node-' + opt.value;
+                    if (parent && parent.id === 'cooccurrence-window') key = 'win-' + opt.value;
+                    setHelpText(key);
+                });
+            });
+        }
+        setupAnalyticsOptionHoverHelp();
+
+        async function exportActiveChartCSV() {
+            const analytics = getAnalytics();
+            const report = window.AnalyticsEngine.quality(state, { documentId: state.analyticsDocumentId, documentGroup: state.analyticsDocumentGroup });
+            const activeInterp = getActiveChartInterpretation(analytics, report);
+            const chartType = state.activeChartType || 'network';
+            const docLabel = state.analyticsDocumentId ? 'documento' : 'corpus';
+
+            const rows = [];
+            rows.push(['ANALIZADOR CUALIUY BETA - DATOS Y SÍNTESIS CUALITATIVA']);
+            rows.push(['Fecha y Hora:', new Date().toLocaleString('es-UY')]);
+            rows.push(['Tipo de Gráfico:', chartType === 'network' ? 'Red de Coocurrencia' : chartType === 'heatmap' ? 'Matriz Heatmap' : chartType === 'bars' ? 'Barras Proporcionales' : 'Diagnóstico de Calidad']);
+            rows.push(['Alcance Analítico:', docLabel]);
+            rows.push(['Unidad de Análisis:', state.analyticsUnit]);
+            rows.push(['Métrica de Asociación:', state.analyticsMetric]);
+            rows.push([]);
+            rows.push(['--- INTERPRETACIÓN ANALÍTICA CUALITATIVA ---']);
+            rows.push([activeInterp.text]);
+            rows.push([]);
+            rows.push(['--- DATOS ESTRUCTURADOS DEL GRÁFICO ---']);
+
+            if (chartType === 'network' || chartType === 'heatmap') {
+                rows.push(['Categoría Origen', 'Categoría Destino', 'Recuento Coocurrencias', `Métrica (${state.analyticsMetric})`, 'Estado']);
+                const edges = (analytics.edges || []).filter(e => !e.unavailable && e.count > 0);
+                edges.forEach(e => {
+                    const src = analytics.categoryMap.get(e.sourceId);
+                    const tgt = analytics.categoryMap.get(e.targetId);
+                    if (src && tgt) {
+                        rows.push([
+                            src.name,
+                            tgt.name,
+                            e.count,
+                            e.metricValue.toFixed(4),
+                            'Coocurrencia Activa'
+                        ]);
+                    }
+                });
+            } else if (chartType === 'bars') {
+                rows.push(['Categoría', 'Frecuencia (Citas)', 'Tasa por 1.000 palabras', 'Presencia Documental', 'Proporción Corpus (%)']);
+                (analytics.stats || []).forEach(st => {
+                    rows.push([
+                        st.name,
+                        st.count,
+                        st.ratePerThousandWords.toFixed(2),
+                        `${st.docCount} docs`,
+                        (st.documentShare * 100).toFixed(1) + '%'
+                    ]);
+                });
+            } else if (chartType === 'quality') {
+                rows.push(['Métrica de Diagnóstico', 'Valor Numérico', 'Estado Metodológico']);
+                rows.push(['Texto Codificado (Caracteres)', report.codedChars, `${((report.codedChars / Math.max(1, report.totalChars)) * 100).toFixed(1)}% cobertura`]);
+                rows.push(['Citas Totales', report.totalCodings, 'Codificaciones en corpus']);
+                rows.push(['Codificaciones Manuales', report.manual, 'Generadas por el investigador']);
+                rows.push(['Codificaciones Automáticas', report.automatic, 'Generadas por palabras clave']);
+                rows.push(['Citas sin Memo', report.uncodedMemosCount || 0, report.uncodedMemosCount > 0 ? 'Atención: faltan memos' : 'OK']);
+                rows.push(['Documentos sin Codificar', report.uncodedDocsCount || 0, report.uncodedDocsCount > 0 ? 'Documentos limpios' : 'OK']);
+            }
+
+            const csvContent = rows.map(row => 
+                row.map(cell => {
+                    let text = String(cell ?? '');
+                    if (text.startsWith('=') || text.startsWith('+') || text.startsWith('-') || text.startsWith('@')) {
+                        text = "'" + text;
+                    }
+                    if (text.includes('"') || text.includes(',') || text.includes('\n')) {
+                        text = '"' + text.replace(/"/g, '""') + '"';
+                    }
+                    return text;
+                }).join(',')
+            ).join('\r\n');
+
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const fileName = `AnalizadorCualiUY_Beta_${chartType}_${new Date().toISOString().slice(0, 10)}.csv`;
+            await universalSaveFile(blob, fileName);
+        }
+
+        const btnExportChartCsv = document.getElementById('btn-export-chart-csv');
+        if (btnExportChartCsv) btnExportChartCsv.onclick = exportActiveChartCSV;
         const analyticsControls = {
             'analytics-category-mode': value => { state.analyticsCategoryMode = value; },
             'analytics-node-size': value => { state.analyticsNodeSize = value; },
@@ -3128,8 +3501,84 @@ ${bodyHtml}
                 document.getElementById('modal-export-pdf').style.display = 'none';
                 document.getElementById('modal-report-builder').style.display = 'none';
                 document.getElementById('modal-import-codebook').style.display = 'none';
+                const citationModal = document.getElementById('modal-citation');
+                if (citationModal) citationModal.style.display = 'none';
             };
         });
+
+        // Citation Modal Handlers
+        let activeCitationFormat = 'apa7';
+
+        function getProductCitationInfo() {
+            let editionName = 'Beta';
+            if (typeof window !== 'undefined' && window.location && window.location.href.includes('educativa')) {
+                editionName = 'Educativa';
+            } else if (typeof document !== 'undefined' && document.title && document.title.includes('Educativa')) {
+                editionName = 'Educativa';
+            } else if (typeof document !== 'undefined' && document.title && document.title.includes('Beta')) {
+                editionName = 'Beta';
+            }
+
+            const fullProductName = `AnalizadorCualiUY ${editionName}`;
+            const year = '2026';
+            const version = '1.0.4';
+            const url = 'https://analizadorcuali.uy';
+
+            return {
+                apa7: `Hernández, S. (${year}). ${fullProductName} (Versión ${version}) [Software de computación]. ${url}`,
+                bibtex: `@software{Hernandez_${fullProductName.replace(/\s+/g, '_')}_${year},\n  author = {Hernández, Santiago},\n  title = {${fullProductName}: Software de Análisis Cualitativo Local y Confidencial},\n  version = {${version}},\n  year = {${year}},\n  url = {${url}}\n}`,
+                chicago: `Hernández, Santiago. ${year}. ${fullProductName}. Versión ${version}. Software de computación. ${url}.`,
+                mla9: `Hernández, Santiago. ${fullProductName}. Versión ${version}, ${year}, ${url}.`,
+                iso690: `HERNÁNDEZ, Santiago, ${year}. ${fullProductName} [software]. Versión ${version}. Disponible en: ${url}`
+            };
+        }
+
+        function updateCitationTextBox() {
+            const box = document.getElementById('citation-text-box');
+            if (!box) return;
+            const info = getProductCitationInfo();
+            box.value = info[activeCitationFormat] || info.apa7;
+        }
+
+        function openCitationModal() {
+            updateCitationTextBox();
+            const citationModal = document.getElementById('modal-citation');
+            if (citationModal) citationModal.style.display = 'flex';
+        }
+
+        const btnCiteSoftware = document.getElementById('btn-cite-software');
+        if (btnCiteSoftware) btnCiteSoftware.onclick = openCitationModal;
+
+        const btnCiteFromCredits = document.getElementById('btn-open-citation-from-credits');
+        if (btnCiteFromCredits) btnCiteFromCredits.onclick = openCitationModal;
+
+        document.querySelectorAll('.btn-citation-format').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.btn-citation-format').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeCitationFormat = btn.dataset.format || 'apa7';
+                updateCitationTextBox();
+            };
+        });
+
+        const btnCopyCitation = document.getElementById('btn-copy-citation');
+        if (btnCopyCitation) {
+            btnCopyCitation.onclick = () => {
+                const box = document.getElementById('citation-text-box');
+                const toast = document.getElementById('citation-copied-toast');
+                if (!box) return;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(box.value);
+                } else {
+                    box.select();
+                    document.execCommand('copy');
+                }
+                if (toast) {
+                    toast.style.opacity = '1';
+                    setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+                }
+            };
+        }
 
         // Color Presets in Modal
         document.querySelectorAll('.color-preset').forEach(preset => {
