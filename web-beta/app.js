@@ -612,6 +612,15 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
 
             let pos = 0;
             while ((pos = normalizedContent.indexOf(term, pos)) !== -1) {
+                // EXCLUSIÓN METODOLÓGICA: Excluir intervenciones del moderador/entrevistador
+                const lastParaBreak = Math.max(0, content.lastIndexOf('\n\n', pos));
+                const turnSnippet = content.slice(lastParaBreak, lastParaBreak + 80).trim();
+                const isInterviewer = /^(moderador|moderadora|entrevistador|entrevistadora|investigador|investigadora)\b/i.test(turnSnippet);
+                if (isInterviewer) {
+                    pos += term.length + 1;
+                    continue;
+                }
+
                 let startChar = Math.max(0, content.lastIndexOf('.', pos) + 1);
                 let endChar = content.indexOf('.', pos + term.length);
                 if (endChar === -1) endChar = content.length;
@@ -962,9 +971,9 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             updateCategoryFilterBanner();
 
             if (added > 0) {
-                alert(`🔍 ¡Identificadas ${added} nuevas ocurrencias para "${cat.name}"!`);
+                alert(`🔍 ¡Identificadas ${added} nuevas ocurrencias para "${cat.name}" en testimonios de informantes (excluyendo intervenciones de moderación)!`);
             } else {
-                alert(`🔍 Búsqueda para "${cat.name}": Se encontraron ${count} ocurrencias ya registradas.`);
+                alert(`🔍 Búsqueda para "${cat.name}": Se encontraron ${count} ocurrencias registradas en informantes.`);
             }
         };
 

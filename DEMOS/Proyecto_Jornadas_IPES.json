@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "app": "AnalizadorCualiUY",
   "edition": "educativa",
-  "exportedAt": "2026-09-02T12:41:29.528Z",
+  "exportedAt": "2026-09-02T13:10:36.802Z",
   "project": {
     "documents": [
       {
@@ -98,504 +98,59 @@
     ],
     "codings": [
       {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-1",
+        "id": "code-model-doc-edu-jornadas_ipes-1-cat-usos-eval-1",
         "docId": "doc-edu-jornadas_ipes-1",
         "categoryId": "cat-usos-eval",
-        "startOffset": 2610,
-        "endOffset": 2752,
-        "quoteText": "Moderador: Bien, bien interesante. No solamente evaluarlos con Kahoot, sino hacerlos a ellos diseñar el Kahoot como forma de evaluación. Bien.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluación\")",
-        "createdAt": "2026-09-02T12:41:29.524Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-2",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 3809,
-        "endOffset": 4187,
-        "quoteText": "Moderador: Otra de las preguntas que teníamos para ustedes de la evaluación, ustedes me hablaron de las propuestas de evaluación que hacen o de lo que les piden como evaluación a los estudiantes y que ellos usan las tecnologías digitales. Y respecto a la retroalimentación, a esto de devolverles a ellos, ¿no?, después de una evaluación para eso. ¿Han usado algo? ¿Conocen algo?",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluación\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-3",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 9082,
-        "endOffset": 9261,
-        "quoteText": "Moderador: Bien, ¿y los desafíos, las dificultades o aquellas cuestiones que de alguna manera obstaculizan la evaluación o se obstaculizan por el uso de las tecnologías digitales?",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluación\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-4",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 15501,
-        "endOffset": 15770,
-        "quoteText": "Moderador: Bien, y esto capaz que viene ligado un poco a lo que ya han estado diciendo, pero ¿qué ventajas le han visto al uso de la inteligencia artificial para sus clases, para la enseñanza, para la evaluación? ¿Sienten que les ha servido? ¿Qué resultado les ha dado?",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluación\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-5",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 18462,
-        "endOffset": 18661,
-        "quoteText": "Moderador: Bien, ¿y esas ideas que les tiran como para que puedas pensar creativamente tu clase, también lo ven que lo haga para la evaluación, por ejemplo, también lo han probado para la evaluación?",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluación\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-6",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 18663,
-        "endOffset": 18768,
-        "quoteText": "Docente 1: Sí, sí, también tira para la evaluación. Permite. Te ayuda en eso también. Hay que orientarlo.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluación\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-7",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 19755,
-        "endOffset": 20132,
-        "quoteText": "Moderador: Bien, y lo que me estás queriendo decir es que lo que intentás hacer es que ellos analicen lo que da. Otra de estas cuestiones que ya algunas fueron manifestando, pero ¿qué barreras han encontrado? ¿Qué obstáculos han encontrado con el uso de la inteligencia artificial? ¿Cuáles creen que son los principales obstáculos de usarlas en la enseñanza y en la evaluación?",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluación\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-8",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 21433,
-        "endOffset": 21671,
-        "quoteText": "Moderador: Vivimos la etapa de Wikipedia y la lucha con algunas de esas cuestiones. Bien, no sé si quieren agregar algo más respecto a las barreras en el uso de la inteligencia artificial para la enseñanza o para la evaluación o desafíos.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluación\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-9",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 3048,
-        "endOffset": 3325,
-        "quoteText": "Docente 2: Yo he utilizado más que nada este lista de cotejos y rúbricas, que también las tomo mucho de CREA o de las plataformas que nos permiten este construir rúbricas y lista de cotejos, ¿no? Lo que sirve obviamente para evaluar y los de los alumnos también se autoevalúan.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluar\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-10",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 4189,
-        "endOffset": 4428,
-        "quoteText": "Docente 5: Generalmente, yo, de mi parte personalmente, si ellos hicieron, no sé, una presentación, luego de la presentación vamos hablando y haciendo puestas en común, pero no una herramienta específica para evaluar, de retroalimentación.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluar\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-11",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 7255,
-        "endOffset": 7477,
-        "quoteText": "Moderador: ¿Y qué beneficios han encontrado en las experiencias que han tenido de evaluar, incluyendo tecnologías digitales? ¿Cuáles podrían decir que son las ventajas que tiene utilizar tecnologías digitales para evaluar?",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluar\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-12",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 8339,
-        "endOffset": 8490,
-        "quoteText": "Moderador: Bien, qué interesante, qué interesante. ¿Algún otro aporte que hayan visto como beneficio del uso de las tecnologías digitales para evaluar?",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluar\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-13",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 22928,
-        "endOffset": 23366,
-        "quoteText": "Moderador: Bien, como tratar esas debilidades que habíamos nombrado hoy, poder apuntar a mejorarlas, a mejorar esas condiciones. Bien, y ahora voy a la imaginación y acá sí les prometo que cerramos la entrevista: a la imaginación. ¿Cómo se imaginan ustedes el futuro? ¿Qué herramientas se imaginan? ¿Qué posibilidades se imaginan en un futuro para evaluar con tecnologías digitales? Hace un tiempo atrás ni nos imaginábamos esto de la IA.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"evaluar\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-14",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 2268,
-        "endOffset": 2608,
+        "startChar": 2268,
+        "endChar": 2608,
         "quoteText": "Docente 1: Yo he usado mucho Kahoot, por ejemplo, donde ellos mismos… elaborar pensando en aplicarle a los compañeros. Entonces, desde ahí ellos tienen que pensar en todo lo que se trabajó, cómo hacer las preguntas, qué imágenes utilizar para que sea un poco más complejo a los compañeros y a su vez los compañeros tienen que responder eso.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"Kahoot\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
+        "memo": "Ejemplo modelo: El docente no utiliza la tecnología como test pasivo, sino que delega el diseño evaluativo a los propios alumnos, activando procesos metacognitivos.",
+        "source": "manual",
+        "createdAt": 1788354636802
       },
       {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-15",
+        "id": "code-model-doc-edu-jornadas_ipes-1-sub-ia-gen-2",
         "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 3327,
-        "endOffset": 3785,
-        "quoteText": "Moderador: Claro, bien interesante, bien interesante. Bien, una pregunta en esto que estás mencionando de CREA. Y de las herramientas es pedirle a ellos que usen esas herramientas en algunos casos y utilizarlas disponibles en Crea para proponer evaluaciones. Por ejemplo, ¿a eso te referís en algunos casos, pedirles a ellos que lo hagan a través de videos o de otras maneras? Y desde Crea lo que decís es utilizar las que vienen, las que se pueden elaborar.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"CREA\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-16",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 8693,
-        "endOffset": 8981,
+        "categoryId": "sub-ia-gen",
+        "startChar": 8693,
+        "endChar": 8981,
         "quoteText": "Docente 4: Puedes enfocar a canciones. También hay una página que yo he usado que se llama Suno que es para crear canciones y que ellos se enganchan y crean historias. También escriben la historia y después con la inteligencia artificial crean toda la historieta con imágenes. Está bueno.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"CREA\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
+        "memo": "Ejemplo modelo: Integración multimodal de IA generativa (audio e imágenes) articulada con la escritura creativa en el aula de lenguas.",
+        "source": "manual",
+        "createdAt": 1788354636802
       },
       {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-17",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 15196,
-        "endOffset": 15499,
-        "quoteText": "Docente 4: Suno fue usado para crear canciones, después otro para crear historias a partir... le ponés el cuento y te crea toda la imagen, creo que se llama story.com o algo así me parece... Después hay otro que se llama Taipo, a partir de una imagen te genera una historia. Esto es lo que he utilizado.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"CREA\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-18",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 18770,
-        "endOffset": 19024,
-        "quoteText": "Moderador: Sí, claramente la estructura del prompt, que como decía la compañera, es importante. ¿Ustedes creen que la inteligencia artificial puede ayudar en brindarle retroalimentación a los estudiantes en la corrección de las tareas de los estudiantes?",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"retroalimentación\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-usos-eval-19",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-usos-eval",
-        "startOffset": 18191,
-        "endOffset": 18460,
-        "quoteText": "Docente 5: Yo pienso que otra ventaja también que tiene es ayuda a los docentes, ayuda a elaborar actividades, a planificar, optimiza mucho tiempo a veces. Si tiene una cosa y otra, le ponés un prompt que vaya medio directo a lo que querés hacer y te tira muchas ideas.",
-        "memo": "Evidencia deductiva asociada a: Usos pedagógicos y evaluación (Término clave: \"actividades\")",
-        "createdAt": "2026-09-02T12:41:29.526Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-20",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 6220,
-        "endOffset": 6495,
-        "quoteText": "Moderador: Bien, súper interesante, a la inteligencia artificial ya vamos a ir en preguntas más adelante, pero me fuiste adelantando información muy pero muy valiosa. ¿Los demás sienten que sus prácticas se han visto este impactadas por la inclusión de tecnologías digitales?",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-21",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 8693,
-        "endOffset": 8981,
-        "quoteText": "Docente 4: Puedes enfocar a canciones. También hay una página que yo he usado que se llama Suno que es para crear canciones y que ellos se enganchan y crean historias. También escriben la historia y después con la inteligencia artificial crean toda la historieta con imágenes. Está bueno.",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-22",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 14079,
-        "endOffset": 14309,
-        "quoteText": "Moderador: Ahora entraríamos como más en la inteligencia artificial. Ya estuvieron adelantando algunos ejemplos bien interesantes. Respecto a inteligencia artificial, ¿todos han usado inteligencia artificial con fines pedagógicos?",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-23",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 14685,
-        "endOffset": 15083,
-        "quoteText": "Docente 1: Como de video, de audio, de imagen, hay para todo. Si no la inventan. Ahora nomás con Segundo EMS, que estamos haciendo en conjunto con Historia y Sociología o Formación Ciudadana, es una murga, porque acá la murga no llega, acá es carnaval. Entonces acá se hicieron toda la investigación para hacer la letra y eso con inteligencia artificial para armar bien la letra, el sonido también.",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-24",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 15085,
-        "endOffset": 15194,
-        "quoteText": "Moderador: ¿Y de inteligencia artificial generativa? ChatGPT, no sé si alguna otra herramienta que recuerden.",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-25",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 15501,
-        "endOffset": 15770,
-        "quoteText": "Moderador: Bien, y esto capaz que viene ligado un poco a lo que ya han estado diciendo, pero ¿qué ventajas le han visto al uso de la inteligencia artificial para sus clases, para la enseñanza, para la evaluación? ¿Sienten que les ha servido? ¿Qué resultado les ha dado?",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-26",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 18770,
-        "endOffset": 19024,
-        "quoteText": "Moderador: Sí, claramente la estructura del prompt, que como decía la compañera, es importante. ¿Ustedes creen que la inteligencia artificial puede ayudar en brindarle retroalimentación a los estudiantes en la corrección de las tareas de los estudiantes?",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-27",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 19755,
-        "endOffset": 20132,
-        "quoteText": "Moderador: Bien, y lo que me estás queriendo decir es que lo que intentás hacer es que ellos analicen lo que da. Otra de estas cuestiones que ya algunas fueron manifestando, pero ¿qué barreras han encontrado? ¿Qué obstáculos han encontrado con el uso de la inteligencia artificial? ¿Cuáles creen que son los principales obstáculos de usarlas en la enseñanza y en la evaluación?",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-28",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 21433,
-        "endOffset": 21671,
-        "quoteText": "Moderador: Vivimos la etapa de Wikipedia y la lucha con algunas de esas cuestiones. Bien, no sé si quieren agregar algo más respecto a las barreras en el uso de la inteligencia artificial para la enseñanza o para la evaluación o desafíos.",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-29",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 24369,
-        "endOffset": 24493,
-        "quoteText": "Moderador: Bien, te imaginas eso y con la inteligencia artificial cada vez impactando en más espacios, en más lugares, bien.",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-30",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 24681,
-        "endOffset": 25002,
-        "quoteText": "Docente 2: No. En el contacto con el otro, eso la Inteligencia Artificial jamás va a poder, o sea, hay cosas que no. El humano no se pierde, no se debería perder. Porque le quitaríamos lo educativo. Estaríamos al frente de una computadora, sentaríamos a las personas y nada. No sé, yo pienso que no, no es posible. No sé.",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"inteligencia artificial\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-31",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 14550,
-        "endOffset": 14646,
-        "quoteText": "Docente 1: El famoso ChatGPT, creo que se utiliza bastante. Muchas IA generativas que te ayudan.",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"chatgpt\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-32",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 20311,
-        "endOffset": 20582,
-        "quoteText": "Docente 5: Debe ser buen uso de la inteligencia, ¿no? Si bien es algo que está ya, no vamos a ir contra la corriente, sino hay que darle un buen uso. Y a veces es eso, entonces bueno, es muy dependiente de la IA, todo. Todo ChatGPT. Le duele la cabeza, un remedio para...",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"chatgpt\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-33",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 15196,
-        "endOffset": 15499,
-        "quoteText": "Docente 4: Suno fue usado para crear canciones, después otro para crear historias a partir... le ponés el cuento y te crea toda la imagen, creo que se llama story.com o algo así me parece... Después hay otro que se llama Taipo, a partir de una imagen te genera una historia. Esto es lo que he utilizado.",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"Suno\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-sub-ia-gen-34",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "sub-ia-gen",
-        "startOffset": 18191,
-        "endOffset": 18460,
-        "quoteText": "Docente 5: Yo pienso que otra ventaja también que tiene es ayuda a los docentes, ayuda a elaborar actividades, a planificar, optimiza mucho tiempo a veces. Si tiene una cosa y otra, le ponés un prompt que vaya medio directo a lo que querés hacer y te tira muchas ideas.",
-        "memo": "Evidencia deductiva asociada a: Aplicaciones de IA generativa (Término clave: \"prompt\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-beneficios-35",
+        "id": "code-model-doc-edu-jornadas_ipes-1-cat-beneficios-3",
         "docId": "doc-edu-jornadas_ipes-1",
         "categoryId": "cat-beneficios",
-        "startOffset": 7255,
-        "endOffset": 7477,
-        "quoteText": "Moderador: ¿Y qué beneficios han encontrado en las experiencias que han tenido de evaluar, incluyendo tecnologías digitales? ¿Cuáles podrían decir que son las ventajas que tiene utilizar tecnologías digitales para evaluar?",
-        "memo": "Evidencia deductiva asociada a: Beneficios y motivación (Término clave: \"beneficio\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
+        "startChar": 7479,
+        "endChar": 8278,
+        "quoteText": "Docente 4: Creo que los estudiantes se ven más motivados usando las tecnologías digitales. Yo, por ejemplo, la semana que viene tengo una evaluación que los chiquilines de noveno tendrán que filmarse, van a filmar un video de 2 o 3 minutos siendo influencer por un día. Muchos van a elegir, eligen la temática que quieran, ya sea música, cocina, deportes. Y uno, por ejemplo, le gusta la pesca y va a hacer sobre la pesca. Y va a ser influencer por un día. Video cortito, pero esa va a ser la evaluación final de la unidad temática que justamente son las redes sociales y el impacto que tienen los jóvenes. Y bueno, ellos están entusiasmados con eso, están entusiasmados con si fuera una evaluación tradicional, no estarían entusiasmados. Y más en inglés, entonces me parece que se motivan bastante.",
+        "memo": "Ejemplo modelo: Evaluación auténtica situada en prácticas juveniles (influencers) que despierta mayor involucramiento e interés frente a la prueba tradicional.",
+        "source": "manual",
+        "createdAt": 1788354636802
       },
       {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-beneficios-36",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-beneficios",
-        "startOffset": 8339,
-        "endOffset": 8490,
-        "quoteText": "Moderador: Bien, qué interesante, qué interesante. ¿Algún otro aporte que hayan visto como beneficio del uso de las tecnologías digitales para evaluar?",
-        "memo": "Evidencia deductiva asociada a: Beneficios y motivación (Término clave: \"beneficio\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-beneficios-37",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-beneficios",
-        "startOffset": 15501,
-        "endOffset": 15770,
-        "quoteText": "Moderador: Bien, y esto capaz que viene ligado un poco a lo que ya han estado diciendo, pero ¿qué ventajas le han visto al uso de la inteligencia artificial para sus clases, para la enseñanza, para la evaluación? ¿Sienten que les ha servido? ¿Qué resultado les ha dado?",
-        "memo": "Evidencia deductiva asociada a: Beneficios y motivación (Término clave: \"ventaja\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-beneficios-38",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-beneficios",
-        "startOffset": 16312,
-        "endOffset": 16374,
-        "quoteText": "Moderador: ¿Alguien más que haya visto algún tipo de ventajas?",
-        "memo": "Evidencia deductiva asociada a: Beneficios y motivación (Término clave: \"ventaja\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-beneficios-39",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-beneficios",
-        "startOffset": 18191,
-        "endOffset": 18460,
-        "quoteText": "Docente 5: Yo pienso que otra ventaja también que tiene es ayuda a los docentes, ayuda a elaborar actividades, a planificar, optimiza mucho tiempo a veces. Si tiene una cosa y otra, le ponés un prompt que vaya medio directo a lo que querés hacer y te tira muchas ideas.",
-        "memo": "Evidencia deductiva asociada a: Beneficios y motivación (Término clave: \"ventaja\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-beneficios-40",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-beneficios",
-        "startOffset": 12856,
-        "endOffset": 13226,
-        "quoteText": "Docente 2: Yo creo que formación hay, o sea, oferta hay, el tema es el tiempo. Tiempo, los horarios coinciden con el trabajo, generalmente. Entonces la sobrecarga que a veces se tiene es difícil poder destinar, y si se destinan horarios, después, para cumplir con las tareas, que a veces son bastante complejas, se complica. Generalmente te piden horas en la plataforma.",
-        "memo": "Evidencia deductiva asociada a: Beneficios y motivación (Término clave: \"tiempo\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-beneficios-41",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-beneficios",
-        "startOffset": 22818,
-        "endOffset": 22926,
-        "quoteText": "Docente 2: Yo creo que volveríamos a lo mismo, que los subsistemas den tiempo para eso, volvemos a lo mismo.",
-        "memo": "Evidencia deductiva asociada a: Beneficios y motivación (Término clave: \"tiempo\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-beneficios-42",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-beneficios",
-        "startOffset": 22928,
-        "endOffset": 23366,
-        "quoteText": "Moderador: Bien, como tratar esas debilidades que habíamos nombrado hoy, poder apuntar a mejorarlas, a mejorar esas condiciones. Bien, y ahora voy a la imaginación y acá sí les prometo que cerramos la entrevista: a la imaginación. ¿Cómo se imaginan ustedes el futuro? ¿Qué herramientas se imaginan? ¿Qué posibilidades se imaginan en un futuro para evaluar con tecnologías digitales? Hace un tiempo atrás ni nos imaginábamos esto de la IA.",
-        "memo": "Evidencia deductiva asociada a: Beneficios y motivación (Término clave: \"tiempo\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-beneficios-43",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-beneficios",
-        "startOffset": 8492,
-        "endOffset": 8691,
-        "quoteText": "Docente 5: Pienso que, como decía la compañera, que te da un abanico más grande de recursos para ser enfocado a cosas que a ellos les guste más. Puede ser redes sociales, algo de virtud, películas...",
-        "memo": "Evidencia deductiva asociada a: Beneficios y motivación (Término clave: \"recursos\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-desafios-44",
+        "id": "code-model-doc-edu-jornadas_ipes-1-cat-desafios-4",
         "docId": "doc-edu-jornadas_ipes-1",
         "categoryId": "cat-desafios",
-        "startOffset": 9887,
-        "endOffset": 10085,
-        "quoteText": "Moderador: Bien, ese es un obstáculo claro, los dispositivos, el tema de los correos. ¿Algo más que les parezca que puede obstaculizar el trabajo, la inclusión de tecnologías digitales en sus aulas?",
-        "memo": "Evidencia deductiva asociada a: Desafíos y limitaciones técnicas (Término clave: \"obstáculo\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
+        "startChar": 9263,
+        "endChar": 9885,
+        "quoteText": "Docente 1: El mayor problema es que tenemos que terminar usando los celulares porque ellos no traen las máquinas, no tienen los cargadores. Entonces usamos los celulares. Hoy no saben los correos electrónicos, entonces por ejemplo ahora con octavos estamos trabajando y entramos a Canva. Y yo voy mirando y me dicen: \"a ver, fíjese, esta página del librillo\", yo miro acá y están todos conectados en el mismo librillo, completando con las imágenes, con efecto, todo. Pero fue todo un trabajo porque claro, no se acordaban de los correos para que todos ingresaran, enviar y poder ingresar todos con Canva, el mismo archivo.",
+        "memo": "Ejemplo modelo: Brecha material y logística cotidiana: la carencia de cargadores y olvido de correos obliga a improvisar con dispositivos móviles.",
+        "source": "manual",
+        "createdAt": 1788354636802
       },
       {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-desafios-45",
+        "id": "code-model-doc-edu-jornadas_ipes-1-cat-desafios-5",
         "docId": "doc-edu-jornadas_ipes-1",
         "categoryId": "cat-desafios",
-        "startOffset": 19755,
-        "endOffset": 20132,
-        "quoteText": "Moderador: Bien, y lo que me estás queriendo decir es que lo que intentás hacer es que ellos analicen lo que da. Otra de estas cuestiones que ya algunas fueron manifestando, pero ¿qué barreras han encontrado? ¿Qué obstáculos han encontrado con el uso de la inteligencia artificial? ¿Cuáles creen que son los principales obstáculos de usarlas en la enseñanza y en la evaluación?",
-        "memo": "Evidencia deductiva asociada a: Desafíos y limitaciones técnicas (Término clave: \"obstáculo\")",
-        "createdAt": "2026-09-02T12:41:29.527Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-desafios-46",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-desafios",
-        "startOffset": 9082,
-        "endOffset": 9261,
-        "quoteText": "Moderador: Bien, ¿y los desafíos, las dificultades o aquellas cuestiones que de alguna manera obstaculizan la evaluación o se obstaculizan por el uso de las tecnologías digitales?",
-        "memo": "Evidencia deductiva asociada a: Desafíos y limitaciones técnicas (Término clave: \"obstaculizan\")",
-        "createdAt": "2026-09-02T12:41:29.528Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-desafios-47",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-desafios",
-        "startOffset": 10087,
-        "endOffset": 10211,
+        "startChar": 10087,
+        "endChar": 10211,
         "quoteText": "Docente 4: La conectividad también es un problema, los equipos que no funcionan o no se puede conectar con alguna otra cosa.",
-        "memo": "Evidencia deductiva asociada a: Desafíos y limitaciones técnicas (Término clave: \"conectividad\")",
-        "createdAt": "2026-09-02T12:41:29.528Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-desafios-48",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-desafios",
-        "startOffset": 10213,
-        "endOffset": 10288,
-        "quoteText": "Docente 2: Y a veces los hogares no cuentan con dispositivos, con conexión.",
-        "memo": "Evidencia deductiva asociada a: Desafíos y limitaciones técnicas (Término clave: \"conexión\")",
-        "createdAt": "2026-09-02T12:41:29.528Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-desafios-49",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-desafios",
-        "startOffset": 10463,
-        "endOffset": 10766,
-        "quoteText": "Moderador: Bien, que hacen las tareas ahí mismo. La conexión del liceo. Bien, otra de las preguntas es ¿qué apoyo creen que necesitan para mejorar su competencia digital? Hoy se ubicaban en un nivel medio. Bueno, ¿qué apoyos creen que pueden necesitar para mejorar ese desarrollo de competencia digital?",
-        "memo": "Evidencia deductiva asociada a: Desafíos y limitaciones técnicas (Término clave: \"conexión\")",
-        "createdAt": "2026-09-02T12:41:29.528Z"
-      },
-      {
-        "id": "code-doc-edu-jornadas_ipes-1-cat-desafios-50",
-        "docId": "doc-edu-jornadas_ipes-1",
-        "categoryId": "cat-desafios",
-        "startOffset": 12856,
-        "endOffset": 13226,
-        "quoteText": "Docente 2: Yo creo que formación hay, o sea, oferta hay, el tema es el tiempo. Tiempo, los horarios coinciden con el trabajo, generalmente. Entonces la sobrecarga que a veces se tiene es difícil poder destinar, y si se destinan horarios, después, para cumplir con las tareas, que a veces son bastante complejas, se complica. Generalmente te piden horas en la plataforma.",
-        "memo": "Evidencia deductiva asociada a: Desafíos y limitaciones técnicas (Término clave: \"sobrecarga\")",
-        "createdAt": "2026-09-02T12:41:29.528Z"
+        "memo": "Ejemplo modelo: La inestabilidad de la infraestructura de red en el centro interrumpe la continuidad pedagógica de las actividades planificadas.",
+        "source": "manual",
+        "createdAt": 1788354636802
       }
     ],
     "isSampleLoaded": true,
