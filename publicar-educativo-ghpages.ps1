@@ -21,6 +21,7 @@ try {
         & git commit -m "deploy: publicar edicion educativa gratuita en gh-pages"
         & git remote add origin https://github.com/analizadorcualiuy-gif/educativo.git
         & git push origin gh-pages --force
+        if ($LASTEXITCODE -ne 0) { throw "Error al hacer push a la rama gh-pages." }
         Write-Host "Publicacion exitosa en la rama gh-pages del repositorio educativo.git!" -ForegroundColor Green
     }
     finally {

@@ -177,3 +177,112 @@
     .educational-guide-content { max-height: 55vh; }
 }
 
+/* --- Botón y Modal de Guía para Categorías Inductivas --- */
+.btn-inductive-guide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    margin: 0.35rem 0 0.55rem;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid #14b8a6;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(14, 116, 144, 0.18));
+    color: #0f766e;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.btn-inductive-guide:hover {
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(14, 116, 144, 0.30));
+    border-color: #0d9488;
+    color: #115e59;
+    box-shadow: 0 2px 8px rgba(20, 184, 166, 0.25);
+}
+
+[data-theme="dark"] .btn-inductive-guide,
+body.theme-dark .btn-inductive-guide {
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.18), rgba(14, 116, 144, 0.22));
+    border-color: rgba(45, 212, 191, 0.45);
+    color: #2dd4bf;
+}
+
+[data-theme="dark"] .btn-inductive-guide:hover,
+body.theme-dark .btn-inductive-guide:hover {
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.32), rgba(14, 116, 144, 0.38));
+    border-color: #2dd4bf;
+    color: #ffffff;
+}
+
+.inductive-step {
+    display: flex;
+    gap: 0.85rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    margin-bottom: 0.65rem;
+}
+
+[data-theme="dark"] .inductive-step,
+body.theme-dark .inductive-step {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.inductive-step .step-num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #0f766e;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inductive-step .step-content {
+    flex: 1;
+}
+
+.inductive-step .step-content strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--accent-primary, #0f766e);
+}
+
+.inductive-step .step-content p {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.42;
+}
+
+.inductive-examples-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.inductive-examples-table th,
+.inductive-examples-table td {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    line-height: 1.35;
+}
+
+.inductive-examples-table th {
+    background: rgba(20, 184, 166, 0.15);
+    color: var(--accent-primary, #0f766e);
+    font-weight: 600;
+    text-align: left;
+}
+
+

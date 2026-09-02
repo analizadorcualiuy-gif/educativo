@@ -15,7 +15,14 @@ Copy-Item "$source\public\logo.png" -Destination "$output\public\logo.png" -Forc
 Copy-Item "$source\public\vendor\mammoth.browser.min.js", "$source\public\vendor\pdf.mjs", "$source\public\vendor\pdf.worker.mjs", "$source\public\vendor\pdfjs-LICENSE.txt", "$source\public\vendor\pdf-lib.min.js", "$source\public\vendor\fontkit.umd.min.js", "$source\public\vendor\LiberationSans-Regular.ttf", "$source\public\vendor\LiberationSans-Bold.ttf", "$source\public\vendor\pdf-lib-LICENSE.txt", "$source\public\vendor\fontkit-LICENSE.txt", "$source\public\vendor\LiberationSans-LICENSE.txt" -Destination "$output\public\vendor" -Force
 Copy-Item "$source\public\vendor\cmaps", "$source\public\vendor\standard_fonts", "$source\public\vendor\wasm" -Destination "$output\public\vendor" -Recurse -Force
 
-& 'node_modules\.bin\terser.cmd' "$source\app.js" -o "$output\app.js" --compress passes=2 --mangle
+$appSource = Get-Content "$source\app.js" -Raw
+$appSource = $appSource.Replace('const BETA_LIMITS = Object.freeze({ maxDocuments: 2, maxCategories: 4, maxTotalWords: 10000 });', 'const BETA_LIMITS = Object.freeze({ maxDocuments: 6, maxCategories: 15, maxTotalWords: 35000 });')
+$appSource = $appSource.Replace('La beta admite hasta ${BETA_LIMITS.maxDocuments} documentos, ${BETA_LIMITS.maxCategories} categorías (incluidas las subcategorías)', 'La edición educativa admite hasta ${BETA_LIMITS.maxDocuments} documentos, ${BETA_LIMITS.maxCategories} categorías (deductivas e inductivas)')
+$tempApp = Join-Path $output "app.temp.js"
+[System.IO.File]::WriteAllText($tempApp, $appSource, [System.Text.UTF8Encoding]::new($false))
+
+& 'node_modules\.bin\terser.cmd' $tempApp -o "$output\app.js" --compress passes=2 --mangle
+Remove-Item $tempApp -Force
 if ($LASTEXITCODE -ne 0) { throw 'Terser no pudo construir la edición educativa.' }
 
 $html = Get-Content "$output\index.html" -Raw
