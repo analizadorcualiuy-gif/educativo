@@ -126,7 +126,10 @@
                     "exigencia",
                     "estudiar",
                     "organizar",
-                    "materias"
+                    "materias",
+                    "carrera",
+                    "universidad",
+                    "facultad"
                 ]
             ],
             [
@@ -142,7 +145,9 @@
                     "iniciativa",
                     "fichar",
                     "resúmenes",
-                    "planificación"
+                    "planificación",
+                    "método",
+                    "tiempo"
                 ]
             ],
             [
@@ -158,7 +163,9 @@
                     "tutoría",
                     "tutores",
                     "pares",
-                    "familia"
+                    "familia",
+                    "apoyo",
+                    "redes"
                 ]
             ],
             [
@@ -174,7 +181,9 @@
                     "miedo",
                     "vergüenza",
                     "crisis",
-                    "abandonar"
+                    "abandonar",
+                    "presión",
+                    "inseguridad"
                 ]
             ]
         ],
@@ -207,7 +216,9 @@
                     "claridad",
                     "mejora",
                     "comentario",
-                    "específico"
+                    "específico",
+                    "devolución",
+                    "formativa"
                 ]
             ],
             [
@@ -221,7 +232,9 @@
                     "rúbrica",
                     "pautas",
                     "criterios",
-                    "objetivos"
+                    "objetivos",
+                    "matriz",
+                    "explícitos"
                 ]
             ],
             [
@@ -237,7 +250,9 @@
                     "bloquea",
                     "angustia",
                     "miedo",
-                    "emocional"
+                    "emocional",
+                    "inseguridad",
+                    "desánimo"
                 ]
             ],
             [
@@ -252,7 +267,9 @@
                     "conversar",
                     "reescribir",
                     "borradores",
-                    "consulta"
+                    "consulta",
+                    "reentrega",
+                    "intercambio"
                 ]
             ]
         ],
@@ -273,36 +290,77 @@
         "task": "Marcá evidencias de barreras subjetivas e interactivas, factores del clima escolar y estrategias docentes que favorecen la inclusión comunicativa.",
         "categories": [
             [
-                "cat-barreras",
+                "cat-desinteres",
                 null,
-                "CAT-BAR",
-                "Barreras para la participación",
-                "#b91c1c",
-                "Factores que inhiben la intervención oral: timidez, monopolio de la palabra por un subgrupo, dinámicas expositivas rígidas y mandatos grupales."
+                "CAT-DES",
+                "Desinterés y barreras participativas",
+                "#dc2626",
+                "Obstáculos para involucrarse: desinformación, apatía o falta de tiempo.",
+                [
+                    "falta de interés",
+                    "desinterés",
+                    "no van",
+                    "no asisten",
+                    "apatía",
+                    "quejas",
+                    "tiempo",
+                    "desconectados",
+                    "barreras"
+                ]
             ],
             [
-                "sub-temor",
-                "cat-barreras",
-                "SUB-TEM",
-                "Temor a la exposición y al error",
-                "#ef4444",
-                "Miedo a equivocarse en público, ser juzgado por pares, recibir burlas o ser descalificado por el docente."
+                "sub-formatos",
+                "cat-desinteres",
+                "SUB-FOR",
+                "Formatos rígidos de comunicación",
+                "#f97316",
+                "Canales que no convocan a las juventudes o resultan burocráticos.",
+                [
+                    "cartelera",
+                    "whatsapp",
+                    "asambleas",
+                    "reunión",
+                    "formatos",
+                    "plataforma",
+                    "canales",
+                    "rígidos"
+                ]
             ],
             [
-                "cat-clima",
+                "cat-apropiacion",
                 null,
-                "CAT-CLI",
-                "Clima de aula y seguridad pedagógica",
-                "#0f766e",
-                "Ambiente de respeto, validación del error como oportunidad de aprendizaje, escucha atenta y confianza grupal."
+                "CAT-APR",
+                "Apropiación estudiantil de espacios",
+                "#059669",
+                "Iniciativas autónomas: asambleas, proyectos artísticos y gremio.",
+                [
+                    "asamblea",
+                    "comisiones",
+                    "propuestas",
+                    "votación",
+                    "proyectos",
+                    "participar",
+                    "gremio",
+                    "iniciativa"
+                ]
             ],
             [
-                "cat-estrategias",
+                "cat-escucha",
                 null,
-                "CAT-EST",
-                "Estrategias docentes de mediación",
+                "CAT-ESC",
+                "Receptividad y escucha directiva",
                 "#2563eb",
-                "Técnicas pedagógicas que diversifican la participación: trabajo en parejas, escritura previa individual, pizarras virtuales y rondas de preguntas."
+                "Respuesta y apertura de los equipos de gestión ante demandas estudiantiles.",
+                [
+                    "escucha",
+                    "decisiones",
+                    "directores",
+                    "opinión",
+                    "cambios",
+                    "tomar en cuenta",
+                    "receptividad",
+                    "gestión"
+                ]
             ]
         ],
         "documents": [
@@ -322,36 +380,76 @@
         "task": "Analizá las tensiones entre liderazgo directivo, disponibilidad de recursos técnicos, resistencias docentes y prácticas de innovación pedagógica.",
         "categories": [
             [
-                "cat-facilitadores",
+                "cat-innovacion",
                 null,
-                "CAT-FAC",
-                "Facilitadores y liderazgo institucional",
-                "#0f766e",
-                "Acompañamiento directivo, cultura colaborativa, espacios de coordinación y proyectos transversales integrados."
+                "CAT-INN",
+                "Innovación pedagógica institucional",
+                "#0284c7",
+                "Proyectos interdisciplinarios, integración de sensores y plataformas digitales.",
+                [
+                    "innovación",
+                    "proyectos",
+                    "sensores",
+                    "podcasts",
+                    "comisión",
+                    "interdisciplinaria",
+                    "avances",
+                    "radio"
+                ]
             ],
             [
-                "sub-equipamiento",
-                "cat-facilitadores",
-                "SUB-EQU",
-                "Infraestructura y disponibilidad de recursos",
-                "#14b8a6",
-                "Acceso a conectividad estable, dispositivos Ceibal/portátiles, proyectores y plataformas digitales operativas."
+                "sub-pares",
+                "cat-innovacion",
+                "SUB-PAR",
+                "Acompañamiento entre pares",
+                "#0ea5e9",
+                "Tutorías docentes, repositorios compartidos y solidaridad profesional.",
+                [
+                    "coordinación",
+                    "pares",
+                    "apoyo",
+                    "comparten",
+                    "tutoriales",
+                    "tutorías",
+                    "ayudan",
+                    "Drive"
+                ]
             ],
             [
                 "cat-resistencias",
                 null,
                 "CAT-RES",
-                "Resistencias y sobrecarga laboral",
-                "#b91c1c",
-                "Inseguridad técnica, temor a la pérdida del control pedagógico, burocracia digital y falta de tiempo remunerado para diseño."
+                "Sobrecarga docente y resistencias",
+                "#dc2626",
+                "Quejas por duplicación burocrática, falta de tiempo pago y fatiga.",
+                [
+                    "sobrecarga",
+                    "cansancio",
+                    "papel",
+                    "burocráticas",
+                    "horas",
+                    "resistencia",
+                    "antigüedad",
+                    "libreta"
+                ]
             ],
             [
-                "cat-innovacion",
+                "cat-brechas",
                 null,
-                "CAT-INN",
-                "Prácticas pedagógicas emergentes",
-                "#2563eb",
-                "Diseño de propuestas interdisciplinarias, creación de contenidos multimedia por estudiantes y evaluación basada en proyectos."
+                "CAT-BRE",
+                "Brechas de infraestructura y conectividad",
+                "#b45309",
+                "Cortes de internet, lentitud de servidores y carencia de adaptadores.",
+                [
+                    "conectividad",
+                    "servidor",
+                    "cargadores",
+                    "adaptadores",
+                    "dispositivos",
+                    "cae",
+                    "internet",
+                    "lento"
+                ]
             ]
         ],
         "documents": [
@@ -376,7 +474,20 @@
                 "CAT-DES",
                 "Fatiga laboral y desgaste",
                 "#b91c1c",
-                "Sobrecarga horaria, turnos rotativos, agotamiento psicofísico y precarización de las condiciones de atención."
+                "Sobrecarga horaria, turnos rotativos, agotamiento psicofísico y precarización de las condiciones de atención.",
+                [
+                    "exigencia",
+                    "presión",
+                    "urgencia",
+                    "guardias",
+                    "insomnio",
+                    "cansancio físico",
+                    "sobrecarga",
+                    "agotamiento",
+                    "turnos",
+                    "tensión",
+                    "desgaste"
+                ]
             ],
             [
                 "sub-emocional",
@@ -384,7 +495,19 @@
                 "SUB-EMO",
                 "Carga emocional y sufrimiento vicario",
                 "#ef4444",
-                "Impacto subjetivo del contacto cotidiano con el dolor ajeno, la muerte, la incertidumbre clínica y la impotencia institucional."
+                "Impacto subjetivo del contacto cotidiano con el dolor ajeno, la muerte, la incertidumbre clínica y la impotencia institucional.",
+                [
+                    "carga emocional",
+                    "sufrimiento",
+                    "despersonalización",
+                    "cinismo",
+                    "impotencia",
+                    "angustia",
+                    "muerte",
+                    "dolor",
+                    "quebrarte",
+                    "invisible"
+                ]
             ],
             [
                 "cat-autocuidado",
@@ -392,7 +515,17 @@
                 "CAT-AUT",
                 "Estrategias individuales de autocuidado",
                 "#0f766e",
-                "Prácticas deliberadas para preservar la salud: límites entre trabajo y vida personal, desconexión digital, actividad física y terapia."
+                "Prácticas deliberadas para preservar la salud: límites entre trabajo y vida personal, desconexión digital, actividad física y terapia.",
+                [
+                    "límites",
+                    "natación",
+                    "terapia",
+                    "desconexión",
+                    "ancla",
+                    "cuidar",
+                    "salud mental",
+                    "psicológica"
+                ]
             ],
             [
                 "cat-soporte",
@@ -400,7 +533,18 @@
                 "CAT-SOP",
                 "Soporte grupal y ateneos reflexivos",
                 "#2563eb",
-                "Espacios sistemáticos de diálogo interdisciplinario, escucha mutua, desahogo emocional y contención entre colegas de equipo."
+                "Espacios sistemáticos de diálogo interdisciplinario, escucha mutua, desahogo emocional y contención entre colegas de equipo.",
+                [
+                    "ateneo",
+                    "equipo",
+                    "interdisciplinario",
+                    "contener",
+                    "colegas",
+                    "cuidar al que cuida",
+                    "reflexivo",
+                    "café",
+                    "llorar"
+                ]
             ]
         ],
         "documents": [
@@ -423,33 +567,76 @@
                 "cat-apropiacion",
                 null,
                 "CAT-APR",
-                "Apropiación social del espacio",
-                "#0f766e",
-                "Usos cotidianos, itinerarios barriales, encuentros comunitarios, ferias y prácticas deportivas o lúdicas."
+                "Apropiación comunitaria del espacio",
+                "#059669",
+                "Prácticas vecinales de recuperación, cuidado ambiental y memoria colectiva.",
+                [
+                    "asambleas",
+                    "firmas",
+                    "limpiar",
+                    "ceibos",
+                    "plantaron",
+                    "árbol",
+                    "dignidad",
+                    "historia",
+                    "vecinos",
+                    "plaza"
+                ]
             ],
             [
-                "sub-recreacion",
+                "sub-intergen",
                 "cat-apropiacion",
-                "SUB-REC",
-                "Prácticas recreativas y juveniles",
-                "#14b8a6",
-                "Actividades de esparcimiento: juegos infantiles, rondas de mate, música, danzas urbanas, skate y deportes colectivos."
+                "SUB-INT",
+                "Convivencia y tensiones intergeneracionales",
+                "#10b981",
+                "Encuentros, roces y acuerdos entre adultos mayores y juventudes.",
+                [
+                    "chiquilines",
+                    "gurises",
+                    "patineta",
+                    "rapear",
+                    "música",
+                    "viejos",
+                    "bochinche",
+                    "tensiones",
+                    "ruido"
+                ]
             ],
             [
-                "cat-conflicto",
+                "cat-democratica",
                 null,
-                "CAT-CON",
-                "Tensiones y disputas territoriales",
-                "#b45309",
-                "Conflictos por ruidos molestos, horarios nocturnos, tenencia de mascotas, acumulación de basura y choque de expectativas entre generaciones."
+                "CAT-DEM",
+                "Espacio público como bien democrático",
+                "#2563eb",
+                "La plaza como territorio de encuentro gratuito, universal y no mercantilizado.",
+                [
+                    "democrático",
+                    "espacio público",
+                    "sin pagar",
+                    "encerrados",
+                    "comunidad",
+                    "todos",
+                    "gratuito",
+                    "corazón"
+                ]
             ],
             [
-                "cat-identidad",
+                "cat-solidaridad",
                 null,
-                "CAT-IDE",
-                "Identidad comunitaria y memoria barrial",
+                "CAT-SOL",
+                "Redes de solidaridad y ayuda mutua",
                 "#9333ea",
-                "Sentido de pertenencia al territorio, historia de organización vecinal, defensa del espacio público y lazos de solidaridad."
+                "Organización vecinal ante emergencias de salud, rifas y apoyo mutuo.",
+                [
+                    "solidaria",
+                    "rifa",
+                    "enferma",
+                    "unido",
+                    "corazón",
+                    "ayuda",
+                    "apoyo",
+                    "organizamos"
+                ]
             ]
         ],
         "documents": [
@@ -1077,6 +1264,43 @@
         window.openInductiveGuideModal = openInductiveModal;
     }
 
+    function syncEducationalState() {
+        const state = (typeof window.getAppState === 'function') ? window.getAppState() : (window.appState || null);
+        if (!state || !state.categories || !state.categories.length || !state.documents || !state.documents.length) return;
+
+        let needsUpdate = false;
+        // Restaurar palabras clave si faltan en las categorías del caso actual
+        Object.values(educationalCases).forEach(caseData => {
+            caseData.categories.forEach(([id, parentId, code, name, color, desc, kws]) => {
+                const cat = state.categories.find(c => c.id === id || c.name.toLowerCase() === name.toLowerCase());
+                if (cat && (!cat.keywords || cat.keywords.length === 0)) {
+                    cat.keywords = Array.isArray(kws) ? [...kws] : [];
+                    needsUpdate = true;
+                }
+            });
+        });
+
+        // Si no hay codificaciones en el documento activo, generar las ocurrencias iniciales
+        if (state.codings && state.codings.length === 0 && state.activeDocId) {
+            state.categories.forEach(cat => {
+                if (cat.keywords && cat.keywords.length > 0 && typeof window.autoCodeCategoryInDocument === 'function') {
+                    window.autoCodeCategoryInDocument(state.activeDocId, cat.id);
+                    needsUpdate = true;
+                }
+            });
+        }
+
+        if (needsUpdate) {
+            if (typeof window.saveToStorage === 'function') window.saveToStorage();
+            if (typeof window.renderCodebookList === 'function') window.renderCodebookList();
+            if (typeof window.renderDecoderList === 'function') window.renderDecoderList();
+            if (typeof window.updateQualitativeCharts === 'function') window.updateQualitativeCharts();
+            if (state.activeDocId && typeof window.setActiveDocument === 'function') {
+                window.setActiveDocument(state.activeDocId);
+            }
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.classList.add('edition-educational');
         document.title = 'AnalizadorCualiUY Educativa — Aprender análisis cualitativo';
@@ -1087,6 +1311,8 @@
         setupInductiveGuide();
         addProCallsToAction();
         setupStudentAssignmentModal();
+        setTimeout(syncEducationalState, 250);
+        setTimeout(syncEducationalState, 800);
     });
 })();
 

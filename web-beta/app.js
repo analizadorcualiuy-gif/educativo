@@ -81,6 +81,12 @@
     };
 
     window.getAppState = () => state;
+    window.autoCodeCategoryInDocument = (docId, catId) => autoCodeCategoryInDocument(docId, catId);
+    window.renderCodebookList = () => renderCodebookList();
+    window.renderDecoderList = () => renderDecoderList();
+    window.saveToStorage = () => saveToStorage();
+    window.setActiveDocument = (docId) => setActiveDocument(docId);
+    window.updateQualitativeCharts = () => updateQualitativeCharts();
 
     let nativeSaveTimer = null;
     let nativeSaveQueue = Promise.resolve();
