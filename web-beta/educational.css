@@ -285,4 +285,20 @@ body.theme-dark .inductive-step {
     text-align: left;
 }
 
+/* --- Ampliación y centrado del visor de lectura --- */
+.edition-educational .reader-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 1.5rem 1rem !important;
+}
+
+.edition-educational .text-body {
+    width: 100% !important;
+    max-width: 960px !important;
+    margin: 0 auto !important;
+    padding: 0 0.75rem !important;
+}
+
+
 
