@@ -1076,9 +1076,9 @@ button, input, select, textarea {
 }
 
 .text-body {
-    max-width: 780px;
-    margin-left: 2rem;
-    margin-right: 340px;
+    max-width: 880px;
+    margin-left: 1.5rem;
+    margin-right: 190px;
     font-family: 'Inter', Georgia, serif;
     font-size: 1.05rem;
     line-height: 1.8;
