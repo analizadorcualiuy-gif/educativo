@@ -707,17 +707,19 @@
         return { documents, categories, codings, isSampleLoaded: true, theme: 'dark' };
     }
 
-    function loadEducationalCase(caseId) {
+    function loadEducationalCase(caseId, skipConfirm = false) {
         const selected = educationalCases[caseId];
         const project = createProject(caseId);
         const input = document.getElementById('project-input');
         if (!selected || !project || !input || !window.DataTransfer || !window.File) return;
-        if (!window.confirm(`Cargar el caso “${selected.title}”? Reemplazará el proyecto actual.`)) return;
+        if (!skipConfirm && !window.confirm(`Cargar el caso “${selected.title}”? Reemplazará el proyecto actual.`)) return;
         const transfer = new DataTransfer();
         transfer.items.add(new File([JSON.stringify(project)], `Caso_educativo_${caseId}.json`, { type: 'application/json' }));
         input.files = transfer.files;
         input.dispatchEvent(new Event('change', { bubbles: true }));
-        window.alert(`Caso cargado: ${selected.title}\n\nPregunta de análisis: ${selected.prompt}\n\nConsigna: ${selected.task}`);
+        if (!skipConfirm) {
+            window.alert(`Caso cargado: ${selected.title}\n\nPregunta de análisis: ${selected.prompt}\n\nConsigna: ${selected.task}`);
+        }
     }
 
     function makeGuide() {
@@ -1266,7 +1268,19 @@
 
     function syncEducationalState() {
         const state = (typeof window.getAppState === 'function') ? window.getAppState() : (window.appState || null);
-        if (!state || !state.categories || !state.categories.length || !state.documents || !state.documents.length) return;
+        if (!state) return;
+
+        // Si el usuario tiene cargado el ejemplo genérico inicial o el caso de salud Elena,
+        // cargamos automáticamente el caso de las Jornadas IPES (Liceo 1) como caso por defecto del taller
+        const isDefaultSample = state.isSampleLoaded && state.documents && state.documents.some(d => d.title.includes('Elena') || d.title.includes('Entrevista_01_Impacto'));
+        const hasIpes = state.documents && state.documents.some(d => d.title.includes('Liceo1_Jornadas_IPES'));
+
+        if (isDefaultSample && !hasIpes) {
+            loadEducationalCase('jornadas_ipes', true);
+            return;
+        }
+
+        if (!state.categories || !state.categories.length || !state.documents || !state.documents.length) return;
 
         let needsUpdate = false;
         // Restaurar palabras clave si faltan en las categorías del caso actual
