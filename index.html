@@ -162,7 +162,15 @@
                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
                     <line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
-                <span>💡 Ver tutorial</span>
+                <span>💡 Tutorial</span>
+            </button>
+
+            <button id="btn-open-manual" class="btn btn-primary" title="Abrir el Manual de Usuario y Referencia Metodológica Integral">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+                <span>📘 Manual y Metodología</span>
             </button>
 
             <button id="theme-toggle" class="btn-icon" title="Cambiar Tema Claro / Oscuro">
@@ -1098,6 +1106,352 @@
                     <button id="btn-guide-prev" class="btn btn-secondary" style="display:none;">Anterior</button>
                     <button id="btn-guide-next" class="btn btn-primary">Siguiente</button>
                 </div>
+            </div>
+        </div>
+    <!-- Modal: Integrated User Manual & Methodological Reference -->
+    <div id="modal-user-manual" class="modal-backdrop" style="display:none; z-index:9600;" aria-hidden="true">
+        <div class="modal-card manual-modal-card" role="dialog" aria-modal="true" aria-labelledby="manual-main-title">
+            <!-- Header -->
+            <div class="manual-header">
+                <div class="manual-header-title">
+                    <span style="font-size:1.3rem;">📖</span>
+                    <h2 id="manual-main-title">Manual de Usuario y Referencia Metodológica</h2>
+                    <span class="manual-tag">Versión 1.0.4 PRO</span>
+                </div>
+                <div class="manual-header-actions">
+                    <div class="manual-search-box">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" id="manual-search-input" placeholder="Buscar concepto o función...">
+                    </div>
+                    <button id="btn-manual-download-pdf" class="btn btn-sm btn-outline" title="Descargar manual completo en formato PDF">
+                        📥 Descargar PDF
+                    </button>
+                    <button class="modal-close manual-close-btn" aria-label="Cerrar manual">&times;</button>
+                </div>
+            </div>
+
+            <!-- Body (Sidebar + Content) -->
+            <div class="manual-body">
+                <!-- Sidebar Navigation -->
+                <nav class="manual-sidebar" id="manual-nav-list">
+                    <button class="manual-nav-btn active" data-target="manual-sec-1">
+                        <span>🛡️</span> 1. Filosofía y Privacidad
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-2">
+                        <span>🖥️</span> 2. Espacio de Trabajo (3 Paneles)
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-3">
+                        <span>🏷️</span> 3. Codificación y Memos
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-4">
+                        <span>📊</span> 4. Cruce de Datos y Gráficos
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-5">
+                        <span>📐</span> 5. Glosario y Fórmulas
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-6">
+                        <span>▦</span> 6. Matrices y Consultas
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-7">
+                        <span>📑</span> 7. Calidad y Exportación
+                    </button>
+                </nav>
+
+                <!-- Reading Pane -->
+                <div class="manual-content-pane" id="manual-content-pane">
+                    
+                    <!-- Section 1 -->
+                    <section id="manual-sec-1" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>🛡️ 1. Filosofía, Confidencialidad y Principios</h3>
+                            <span class="manual-tag">FUNDAMENTOS</span>
+                        </div>
+                        <p><strong>AnalizadorCualiUY Pro</strong> es una plataforma de análisis cualitativo asistido por computadora (CAQDAS) diseñada con un estándar estricto de privacidad y rigor científico.</p>
+                        
+                        <div class="manual-callout tip">
+                            <div class="manual-callout-title">🔒 Procesamiento 100% Local y Confidencial</div>
+                            A diferencia de soluciones en la nube, todos los documentos (entrevistas, transcripciones, notas de campo), categorías y memos se procesan exclusivamente en la memoria y disco local de tu equipo. Ningún dato se transmite a internet ni a servidores externos.
+                        </div>
+
+                        <div class="manual-grid-2">
+                            <div class="manual-card-box">
+                                <h4>🔗 Cadena de Custodia Inmutable</h4>
+                                <p>Cada segmento codificado conserva su identificador de documento, offsets de caracteres inicial/final y texto original exacto, garantizando trazabilidad total y reproducibilidad metodológica.</p>
+                            </div>
+                            <div class="manual-card-box">
+                                <h4>🧠 Asistencia sin Reduccionismo</h4>
+                                <p>El software no reemplaza el juicio hermenéutico del investigador. Los cálculos de coocurrencia y grafos actúan como catalizadores reflexivos para descubrir patrones discursivos.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 2 -->
+                    <section id="manual-sec-2" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>🖥️ 2. Arquitectura del Espacio de Trabajo</h3>
+                            <span class="manual-tag">INTERFAZ</span>
+                        </div>
+                        <p>La interfaz se organiza en un esquema ergonómico de 3 paneles ajustables mediante arrastre de sus barras divisorias:</p>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:25%;">Panel</th>
+                                        <th style="width:35%;">Componentes</th>
+                                        <th>Funcionalidad Metodológica</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Panel 1 (Izquierdo)</strong></td>
+                                        <td>Documentos & Libro de Códigos (Codebook)</td>
+                                        <td>Importación de corpus (TXT, DOCX, PDF), fichas contextuales por participante y administración del árbol jerárquico de categorías.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Panel 2 (Central)</strong></td>
+                                        <td>Lector de Texto & Taller de Codificación</td>
+                                        <td>Lectura fluida, franjas marginales tipo ATLAS.ti, barra flotante de asignación al seleccionar texto, atajos rápidos y buscador F3.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Panel 3 (Derecho)</strong></td>
+                                        <td>Decodificador, Gráficos y Buscador Multiarchivo</td>
+                                        <td>Redacción de memos analíticos, visualización en red/heatmap/barras/calidad y búsqueda global booleana en todo el corpus.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Section 3 -->
+                    <section id="manual-sec-3" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>🏷️ 3. Proceso de Codificación y Memos</h3>
+                            <span class="manual-tag">MÉTODO</span>
+                        </div>
+                        <p>El sistema soporta indistintamente estrategias deductivas (a priori) e inductivas (teoría fundamentada / emergentes):</p>
+
+                        <div class="manual-grid-2">
+                            <div class="manual-card-box">
+                                <h4>📋 Estructura de una Categoría</h4>
+                                <ul style="padding-left:1.1rem; font-size:0.83rem;">
+                                    <li><strong>Código y Nombre:</strong> Etiqueta abreviada y nombre descriptivo.</li>
+                                    <li><strong>Jerarquía:</strong> Asignación como categoría principal o subcategoría anidada.</li>
+                                    <li><strong>Criterio de Inclusión:</strong> Definición explícita de qué entra en la categoría.</li>
+                                    <li><strong>Criterio de Exclusión:</strong> Límites y decisiones metodológicas para evitar ambigüedades.</li>
+                                    <li><strong>Keywords / Términos:</strong> Palabras clave para la búsqueda automática.</li>
+                                </ul>
+                            </div>
+                            <div class="manual-card-box">
+                                <h4>✍️ Mecánicas de Codificación</h4>
+                                <ul style="padding-left:1.1rem; font-size:0.83rem;">
+                                    <li><strong>Manual:</strong> Seleccionar pasaje con mouse y elegir categoría (o Ctrl+1 a Ctrl+9).</li>
+                                    <li><strong>Múltiple y Solapada:</strong> Asignar varios códigos a un mismo fragmento sin duplicar texto.</li>
+                                    <li><strong>Buscar Todo:</strong> Autocodificación asistida basada en palabras clave con registro de auditoría.</li>
+                                    <li><strong>Memos:</strong> Registro reflexivo de hipótesis, emociones o tensiones teóricas.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="manual-callout">
+                            <div class="manual-callout-title">💡 El Valor Hermenéutico del Memo</div>
+                            Un memo no es un resumen del texto: es el registro donde el investigador dialoga con la cita, explica por qué es significativa para la pregunta de investigación y articula conexiones con el marco conceptual.
+                        </div>
+                    </section>
+
+                    <!-- Section 4 -->
+                    <section id="manual-sec-4" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>📊 4. Cruce de Datos y Gráficos Cualitativos</h3>
+                            <span class="manual-tag">ANÁLISIS</span>
+                        </div>
+                        <p>La solapa <strong>Gráficos Cuali</strong> integra cuatro herramientas de visualización y modelado conceptual:</p>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:25%;">Visualización</th>
+                                        <th style="width:35%;">Qué Representa</th>
+                                        <th>Uso e Interpretación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>🕸️ Red / Grafo</strong></td>
+                                        <td>Nodos = Categorías; Aristas = Coocurrencia</td>
+                                        <td>El tamaño del nodo refleja su presencia o frecuencia. El grosor del enlace indica la fuerza de asociación. Permite layouts Circular, Grilla o Red Libre por Fuerza.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>🔥 Coocurrencias (Heatmap)</strong></td>
+                                        <td>Matriz simétrica de cruce bidimensional</td>
+                                        <td>Colorea las celdas en gradiente térmico (Cero, Baja, Media, Alta) según el valor de Jaccard o recuento, revelando agrupamientos temáticos.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>📊 Comparación (Barras)</strong></td>
+                                        <td>Barras horizontales proporcionales</td>
+                                        <td>Compara simultáneamente el volumen bruto de citas y la densidad normalizada por cada 1.000 palabras, neutralizando diferencias de extensión entre documentos.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>✅ Calidad Metodológica</strong></td>
+                                        <td>Dashboard de rigor y cobertura</td>
+                                        <td>Monitorea el porcentaje de texto codificado, tasa de memos redactados, proporción manual vs. automática y detecta categorías vacías.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="manual-callout tip">
+                            <div class="manual-callout-title">💡 Interpretación Asistida y Edición de Notas</div>
+                            Bajo cada visualización, el sistema genera automáticamente una síntesis narrativa en lenguaje natural. Puedes hacer clic en <strong>✏️ Editar nota</strong> para ingresar tu propia interpretación cualitativa, la cual se incluirá en los informes exportados.
+                        </div>
+                    </section>
+
+                    <!-- Section 5 -->
+                    <section id="manual-sec-5" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>📐 5. Glosario Metodológico: Unidades y Métricas</h3>
+                            <span class="manual-tag">GLOSARIO</span>
+                        </div>
+                        <p>Definiciones operativas y matemáticas de cada control de la barra analítica:</p>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:25%;">Unidad de Análisis</th>
+                                        <th>Delimitación Textual y Significado Metodológico</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Párrafo (Estándar)</strong></td>
+                                        <td>Evalúa si dos categorías convergen en el mismo bloque narrativo o intervención. Es la unidad cualitativa recomendada por excelencia.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Oración</strong></td>
+                                        <td>Exige inmediatez sintáctica dentro de la misma frase delimitada por puntos. Indica conexión causal o discursiva directa.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Ventana (±50, 100, 250)</strong></td>
+                                        <td>Evalúa contigüidad temática fluida dentro de un radio de N palabras a cada lado. Ideal para transcripciones orales continuas.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Solapamiento (Overlap)</strong></td>
+                                        <td>Exige intersección exacta de caracteres en el mismo fragmento resaltado.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Documento</strong></td>
+                                        <td>Mide la co-presencia global en el mismo caso/entrevista, independientemente de la distancia entre párrafos.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:25%;">Métrica de Asociación</th>
+                                        <th>Fórmula y Justificación Científica</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Índice de Jaccard</strong></td>
+                                        <td><code>J = |A ∩ B| / |A ∪ B|</code> (valores entre 0 y 1). Mide la proporción de solapamiento relativo sin sesgo por alta frecuencia marginal. Es la métrica cualitativa estándar.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Recuento (Count)</strong></td>
+                                        <td>Número entero absoluto de unidades donde coexisten ambas categorías. Muestra el volumen bruto de evidencia.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>% Documentos</strong></td>
+                                        <td>Porcentaje de participantes o casos del corpus donde se registra la relación. Mide la transversalidad inter-sujetos.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Densidad / 1.000 palabras</strong></td>
+                                        <td><code>(Ocurrencias / Total palabras) × 1.000</code>. Permite contrastar la intensidad discursiva entre textos breves y extensos.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Section 6 -->
+                    <section id="manual-sec-6" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>▦ 6. Matrices Avanzadas y Consultas Booleanas</h3>
+                            <span class="manual-tag">HERRAMIENTAS</span>
+                        </div>
+                        <p>Al pulsar <strong>📊 Matriz Categorial y Estadísticas</strong> en la barra superior, accedes a las funciones avanzadas de cruce:</p>
+
+                        <div class="manual-grid-2">
+                            <div class="manual-card-box">
+                                <h4>▦ Matriz de Síntesis (Framework)</h4>
+                                <p>Organiza una grilla de <em>Documento × Categoría</em> para redactar resúmenes interpretativos transversales por cada cruce temático con acceso directo a las citas empíricas de respaldo.</p>
+                            </div>
+                            <div class="manual-card-box">
+                                <h4>🔎 Consultas Booleanas</h4>
+                                <p>Permite interrogar al corpus con operadores lógicos: <strong>A Y B</strong> (co-presencia), <strong>A SIN B</strong> (casos puros/negativos) y <strong>A CERCA DE B</strong> (distancia máxima en caracteres).</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 7 -->
+                    <section id="manual-sec-7" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>📑 7. Calidad, Auditoría y Exportación</h3>
+                            <span class="manual-tag">ENTREGABLES</span>
+                        </div>
+                        <p>Formatos de comunicación científica con trazabilidad completa:</p>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:30%;">Modalidad</th>
+                                        <th>Características del Formato</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>DOCX Sombreado por Color</strong></td>
+                                        <td>Documento Word completo con cada cita resaltada en el color de su categoría y comentarios marginales con memos.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>DOCX Pasajes Clasificados</strong></td>
+                                        <td>Dossier estructurado por dimensiones y categorías con citas textuales, procedencia y notas analíticas.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Informe Ejecutivo (DOCX/PDF)</strong></td>
+                                        <td>Reporte formal con portada, metodología, objetivos, tablas de frecuencias, gráficos de red y conclusiones.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Exportación a CSV / Excel</strong></td>
+                                        <td>Matrices de coocurrencia, libros de códigos y tablas de porcentajes para análisis estadísticos complementarios.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Cita Académica Oficial</strong></td>
+                                        <td>Generador integrado en normas APA 7ª, BibTeX, Chicago 17ª, MLA 9ª e ISO 690.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="manual-footer">
+                <span style="font-size:0.8rem; color:var(--text-muted);">
+                    AnalizadorCualiUY Pro • Manual de Usuario y Referencia Metodológica
+                </span>
+                <button class="btn btn-primary manual-close-btn">Entendido / Cerrar</button>
             </div>
         </div>
     </div>

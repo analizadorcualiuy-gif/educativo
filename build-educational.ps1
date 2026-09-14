@@ -38,7 +38,7 @@ $pdf = $pdf.Replace('VERSIÓN BETA — INFORME DE EVALUACIÓN', 'EDICIÓN EDUCAT
 $pdf = $pdf.Replace('AnalizadorCualiUY Beta | Uso de evaluación', 'AnalizadorCualiUY Educativa | Uso formativo')
 [System.IO.File]::WriteAllText((Join-Path (Get-Location) "$output\pdf-report.js"), $pdf, [System.Text.UTF8Encoding]::new($false))
 
-Copy-Item "$source\BETA-LICENSE.txt", "$source\THIRD_PARTY_NOTICES.txt", "$source\PRIVACY-BETA.html", "$source\_headers", "$source\README.md", 'GUIA-PRUEBA-BETA-WINDOWS.txt' -Destination $output -Force
+Copy-Item "$source\BETA-LICENSE.txt", "$source\THIRD_PARTY_NOTICES.txt", "$source\PRIVACY-BETA.html", "$source\_headers", "$source\README.md", 'GUIA-PRUEBA-BETA-WINDOWS.txt', "$source\MANUAL-METODOLOGICO-ANALIZADORCUALIUY-PRO.pdf" -Destination $output -Force
 Rename-Item "$output\BETA-LICENSE.txt" 'EDUCATIONAL-LICENSE.txt'
 $license = Get-Content "$output\EDUCATIONAL-LICENSE.txt" -Raw
 $license = $license.Replace('Versión Beta', 'Edición Educativa').Replace('Beta', 'Educativa').Replace('evaluación', 'uso formativo')

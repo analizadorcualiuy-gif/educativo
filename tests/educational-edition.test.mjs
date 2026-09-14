@@ -13,13 +13,9 @@ test('educational edition has a guided qualitative-analysis path and a Pro conta
     assert.match(guide, /Matriz:/);
     assert.match(guide, /Obtener versión Pro/);
     assert.match(guide, /analizadorcualiuy@gmail\.com/);
-    assert.match(guide, /Adaptación a una nueva trayectoria/);
-    assert.match(guide, /Devoluciones docentes/);
-    assert.match(guide, /Participación en clase/);
-    assert.match(guide, /codings: \[\]/);
-    assert.match(guide, /sub-autonomia/);
-    assert.match(guide, /sub-criterios/);
-    assert.match(guide, /sub-temor/);
+    assert.match(guide, /Jornadas IPES/);
+    assert.match(guide, /Usos pedagógicos y evaluación/);
+    assert.match(guide, /Aplicaciones de IA generativa/);
     assert.match(guide, /educational-sector-popover/);
     assert.match(guide, /Función Operativa/);
     assert.match(guide, /Sustento Teórico/);

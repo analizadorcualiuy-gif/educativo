@@ -5285,8 +5285,90 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         } catch (e) {}
     }
 
+    function initIntegratedUserManual() {
+        const modal = document.getElementById('modal-user-manual');
+        const openBtn = document.getElementById('btn-open-manual');
+        if (!modal) return;
+
+        const navBtns = modal.querySelectorAll('.manual-nav-btn');
+        const contentPane = document.getElementById('manual-content-pane');
+        const searchInput = document.getElementById('manual-search-input');
+        const downloadPdfBtn = document.getElementById('btn-manual-download-pdf');
+
+        function openManual() {
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+                searchInput.focus();
+            }
+        }
+
+        function closeManual() {
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        if (openBtn) {
+            openBtn.onclick = openManual;
+        }
+
+        modal.querySelectorAll('.manual-close-btn').forEach(btn => {
+            btn.onclick = closeManual;
+        });
+
+        modal.onclick = (e) => {
+            if (e.target === modal) closeManual();
+        };
+
+        // Navigation clicks
+        navBtns.forEach(btn => {
+            btn.onclick = () => {
+                const targetId = btn.dataset.target;
+                const targetSec = document.getElementById(targetId);
+                if (targetSec && contentPane) {
+                    navBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            };
+        });
+
+        // Search filter in manual
+        if (searchInput) {
+            searchInput.oninput = () => {
+                const query = searchInput.value.trim().toLowerCase();
+                const sections = modal.querySelectorAll('.manual-section');
+                sections.forEach(sec => {
+                    if (!query) {
+                        sec.style.display = '';
+                        return;
+                    }
+                    const text = sec.textContent.toLowerCase();
+                    sec.style.display = text.includes(query) ? '' : 'none';
+                });
+            };
+        }
+
+        // PDF Download
+        if (downloadPdfBtn) {
+            downloadPdfBtn.onclick = async () => {
+                try {
+                    const response = await fetch('MANUAL-METODOLOGICO-ANALIZADORCUALIUY-PRO.pdf');
+                    if (!response.ok) throw new Error(`Estado ${response.status}`);
+                    const blob = await response.blob();
+                    universalSaveFile(blob, 'Manual_Metodologico_AnalizadorCualiUY_Pro.pdf');
+                } catch (err) {
+                    alert('Puedes consultar el manual directamente en esta ventana o abrir el PDF generado en la carpeta del programa.');
+                }
+            };
+        }
+    }
+
     function setupEventListeners() {
         initOperationalGuideWizard();
+        initIntegratedUserManual();
         const licenseButton = document.getElementById('btn-view-license-file');
         if (licenseButton) licenseButton.onclick = async () => {
             const content = document.getElementById('eula-content');
