@@ -36,6 +36,12 @@ function loadFrontendHarness() {
             revalidateLicense,
             parseCodebookCSV,
             countWords,
+            applyGlobalCorpusExclusion,
+            removeCorpusExclusion,
+            removeCorpusExclusionsByTerm,
+            clearAllCorpusExclusions,
+            executeQuickExclusion,
+            openQuickExclusionModal,
             sampleDocuments: SAMPLE_DOCUMENTS,
             sampleCodings: SAMPLE_CODINGS,
             setPending(value) { pendingNativeProject = value; },
@@ -61,10 +67,30 @@ function loadFrontendHarness() {
             style: {},
             value: '',
             textContent: '',
+            innerHTML: '',
             disabled: false,
+            dataset: {},
+            classList: { add() {}, remove() {}, contains() { return false; }, toggle() {} },
             attributes: new Map(),
             setAttribute(name, value) { this.attributes.set(name, value); },
-            focus() { this.focused = true; }
+            getAttribute(name) { return this.attributes.get(name) || null; },
+            appendChild(child) { return child; },
+            removeChild(child) { return child; },
+            remove() {},
+            focus() { this.focused = true; },
+            addEventListener() {},
+            removeEventListener() {},
+            querySelector(selector) { return elementFor(`el-${selector}-${Math.random()}`); },
+            querySelectorAll() { return []; },
+            getContext() {
+                return {
+                    fillRect() {}, clearRect() {}, beginPath() {}, arc() {}, fill() {}, stroke() {},
+                    moveTo() {}, lineTo() {}, measureText() { return { width: 10 }; }, save() {}, restore() {},
+                    setLineDash() {}, createLinearGradient() { return { addColorStop() {} }; },
+                    fillText() {}, strokeText() {}, closePath() {}, ellipse() {}, rect() {}
+                };
+            },
+            getBoundingClientRect() { return { width: 800, height: 600, top: 0, left: 0, right: 800, bottom: 600 }; }
         });
         return elements.get(id);
     };
@@ -74,9 +100,14 @@ function loadFrontendHarness() {
         addEventListener() {},
         removeEventListener() {},
         getElementById(id) { return elementFor(id); },
+        createElement(tag) { return elementFor(`el-${Math.random()}`); },
+        createTextNode(text) { return { textContent: text }; },
+        querySelector(selector) { return null; },
         querySelectorAll(selector) { return selector === 'body > :not(#modal-license)' ? inertNodes : []; }
     };
+    const windowStub = { addEventListener() {}, removeEventListener() {}, location: { reload() {} }, AnalyticsEngine: globalThis.AnalyticsEngine };
     const context = {
+        AnalyticsEngine: globalThis.AnalyticsEngine,
         ProjectIntegrity: integrity,
         Blob,
         URL,
@@ -91,7 +122,7 @@ function loadFrontendHarness() {
         setInterval,
         clearInterval,
         document: documentStub,
-        window: { addEventListener() {}, removeEventListener() {}, location: { reload() {} } }
+        window: windowStub
     };
     vm.runInNewContext(source, context, { filename: 'app.js' });
     return { hooks: context.__frontendHooks, context, localStorage, alerts, elements, inertNodes };
@@ -453,11 +484,75 @@ test('ribbon toolbar layout and global corpus exclusion functions operate correc
     const appSource = await readFile(new URL('../app.js', import.meta.url), 'utf8');
     assert.match(appSource, /corpusExclusions/);
     assert.match(appSource, /applyGlobalCorpusExclusion/);
-    assert.match(appSource, /excludeSelectedRange/);
+    assert.match(appSource, /openQuickExclusionModal/);
+    assert.match(appSource, /executeQuickExclusion/);
+    assert.match(appSource, /removeCorpusExclusionsByTerm/);
     assert.match(appSource, /removeCorpusExclusion/);
     assert.match(appSource, /clearAllCorpusExclusions/);
     assert.match(appSource, /corpus-excluded-segment/);
+
+    // Verify quick exclusion modal in HTMLs
+    assert.match(html, /id="modal-quick-exclusion"/);
+    assert.match(html, /name="quick-exclusion-scope"/);
+    assert.match(html, /name="quick-exclusion-mode"/);
+    assert.match(betaHtml, /id="modal-quick-exclusion"/);
+    assert.match(betaHtml, /name="quick-exclusion-scope"/);
+    assert.match(betaHtml, /name="quick-exclusion-mode"/);
 });
+
+test('scoped exclusions operate accurately for document vs corpus and turn vs exact modes', () => {
+    const { hooks } = loadFrontendHarness();
+    const state = hooks.getState();
+
+    state.documents = [
+        {
+            id: 'doc-1',
+            title: 'Entrevista 1',
+            content: 'Investigador: ¿Qué opinas de la innovación?\n\nParticipante: Es fundamental para progresar.\n\nInvestigador: ¿Y de los recursos disponibles?',
+            wordCount: 16
+        },
+        {
+            id: 'doc-2',
+            title: 'Entrevista 2',
+            content: 'Investigador: Buenas tardes, iniciamos la sesión.\n\nParticipante: Gracias por invitarme.',
+            wordCount: 9
+        }
+    ];
+    state.activeDocId = 'doc-1';
+    state.categories = [
+        { id: 'cat-innova', name: 'Innovación', code: 'INN', color: '#10b981', keywords: ['innovación', 'progresar'] }
+    ];
+    state.codings = [
+        { id: 'c1', docId: 'doc-1', categoryId: 'cat-innova', startChar: 0, endChar: 43, quoteText: 'Investigador: ¿Qué opinas de la innovación?', source: 'automatic' },
+        { id: 'c2', docId: 'doc-1', categoryId: 'cat-innova', startChar: 45, endChar: 88, quoteText: 'Participante: Es fundamental para progresar.', source: 'automatic' }
+    ];
+    state.corpusExclusions = [];
+
+    // 1. Exclude "Investigador:" only in active document
+    const docExcluded = hooks.applyGlobalCorpusExclusion('Investigador:', 'document', 'turn');
+    assert.equal(docExcluded, 2); // 2 turns in doc-1
+    assert.equal(state.corpusExclusions.length, 2);
+    assert.ok(state.corpusExclusions.every(ex => ex.docId === 'doc-1'));
+
+    // Verify automatic coding overlapping the excluded segment was dismissed
+    const autoCoding1 = state.codings.find(c => c.id === 'c1');
+    const autoCoding2 = state.codings.find(c => c.id === 'c2');
+    assert.equal(autoCoding1.dismissed, true);
+    assert.notEqual(autoCoding2.dismissed, true);
+
+    // 2. Clear exclusions and apply to all corpus
+    hooks.clearAllCorpusExclusions();
+    assert.equal(state.corpusExclusions.length, 0);
+
+    const corpusExcluded = hooks.applyGlobalCorpusExclusion('Investigador:', 'all', 'turn');
+    assert.equal(corpusExcluded, 3); // 2 in doc-1, 1 in doc-2
+    assert.equal(state.corpusExclusions.length, 3);
+
+    // 3. Reincorporate by term
+    hooks.removeCorpusExclusionsByTerm('Investigador:');
+    assert.equal(state.corpusExclusions.length, 0);
+});
+
 
 
 

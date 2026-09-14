@@ -1161,11 +1161,25 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 element.dataset.textStart = String(frag.start);
                 element.dataset.textEnd = String(frag.end);
                 element.className = 'corpus-excluded-segment';
-                element.title = '🚫 Pasaje excluido del análisis metodológico.\nHaz clic para reincorporar este pasaje al análisis.';
+                element.title = '🚫 Pasaje excluido del análisis metodológico.\nHaz clic para reincorporar este pasaje o el término al análisis.';
                 element.onclick = event => {
                     event.stopPropagation();
-                    if (confirm(`¿Deseas reincorporar este pasaje al análisis levantando su exclusión?\n\n"${frag.text.slice(0, 160)}…"`)) {
-                        activeExclusionIds.forEach(id => removeCorpusExclusion(id));
+                    const allExclusions = state.corpusExclusions || [];
+                    const matchingEx = allExclusions.find(ex => activeExclusionIds.includes(ex.id));
+                    const termName = matchingEx && matchingEx.term && matchingEx.term !== 'Selección manual' ? matchingEx.term : null;
+                    const sameTermCount = termName ? allExclusions.filter(ex => ex.term === termName).length : 0;
+
+                    if (sameTermCount > 1) {
+                        const choice = prompt(`🚫 Pasaje actualmente excluido ("${frag.text.slice(0, 80)}…")\n\nTérmino asociado: "${termName}" (${sameTermCount} pasajes en el proyecto).\n\n¿Cómo deseas reincorporarlo?\n1. Reincorporar solo este pasaje\n2. Reincorporar todos los pasajes de "${termName}" (${sameTermCount})\n\nIngresa 1 o 2 (o pulsa Cancelar):`, '1');
+                        if (choice === '1') {
+                            activeExclusionIds.forEach(id => removeCorpusExclusion(id));
+                        } else if (choice === '2') {
+                            removeCorpusExclusionsByTerm(termName);
+                        }
+                    } else {
+                        if (confirm(`¿Deseas reincorporar este pasaje al análisis levantando su exclusión?\n\n"${frag.text.slice(0, 160)}…"`)) {
+                            activeExclusionIds.forEach(id => removeCorpusExclusion(id));
+                        }
                     }
                 };
                 textBody.appendChild(element);
@@ -2577,6 +2591,21 @@ ${bodyHtml}
         updateQualitativeCharts();
     }
 
+    function removeCorpusExclusionsByTerm(term) {
+        if (!state.corpusExclusions || !term) return;
+        const initialCount = state.corpusExclusions.length;
+        state.corpusExclusions = state.corpusExclusions.filter(ex => ex.term !== term);
+        const removedCount = initialCount - state.corpusExclusions.length;
+        if (removedCount > 0) {
+            saveToStorage();
+            if (state.activeDocId) setActiveDocument(state.activeDocId);
+            renderCorpusExclusionList();
+            renderDecoderList();
+            updateQualitativeCharts();
+            alert(`✅ Se reincorporaron ${removedCount} pasaje(s) del término "${term}" al análisis.`);
+        }
+    }
+
     function clearAllCorpusExclusions() {
         if (!state.corpusExclusions || state.corpusExclusions.length === 0) return;
         if (!confirm('¿Deseas levantar y eliminar todas las exclusiones del corpus? Los pasajes volverán a ser considerados en el análisis.')) return;
@@ -2590,23 +2619,23 @@ ${bodyHtml}
         updateQualitativeCharts();
     }
 
-    function applyGlobalCorpusExclusion(termsString, scope = 'all') {
+    function applyGlobalCorpusExclusion(termsString, scope = 'all', mode = 'turn') {
         const rawTerms = String(termsString || '')
             .split(',')
             .map(t => t.trim())
             .filter(t => t.length >= 2);
         if (rawTerms.length === 0) {
             alert('Por favor ingresa al menos un término o encabezado para excluir.');
-            return;
+            return 0;
         }
 
-        const targetDocs = scope === 'active'
+        const targetDocs = scope === 'active' || scope === 'document'
             ? (state.documents || []).filter(d => d.id === state.activeDocId)
             : (state.documents || []);
 
         if (targetDocs.length === 0) {
             alert('No hay documentos disponibles en el alcance seleccionado.');
-            return;
+            return 0;
         }
 
         if (!state.corpusExclusions) state.corpusExclusions = [];
@@ -2616,6 +2645,7 @@ ${bodyHtml}
         targetDocs.forEach(doc => {
             const content = String(doc.content || '');
             const normalizedContent = normalizeText(content);
+            const paraSpans = mode === 'turn' && window.AnalyticsEngine ? window.AnalyticsEngine.spansFor(content, 'paragraph') : null;
 
             rawTerms.forEach(term => {
                 const normalizedTerm = normalizeText(term);
@@ -2626,10 +2656,27 @@ ${bodyHtml}
                 while ((foundPos = normalizedContent.indexOf(normalizedTerm, searchFrom)) !== -1) {
                     searchFrom = foundPos + normalizedTerm.length;
 
-                    let segStart = content.lastIndexOf('\n\n', foundPos);
-                    segStart = segStart === -1 ? 0 : segStart + 2;
-                    let segEnd = content.indexOf('\n\n', foundPos + term.length);
-                    segEnd = segEnd === -1 ? content.length : segEnd;
+                    let segStart, segEnd;
+                    if (mode === 'turn' && paraSpans && paraSpans.length > 0) {
+                        const span = paraSpans.find(s => foundPos >= s.start && foundPos < s.end);
+                        if (span) {
+                            segStart = span.start;
+                            segEnd = span.end;
+                        } else {
+                            let sStart = content.lastIndexOf('\n\n', foundPos);
+                            segStart = sStart === -1 ? 0 : sStart + 2;
+                            let sEnd = content.indexOf('\n\n', foundPos + term.length);
+                            segEnd = sEnd === -1 ? content.length : sEnd;
+                        }
+                    } else if (mode === 'turn') {
+                        let sStart = content.lastIndexOf('\n\n', foundPos);
+                        segStart = sStart === -1 ? 0 : sStart + 2;
+                        let sEnd = content.indexOf('\n\n', foundPos + term.length);
+                        segEnd = sEnd === -1 ? content.length : sEnd;
+                    } else {
+                        segStart = foundPos;
+                        segEnd = foundPos + term.length;
+                    }
 
                     const trimmed = ProjectIntegrity.trimSelectionOffsets(content, segStart, segEnd);
                     if (trimmed.start >= trimmed.end || trimmed.text.length < 2) continue;
@@ -2658,7 +2705,7 @@ ${bodyHtml}
 
         if (addedCount === 0) {
             alert('No se encontraron nuevos pasajes que coincidan con los términos indicados.');
-            return;
+            return 0;
         }
 
         state.corpusExclusions = newExclusions;
@@ -2677,6 +2724,7 @@ ${bodyHtml}
             return coding;
         });
 
+        const scopeLabel = scope === 'active' || scope === 'document' ? 'Documento activo' : 'Todo el corpus';
         saveToStorage();
         if (state.activeDocId) {
             setActiveDocument(state.activeDocId);
@@ -2684,36 +2732,107 @@ ${bodyHtml}
         renderCorpusExclusionList();
         renderDecoderList();
         updateQualitativeCharts();
-        alert(`✅ Se identificaron y excluyeron ${addedCount} pasaje(s) del análisis automático.`);
+        alert(`✅ Se identificaron y excluyeron ${addedCount} pasaje(s) del análisis automático (${scopeLabel}).`);
+        return addedCount;
+    }
+
+    function openQuickExclusionModal() {
+        if (!state.selectedRange) return;
+        const modal = document.getElementById('modal-quick-exclusion');
+        if (!modal) {
+            excludeSelectedRange();
+            return;
+        }
+        const termInput = document.getElementById('quick-exclusion-term');
+        const docTitleEl = document.getElementById('quick-exclusion-doc-title');
+        const activeDoc = state.documents.find(d => d.id === state.activeDocId);
+
+        if (termInput) termInput.value = state.selectedRange.quoteText.trim();
+        if (docTitleEl) docTitleEl.textContent = activeDoc ? `"${activeDoc.title}"` : 'este documento';
+
+        const defaultScopeRadio = document.querySelector('input[name="quick-exclusion-scope"][value="document"]');
+        if (defaultScopeRadio) defaultScopeRadio.checked = true;
+
+        const defaultModeRadio = document.querySelector('input[name="quick-exclusion-mode"][value="turn"]');
+        if (defaultModeRadio) defaultModeRadio.checked = true;
+
+        modal.style.display = 'flex';
+        hideFloatingToolbar();
+    }
+
+    function executeQuickExclusion() {
+        const termInput = document.getElementById('quick-exclusion-term');
+        const scopeRadio = document.querySelector('input[name="quick-exclusion-scope"]:checked');
+        const modeRadio = document.querySelector('input[name="quick-exclusion-mode"]:checked');
+        const term = termInput ? termInput.value.trim() : '';
+        const scope = scopeRadio ? scopeRadio.value : 'document';
+        const mode = modeRadio ? modeRadio.value : 'turn';
+
+        if (!term) {
+            alert('Por favor ingresa un término para excluir.');
+            return;
+        }
+
+        const modal = document.getElementById('modal-quick-exclusion');
+        if (modal) modal.style.display = 'none';
+
+        if (scope === 'passage') {
+            if (!state.selectedRange) {
+                applyGlobalCorpusExclusion(term, 'active', mode);
+                return;
+            }
+            const { docId, startChar, endChar, quoteText } = state.selectedRange;
+            const doc = state.documents.find(d => d.id === docId);
+            let finalStart = startChar;
+            let finalEnd = endChar;
+            let finalText = quoteText;
+
+            if (mode === 'turn' && doc) {
+                const paraSpans = window.AnalyticsEngine ? window.AnalyticsEngine.spansFor(doc.content, 'paragraph') : [];
+                const span = paraSpans.find(s => startChar >= s.start && startChar < s.end);
+                if (span) {
+                    const trimmed = ProjectIntegrity.trimSelectionOffsets(doc.content, span.start, span.end);
+                    finalStart = trimmed.start;
+                    finalEnd = trimmed.end;
+                    finalText = trimmed.text;
+                }
+            }
+
+            if (!state.corpusExclusions) state.corpusExclusions = [];
+            const newEx = {
+                id: `ex-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                docId,
+                startChar: finalStart,
+                endChar: finalEnd,
+                text: finalText,
+                term: term,
+                createdAt: Date.now()
+            };
+            state.corpusExclusions.push(newEx);
+
+            state.codings = (state.codings || []).map(coding => {
+                if (coding.docId === docId && coding.startChar < finalEnd && coding.endChar > finalStart && coding.source === 'automatic') {
+                    return { ...coding, dismissed: true };
+                }
+                return coding;
+            });
+
+            saveToStorage();
+            setActiveDocument(docId);
+            renderCorpusExclusionList();
+            renderDecoderList();
+            updateQualitativeCharts();
+            alert('✅ Pasaje excluido del análisis automático.');
+        } else if (scope === 'document') {
+            applyGlobalCorpusExclusion(term, 'active', mode);
+        } else {
+            applyGlobalCorpusExclusion(term, 'all', mode);
+        }
     }
 
     function excludeSelectedRange() {
         if (!state.selectedRange) return;
-        if (!state.corpusExclusions) state.corpusExclusions = [];
-        const { docId, startChar, endChar, quoteText } = state.selectedRange;
-        const newEx = {
-            id: `ex-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-            docId,
-            startChar,
-            endChar,
-            text: quoteText,
-            term: 'Selección manual',
-            createdAt: Date.now()
-        };
-        state.corpusExclusions.push(newEx);
-
-        state.codings = (state.codings || []).map(coding => {
-            if (coding.docId === docId && coding.startChar < endChar && coding.endChar > startChar && coding.source === 'automatic') {
-                return { ...coding, dismissed: true };
-            }
-            return coding;
-        });
-
-        saveToStorage();
-        hideFloatingToolbar();
-        setActiveDocument(docId);
-        renderDecoderList();
-        updateQualitativeCharts();
+        openQuickExclusionModal();
     }
 
     function liftExclusionForSelectedRange() {
@@ -3877,6 +3996,22 @@ ${bodyHtml}
         if (btnQuickExclude) btnQuickExclude.onclick = excludeSelectedRange;
         const btnQuickLift = document.getElementById('btn-quick-lift-exclude');
         if (btnQuickLift) btnQuickLift.onclick = liftExclusionForSelectedRange;
+
+        // Quick Exclusion Modal Buttons
+        const btnConfirmQuickEx = document.getElementById('btn-confirm-quick-exclusion');
+        if (btnConfirmQuickEx) btnConfirmQuickEx.onclick = executeQuickExclusion;
+
+        const btnCancelQuickEx = document.getElementById('btn-cancel-quick-exclusion');
+        if (btnCancelQuickEx) btnCancelQuickEx.onclick = () => {
+            const m = document.getElementById('modal-quick-exclusion');
+            if (m) m.style.display = 'none';
+        };
+
+        const btnCloseQuickEx = document.getElementById('modal-quick-exclusion-close');
+        if (btnCloseQuickEx) btnCloseQuickEx.onclick = () => {
+            const m = document.getElementById('modal-quick-exclusion');
+            if (m) m.style.display = 'none';
+        };
 
         // Corpus Global Exclusion Modal Buttons
         const btnOpenCorpusEx = document.getElementById('btn-open-corpus-exclusion');

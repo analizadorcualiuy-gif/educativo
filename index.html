@@ -529,8 +529,61 @@
         <div class="toolbar-footer" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.4rem; padding-top:0.4rem; border-top:1px solid var(--border-color);">
             <button id="btn-quick-new-code" class="btn-text">+ Categoría</button>
             <button id="btn-add-memo-quick" class="btn-text-primary">+ Nota / Memo</button>
-            <button id="btn-quick-exclude" class="btn-text" style="color:#ef4444; font-weight:600;" title="Excluir este fragmento del análisis automático">🚫 Excluir pasaje</button>
+            <button id="btn-quick-exclude" class="btn-text" style="color:#ef4444; font-weight:600;" title="Excluir este pasaje, en este documento o en todo el corpus">🚫 Excluir pasaje</button>
             <button id="btn-quick-lift-exclude" class="btn-text" style="color:#10b981; font-weight:600; display:none;" title="Reincorporar este pasaje al análisis">🔓 Levantar exclusión</button>
+        </div>
+    </div>
+
+    <!-- Modal: Quick Exclusion Wizard (Apply to active doc or entire corpus) -->
+    <div id="modal-quick-exclusion" class="modal-backdrop" style="display:none; z-index:9200;">
+        <div class="modal-card" style="width: 540px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>🚫 Excluir del Análisis Automático</h3>
+                <button class="modal-close" id="modal-quick-exclusion-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:1rem;">
+                <p style="font-size:0.85rem; color:var(--text-secondary); margin:0;">
+                    Define el alcance para omitir este término o intervención en el análisis metodológico.
+                </p>
+                <div class="form-group">
+                    <label for="quick-exclusion-term">Término, encabezado o frase a excluir:</label>
+                    <input type="text" id="quick-exclusion-term" placeholder="Ej: Investigador:, Entrevistador:, Notas de campo:">
+                </div>
+                <div class="form-group">
+                    <label>Alcance de la exclusión:</label>
+                    <div style="display:flex; flex-direction:column; gap:0.5rem; background:var(--bg-tertiary); padding:0.65rem 0.85rem; border-radius:6px; border:1px solid var(--border-color);">
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-scope" value="document" checked>
+                            <span>📄 <strong>En este documento:</strong> Excluir todas las apariciones en <em id="quick-exclusion-doc-title">este documento</em></span>
+                        </label>
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-scope" value="corpus">
+                            <span>🌐 <strong>En todo el corpus:</strong> Excluir todas las apariciones en todos los documentos del proyecto</span>
+                        </label>
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-scope" value="passage">
+                            <span>🎯 <strong>Solo este fragmento:</strong> Excluir únicamente el pasaje seleccionado</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de exclusión:</label>
+                    <div style="display:flex; gap:1.2rem; flex-wrap:wrap;">
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-mode" value="turn" checked>
+                            🗣️ Turno / párrafo completo <em>(Recomendado)</em>
+                        </label>
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-mode" value="exact">
+                            ✂️ Solo la frase exacta
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel" id="btn-cancel-quick-exclusion">Cancelar</button>
+                <button class="btn btn-warning" id="btn-confirm-quick-exclusion">🚫 Aplicar exclusión</button>
+            </div>
         </div>
     </div>
 
