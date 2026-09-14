@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalizadorCualiUY Educativa - Aprender Análisis Cualitativo</title>
+    <meta name="description" content="Edición educativa de AnalizadorCualiUY: aprende análisis cualitativo guiado, local y con exportación PDF formativa.">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none';">
+    <!-- Local Offline Parsers for DOCX and PDF -->
+    <script src="public/vendor/mammoth.browser.min.js"></script>
+    <script src="pdf-loader.js"></script>
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="educational.css">
+</head>
+<body>
+
+    <div id="modal-pro-intro" class="modal-backdrop" style="display:none; z-index:9000;" aria-hidden="true">
+        <div class="modal-card modal-pro-intro-card" role="dialog" aria-modal="true" aria-labelledby="pro-intro-title">
+            <div class="modal-header">
+                <div>
+                    <h2 id="pro-intro-title" style="margin:0;">Conocé AnalizadorCualiUY Pro</h2>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">Desarrollador: S. Hernández · 2026</span>
+                </div>
+                <button class="modal-close" aria-label="Cerrar presentación">&times;</button>
+            </div>
+            <div class="modal-body modal-pro-intro-body">
+                <p><strong>La versión Beta te permite conocer el flujo de análisis con hasta dos documentos.</strong> Pro incorpora herramientas para organizar, interpretar y documentar proyectos cualitativos completos.</p>
+                <div class="credits-box" style="background:var(--accent-subtle); padding:0.8rem; border-radius:6px; border:1px solid var(--accent-primary);">
+                    <strong style="color:var(--accent-primary);">Funciones de AnalizadorCualiUY Pro</strong>
+                    <ul style="margin:0.55rem 0 0 1.2rem; line-height:1.65;">
+                        <li>Incorporar y analizar varios documentos dentro del mismo proyecto.</li>
+                        <li>Importación y análisis local de TXT, DOCX y PDF.</li>
+                        <li>Ficha de contexto por documento y filtros por grupo de documentos.</li>
+                        <li>Crear, editar y organizar categorías, subcategorías y criterios metodológicos sin el límite reducido de la Beta.</li>
+                        <li>Excluir coincidencias que no correspondan y asignar a cada pasaje un peso de evidencia bajo, medio o alto.</li>
+                        <li>Matriz categorial con frecuencias, evidencia ponderada, porcentajes, coocurrencias y gráficos de relaciones.</li>
+                        <li>Matriz de síntesis para redactar interpretaciones por documento y categoría.</li>
+                        <li>Consultas avanzadas: categorías juntas, una sin otra o cercanas en el texto.</li>
+                        <li>Plantillas editables para entrevistas, análisis documental y observación.</li>
+                        <li>Libro de códigos y registro metodológico exportables.</li>
+                        <li>Exportación avanzada de documentos, pasajes, informes y matrices a PDF, Word y CSV.</li>
+                        <li>Licencia offline y almacenamiento local de los proyectos.</li>
+                    </ul>
+                </div>
+                <div class="credits-box" style="background:var(--bg-tertiary); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color);">
+                    <strong>🔒 Tus datos permanecen bajo tu control</strong>
+                    <p style="font-size:0.82rem; color:var(--text-secondary); margin:0.35rem 0 0;">El contenido de los documentos se procesa localmente en tu equipo: la aplicación no lo transmite a servidores. Para material sensible, usá un equipo con acceso protegido.</p>
+                </div>
+                <div class="credits-box" style="background:#ecfdf5; padding:0.75rem; border-radius:6px; border:1px solid #86efac; color:#14532d;">
+                    <strong>Licencia Pro con pago único</strong>
+                    <p style="font-size:0.82rem; margin:0.35rem 0 0;">Sin suscripción mensual: adquirís una licencia para usar la versión completa en tu equipo. También existe Pro Equipo, con tres licencias para tres computadoras.</p>
+                </div>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0;">La Beta admite hasta 2 documentos, 10.000 palabras y 4 categorías. Sus informes PDF llevan marca de agua de evaluación.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-intro-contact-pro" class="btn btn-primary">Actualizar a Pro — pago único</button>
+                <button class="btn btn-primary modal-cancel">Comenzar a probar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="beta-edition-banner">
+        <strong>Edición Educativa</strong>
+        <span>Hasta 2 documentos · 10.000 palabras · 4 categorías · exportación PDF · <a href="EDUCATIONAL-LICENSE.txt" target="_blank" rel="noopener">Términos</a> · <a href="PRIVACY-BETA.html" target="_blank" rel="noopener">Privacidad</a></span>
+        <button id="btn-contact-pro" data-contact-url="mailto:analizadorcualiuy@gmail.com?subject=Consulta%20sobre%20AnalizadorCualiUY%20Pro&amp;body=Hola%20departamento%20de%20ventas%20de%20AnalizadorCualiUY%2C%0A%0AProb%C3%A9%20la%20versi%C3%B3n%20Beta%20de%20AnalizadorCualiUY%20y%20quisiera%20recibir%20informaci%C3%B3n%20sobre%20la%20versi%C3%B3n%20completa.%0A%0ASaludos." class="btn-banner-action beta-contact-cta">Actualizar a Pro</button>
+    </div>
+
+    <!-- Sample Data Notice Banner -->
+    <div id="sample-notice-banner" class="sample-notice-banner" style="display:none;">
+        <div class="banner-content">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <span><strong>Proyecto de Muestra:</strong> Estás explorando datos de ejemplo precargados. Puedes conservar este ejemplo o iniciar tu propio análisis desde cero.</span>
+        </div>
+        <div class="banner-actions">
+            <button id="btn-clear-sample" class="btn-banner-action" title="Eliminar datos de ejemplo e iniciar un proyecto nuevo en blanco">
+                🧹 Crear Proyecto en Blanco
+            </button>
+            <button id="btn-dismiss-banner" class="btn-banner-close" title="Cerrar este aviso">&times;</button>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+        <div class="brand">
+            <div class="logo-icon" style="display:flex; align-items:center; justify-content:center;">
+                <img src="public/logo.png" alt="AnalizadorCualiUY Educativa Logo" style="width:32px; height:32px; border-radius:8px; object-fit:cover; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+            </div>
+            <div class="brand-text">
+                <h1>AnalizadorCualiUY <span style="font-size:0.68em; color:var(--accent-primary);">BETA</span></h1>
+                <span class="badge-local" title="Tus datos no salen de tu equipo">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Procesamiento local · no transmite tus documentos
+                </span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <!-- Tira 1: Proyecto & Corpus -->
+            <div class="ribbon-group" title="Operaciones de Proyecto y Documentos">
+                <span class="ribbon-label">Proyecto & Corpus</span>
+                <div class="ribbon-buttons">
+                    <button id="btn-new-blank-project" class="btn btn-outline btn-sm" title="Iniciar un nuevo proyecto cualitativo en blanco">✨ Nuevo</button>
+                    <div id="btn-open-project" class="btn btn-outline btn-sm" style="position:relative; overflow:hidden;" title="Abrir archivo de proyecto guardado (.json)">
+                        📂 Abrir (.json)
+                        <input type="file" id="project-input" accept=".json,application/json" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:10;">
+                    </div>
+                    <button id="btn-save-project" class="btn btn-outline btn-sm" title="Guardar todo el proyecto como archivo JSON local">💾 Guardar (.json)</button>
+                    <button id="btn-import-files" type="button" class="btn btn-secondary btn-sm" title="Importar archivos TXT, DOCX, PDF o un Proyecto JSON">📥 Importar Docs</button>
+                    <input type="file" id="file-input" accept=".txt,.docx,.pdf,.json,application/json" multiple hidden>
+                    <button id="btn-load-sample" class="btn btn-secondary btn-sm" title="Cargar proyecto de muestra precargado">📦 Muestra</button>
+                </div>
+            </div>
+
+            <!-- Tira 2: Análisis & Filtros -->
+            <div class="ribbon-group" title="Herramientas Analíticas y Reglas Metodológicas">
+                <span class="ribbon-label">Análisis & Filtros</span>
+                <div class="ribbon-buttons">
+                    <button id="btn-open-matrix" class="btn btn-primary btn-sm" title="Ver matriz categorial completa, frecuencias y porcentajes">📊 Matriz & Stats</button>
+                    <button id="btn-open-corpus-exclusion" class="btn btn-warning btn-sm" title="Gestionar y aplicar exclusiones globales en el corpus (entrevistador, notas, etc.)">🚫 Exclusiones Corpus</button>
+                </div>
+            </div>
+
+            <!-- Tira 3: Exportación -->
+            <div class="ribbon-group" title="Exportación y Reportes">
+                <span class="ribbon-label">Exportación</span>
+                <div class="ribbon-buttons">
+                    <button id="btn-export-doc-pdf" class="btn btn-primary btn-sm" title="Exportar este documento formateado en PDF con el texto pintado por categorías">🖨️ Exportar PDF</button>
+                </div>
+            </div>
+
+            <!-- Tira 4: Ayuda & Metodología -->
+            <div class="ribbon-group" title="Documentación, Tutorial y Configuración">
+                <span class="ribbon-label">Ayuda & Metodología</span>
+                <div class="ribbon-buttons">
+                    <button id="btn-open-manual" class="btn btn-primary btn-sm" title="Abrir el Manual de Usuario y Referencia Metodológica Integral">📘 Manual</button>
+                    <button id="btn-open-guide" class="btn btn-outline btn-sm" title="Ver guía tutorial e inducción operativa">💡 Tutorial</button>
+                    <button id="btn-cite-software" class="btn btn-outline btn-sm" title="Obtener la cita académica oficial de AnalizadorCualiUY">📖 Citar</button>
+                    <button id="btn-open-credits" class="btn btn-outline btn-sm" title="Información del producto e instalación">ℹ️ Info</button>
+                    <button id="theme-toggle" class="btn-icon" title="Cambiar Tema Claro / Oscuro">
+                        <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Split 3-Pane Layout -->
+    <main class="app-workspace" id="app-workspace">
+        
+        <!-- PANE 1: Left Sidebar (Documents & Codebook) -->
+        <aside class="pane pane-sidebar" id="pane-sidebar">
+            <!-- Section 1: Documents -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        Documentos
+                    </h2>
+                    <div class="section-actions">
+                        <span id="doc-count" class="count-badge">0</span>
+                        <button id="btn-add-document" type="button" class="btn-add-document" title="Incorporar otro documento al proyecto" aria-label="Incorporar otro documento">+</button>
+                    </div>
+                </div>
+                <div class="search-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="filter-docs" placeholder="Filtrar archivos...">
+                </div>
+                <ul id="document-list" class="item-list">
+                    <!-- Loaded documents injected here -->
+                </ul>
+            </div>
+
+            <!-- Section divider -->
+            <div class="section-divider"></div>
+
+            <!-- Section 2: Category Codebook Hierarchy -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                            <line x1="7" y1="7" x2="7.01" y2="7"/>
+                        </svg>
+                        Categorías / Subcategorías
+                    </h2>
+                    <div style="display:flex; gap:0.25rem;">
+                        <button id="btn-auto-code-all" class="btn-action-text" title="🔍 Buscar e identificar todas las ocurrencias en el texto activo">
+                            🔍 Buscar Todo
+                        </button>
+                        <button id="btn-import-codebook-csv" class="btn-icon-small" title="📥 Importar libro de categorías desde dispositivo (CSV/Excel)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </button>
+                        <button id="btn-add-category" class="btn-icon-small" title="Crear Categoría o Subcategoría">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="search-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="filter-codes" placeholder="Filtrar categorías...">
+                </div>
+                <ul id="codebook-list" class="item-list">
+                    <!-- Tree of Categories & Subcategories injected here with Edit ✏️ and Trash 🗑️ -->
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Resizer Left Bar -->
+        <div class="resizer" id="resizer-left" title="Arrastra para cambiar el ancho del panel izquierdo"></div>
+
+        <!-- PANE 2: Center (Document Reader & Text Coding Workbench) -->
+        <section class="pane pane-editor" id="pane-editor">
+            <!-- Editor Top Bar (Spacious 2-Row / Wrap Layout) -->
+            <div class="editor-bar">
+                <div class="editor-bar-row">
+                    <div class="doc-info">
+                        <h2 id="active-doc-title">Ningún documento seleccionado</h2>
+                        <div id="doc-meta-stats" class="meta-stats">
+                            <span id="stat-words">0 palabras</span>
+                            <span>•</span>
+                            <span id="stat-segments">0 pasajes codificados</span>
+                        </div>
+                    </div>
+
+                    <div class="editor-actions-right">
+                        <div class="toggle-group" title="Modo de Visualización">
+                            <button id="view-mode-standard" class="btn-toggle active">Estándar</button>
+                            <button id="view-mode-tiers" class="btn-toggle" title="Ver sub-líneas de notas/traducciones debajo de las líneas">Capas (Tiers)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: In-Text Search Toolbar -->
+                <div class="editor-bar-row search-row">
+                    <div class="in-text-search-box-large" title="Buscador en Texto Estilo F3 (Ctrl+F)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" id="reader-search-input" placeholder="Buscar término en el texto activo (F3)...">
+                        <span id="reader-search-count" class="search-count-label">0/0</span>
+                        <button id="btn-search-prev" class="btn-nav-search" title="Coincidencia anterior (Mayús+F3)">▲ Anterior</button>
+                        <button id="btn-search-next" class="btn-nav-search" title="Siguiente coincidencia (F3 / Enter)">Siguiente ▼</button>
+                        <button id="btn-search-clear" class="btn-nav-search" title="Limpiar búsqueda">&times;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Category Filter Indicator Bar -->
+            <div id="active-category-banner" class="active-category-banner" style="display:none;">
+                <span>Filtrando pasajes por categoría: <strong id="selected-cat-label">Todas</strong></span>
+                <button id="btn-clear-cat-filter" class="btn-text-sm">&times; Ver todo el texto</button>
+            </div>
+
+            <!-- Text Content View Container -->
+            <div class="reader-wrapper">
+                <div id="reader-container" class="reader-container">
+                    <div class="empty-state" id="empty-reader">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="12" y1="18" x2="12" y2="12"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        <h3>Selecciona o importa un archivo (TXT, DOCX, PDF)</h3>
+                        <p>Crea categorías y usa 🔍 Buscar Ocurrencias o selecciona texto directamente con el mouse.</p>
+                        <button type="button" id="btn-import-empty" class="btn btn-primary">Importar Archivo (TXT / DOCX / PDF / JSON)</button>
+                    </div>
+
+                    <!-- Text display with margins for codes -->
+                    <div id="text-body" class="text-body" style="display:none;"></div>
+                </div>
+
+                <!-- ATLAS.ti Style Margin Bar for active code stripes -->
+                <div id="margin-bar" class="margin-bar" style="display:none;" title="Franjas de categorías en los márgenes"></div>
+            </div>
+
+            <!-- Application Footer with Credits -->
+            <footer class="app-footer">
+                <span>AnalizadorCualiUY Educativa • Evaluación local gratuita</span>
+                <span>Matriz categorial y gráficos cualitativos • 100% local</span>
+            </footer>
+        </section>
+
+        <!-- Resizer Right Bar -->
+        <div class="resizer" id="resizer-right" title="Arrastra para cambiar el ancho del panel derecho"></div>
+
+        <!-- PANE 3: Right Sidebar (Decoders, Visual Network & Graphs, Multi-File Search) -->
+        <aside class="pane pane-analysis" id="pane-analysis">
+            <!-- Navigation Tabs -->
+            <div class="analysis-tabs">
+                <button class="tab-btn active" data-tab="tab-decoders" title="Matriz de significados decodificados y notas">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    Decodificador
+                </button>
+                <button class="tab-btn" data-tab="tab-network" title="Gráficos y Visualización Cualitativa">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="18" cy="5" r="3"/>
+                        <circle cx="6" cy="12" r="3"/>
+                        <circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                    Gráficos Cuali
+                </button>
+                <button class="tab-btn" data-tab="tab-search" title="Búsqueda global multi-archivo">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    Buscador
+                </button>
+            </div>
+
+            <!-- Tab Content 1: Meaning Decoder & Memos -->
+            <div id="tab-decoders" class="tab-content active">
+                <div class="tab-header">
+                    <h3>Pasajes y decodificación de significados</h3>
+                    <small id="decoder-document-context" style="display:block; margin:0.2rem 0 0.45rem; color:var(--text-muted);"></small>
+                    <div class="filter-row">
+                        <select id="decoder-filter-code" class="select-sm">
+                            <option value="ALL">Todas las categorías</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="decoder-list" class="cards-container">
+                    <!-- Injected decoded memos & quotes -->
+                </div>
+            </div>
+
+            <!-- Tab Content 2: Visual Concept Network & Qualitative Charts -->
+            <div id="tab-network" class="tab-content">
+                <div class="tab-header">
+                    <h3>Visualización cualitativa de datos</h3>
+                    
+                    <!-- Graph View Selector (Grafo, Heatmap, Barras Proporcionales) -->
+                    <div class="chart-type-selector">
+                        <button id="chart-type-network" class="btn-chart-type active" title="Red de Coocurrencia (Grafo)">🕸️ Red / Grafo</button>
+                        <button id="chart-type-heatmap" class="btn-chart-type" title="Matriz de Coocurrencia (Heatmap)">🔥 Coocurrencias</button>
+                        <button id="chart-type-bars" class="btn-chart-type" title="Comparación de categorías">📊 Comparación</button>
+                        <button id="chart-type-quality" class="btn-chart-type" title="Control de calidad de codificación">✅ Calidad</button>
+                    </div>
+
+                    <div class="analytics-toolbar" aria-label="Opciones analíticas">
+                        <label title="Nivel de desagregación del libro de códigos">Nivel categorial
+                            <select id="analytics-category-mode" class="select-sm">
+                                <option value="main" title="Sintetiza subcategorías en sus categorías superiores para informes macro">Categorías principales</option>
+                                <option value="all" title="Muestra individualmente cada categoría y subcategoría para análisis micro">Árbol completo</option>
+                            </select>
+                        </label>
+                        <label title="Propiedad representada por el tamaño del nodo en el grafo">Tamaño de nodos
+                            <select id="analytics-node-size" class="select-sm">
+                                <option value="documentShare" title="Destaca categorías transversales presentes en más documentos del corpus">Presencia documental</option>
+                                <option value="count" title="Destaca categorías con mayor número total de citas o pasajes codificados">Frecuencia</option>
+                                <option value="perThousand" title="Normaliza la frecuencia por cada 1.000 palabras para eliminar el sesgo de extensión">Por 1.000 palabras</option>
+                            </select>
+                        </label>
+                        <label title="Delimita la proximidad textual requerida entre categorías para considerar coocurrencia">Unidad
+                            <select id="cooccurrence-unit" class="select-sm">
+                                <option value="paragraph" title="Párrafo: Mide convergencia en el mismo bloque narrativo o argumento continuo">Párrafo</option>
+                                <option value="sentence" title="Oración: Exige inmediatez sintáctica dentro de la misma frase">Oración</option>
+                                <option value="window" title="Ventana: Evalúa contigüidad temática fluida dentro de N palabras consecutivas">Ventana</option>
+                                <option value="overlap" title="Solapamiento: Exige coincidencia exacta de caracteres o pasaje compartido">Solapamiento</option>
+                                <option value="document" title="Documento: Mide la co-presencia global dentro de la misma entrevista o caso">Documento</option>
+                            </select>
+                        </label>
+                        <label title="Algoritmo de cálculo para la fuerza de asociación entre categorías">Métrica
+                            <select id="association-metric" class="select-sm">
+                                <option value="jaccard" title="Índice Jaccard (0 a 1): Mide solapamiento relativo sin sesgo por alta frecuencia">Jaccard</option>
+                                <option value="count" title="Recuento: Muestra el volumen bruto absoluto de coocurrencias compartidas">Recuento</option>
+                                <option value="documentShare" title="% Documentos: Porcentaje de casos donde coexisten ambas categorías">% documentos</option>
+                            </select>
+                        </label>
+                        <label title="Extensión en número de palabras a cada lado para el modo Ventana">Ventana
+                            <select id="cooccurrence-window" class="select-sm">
+                                <option value="50" title="Ventana estrecha (±50 palabras): Alta proximidad temática">±50</option>
+                                <option value="100" selected title="Ventana estándar (±100 palabras): Proximidad conceptual media">±100</option>
+                                <option value="250" title="Ventana amplia (±250 palabras): Contexto discursivo amplio">±250</option>
+                            </select>
+                        </label>
+                        <label title="Filtra los datos por un documento individual del corpus">Documento
+                            <select id="analytics-document-filter" class="select-sm"><option value="" title="Analiza todo el corpus de documentos">Todo el corpus</option></select>
+                        </label>
+                        <label title="Filtro de intensidad mínima para limpiar ruido visual en la red">Umbral
+                            <input id="analytics-threshold" class="input-sm" type="number" min="0" step="0.05" value="0" title="Ingresa el valor mínimo de asociación requerida para mostrar una conexión">
+                        </label>
+                        <label class="check-inline" title="Oculta pares de categorías sin coocurrencia registrada"><input id="analytics-hide-zeros" type="checkbox" checked> Ocultar ceros</label>
+                    </div>
+
+                    <!-- Dynamic Methodological Explanation Bar -->
+                    <div id="analytics-option-help-strip" class="analytics-option-help-strip">
+                        💡 <span id="analytics-option-help-text">Pasa el cursor sobre cualquier opción (unidad, métrica, nivel, umbral) para ver qué implica metodológicamente y qué aporta a tu análisis.</span>
+                    </div>
+
+                    <div id="graph-toolbar-container" class="graph-toolbar">
+                        <div class="graph-toolbar-row">
+                            <label for="graph-layout-select" class="lbl-sm">Diseño Grafo:</label>
+                            <select id="graph-layout-select" class="select-sm">
+                                <option value="circular">Circular Radial</option>
+                                <option value="grid">Distribución Grilla</option>
+                                <option value="force">Red Libre (Fuerza)</option>
+                            </select>
+                        </div>
+                        <div class="graph-toolbar-row">
+                            <button id="btn-export-chart-csv" class="btn-sm btn-outline" title="Exportar datos del gráfico e interpretación cualitativa a CSV">📊 Exportar Datos (CSV)</button>
+                            <span class="beta-pro-note">Exportar PNG/SVG: versión Pro</span>
+                            <button id="btn-reset-network" class="btn-sm btn-secondary" title="Restablecer posiciones">Reiniciar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Container 1: Network Canvas Graph -->
+                <div id="chart-container-network" class="canvas-wrapper">
+                    <div class="chart-legend-bar">
+                        <span class="legend-title">Guía visual de red:</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:var(--accent-primary);"></span> Nodos = Categorías (tamaño por presencia)</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:var(--border-color); height:3px;"></span> Enlaces = Coocurrencia (grosor por intensidad)</span>
+                    </div>
+                    <canvas id="network-canvas" role="img" aria-label="Red de asociaciones entre categorías cualitativas"></canvas>
+                </div>
+
+                <!-- Container 2: Qualitative Co-occurrence Heatmap Crosstab -->
+                <div id="chart-container-heatmap" class="heatmap-wrapper" style="display:none;">
+                    <div class="chart-legend-bar">
+                        <span class="legend-title">Escala de intensidad:</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-color);"></span> Cero</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:rgba(46, 204, 113, 0.25);"></span> Baja</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:rgba(46, 204, 113, 0.55);"></span> Media</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:rgba(46, 204, 113, 0.9);"></span> Alta</span>
+                    </div>
+                    <div id="heatmap-description" class="heatmap-info">Matriz categoría × categoría según la unidad y métrica seleccionadas.</div>
+                    <div id="heatmap-table-wrapper" class="heatmap-table-container"></div>
+                </div>
+
+                <!-- Container 3: Proportional Bar Chart -->
+                <div id="chart-container-bars" class="bars-wrapper" style="display:none;">
+                    <div class="chart-legend-bar">
+                        <span class="legend-title">Métricas de comparación:</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:var(--accent-primary);"></span> Frecuencia (Citas pasajes)</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:#3498db;"></span> Densidad (Tasa / 1.000 palabras)</span>
+                    </div>
+                    <div id="bars-description" class="heatmap-info">Comparación normalizada por 1.000 palabras, frecuencia y presencia documental.</div>
+                    <div id="proportional-bars-list" class="cards-container"></div>
+                </div>
+
+                <div id="chart-container-quality" class="quality-wrapper" style="display:none;">
+                    <div class="chart-legend-bar">
+                        <span class="legend-title">Indicadores de calidad:</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:#2ecc71;"></span> Cobertura & Memos</span>
+                        <span class="legend-swatch-item"><span class="legend-color-box" style="background:#f1c40f;"></span> Revisiones Pendientes</span>
+                    </div>
+                    <div class="heatmap-info">Diagnóstico del corpus y tareas pendientes antes de cerrar el análisis.</div>
+                    <div id="quality-dashboard" class="quality-dashboard"></div>
+                </div>
+
+                <!-- Global Analytical Interpretation Box for Active Chart -->
+                <div id="chart-interpretation-box" class="chart-interpretation-box">
+                    <div class="chart-interpretation-header">
+                        <span class="chart-interpretation-title">
+                            💡 Interpretación Analítica Cualitativa
+                            <span class="badge-help-sm" title="Síntesis cualitativa basada en los datos cargados. Haz clic en el botón de la derecha para plegar o desplegar esta tarjeta.">Guía visual</span>
+                        </span>
+                        <div class="chart-interpretation-header-actions">
+                            <button id="btn-edit-interpretation" class="btn-sm btn-outline" title="Editar o agregar notas personalizadas al gráfico">✏️ Editar nota</button>
+                            <button id="btn-toggle-interpretation" class="btn-sm btn-outline" title="Ocultar o mostrar la interpretación del gráfico">👁️ Ocultar</button>
+                            <button id="btn-close-interpretation" class="btn-close-sm" title="Cerrar la tarjeta de interpretación">&times;</button>
+                        </div>
+                    </div>
+                    <div id="chart-interpretation-content-wrapper">
+                        <div id="chart-interpretation-body" class="chart-interpretation-body"></div>
+                        <div id="chart-interpretation-editor" class="chart-interpretation-editor" style="display:none;">
+                            <textarea id="chart-interpretation-textarea" class="textarea-sm" rows="3" placeholder="Ingresa observaciones o interpretaciones cualitativas personalizadas para este gráfico..."></textarea>
+                            <div class="chart-interpretation-actions">
+                                <button id="btn-save-interpretation" class="btn-sm btn-primary">Guardar nota</button>
+                                <button id="btn-reset-interpretation" class="btn-sm btn-outline">Restablecer síntesis automática</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chart-drilldown" class="chart-drilldown" style="display:none;">
+                    <div class="chart-drilldown-header"><strong id="chart-drilldown-title">Evidencia</strong><button id="chart-drilldown-close" class="btn-close-sm">&times;</button></div>
+                    <div id="chart-drilldown-body"></div>
+                </div>
+            </div>
+
+            <!-- Tab Content 3: Multi-Document Search Engine -->
+            <div id="tab-search" class="tab-content">
+                <div class="tab-header">
+                    <h3>Búsqueda global multiarchivo</h3>
+                    <div class="global-search-bar">
+                        <input type="text" id="global-search-input" placeholder="Buscar término o frase en todos los archivos...">
+                        <button id="btn-exec-search" class="btn btn-primary btn-sm">Buscar</button>
+                    </div>
+                </div>
+                <div id="global-search-results" class="search-results-list">
+                    <div class="empty-state-sm">Ingresa un término para buscar en todos tus documentos cargados.</div>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Floating Quick-Coding Popup Toolbar -->
+    <div id="floating-toolbar" class="floating-toolbar" style="display:none;">
+        <div class="toolbar-header">
+            <span>Codificar pasaje seleccionado:</span>
+            <button id="close-toolbar" class="btn-close-sm">&times;</button>
+        </div>
+        <div id="floating-code-buttons" class="code-buttons-row">
+            <!-- Category buttons injected dynamically -->
+        </div>
+        <div class="toolbar-footer" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.4rem; padding-top:0.4rem; border-top:1px solid var(--border-color);">
+            <button id="btn-quick-new-code" class="btn-text">+ Categoría</button>
+            <button id="btn-add-memo-quick" class="btn-text-primary">+ Nota / Memo</button>
+            <button id="btn-quick-exclude" class="btn-text" style="color:#ef4444; font-weight:600;" title="Excluir este pasaje, en este documento o en todo el corpus">🚫 Excluir pasaje</button>
+            <button id="btn-quick-lift-exclude" class="btn-text" style="color:#10b981; font-weight:600; display:none;" title="Reincorporar este pasaje al análisis">🔓 Levantar exclusión</button>
+        </div>
+    </div>
+
+    <!-- Modal: Quick Exclusion Wizard (Apply to active doc or entire corpus) -->
+    <div id="modal-quick-exclusion" class="modal-backdrop" style="display:none; z-index:9200;">
+        <div class="modal-card" style="width: 540px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>🚫 Excluir del Análisis Automático</h3>
+                <button class="modal-close" id="modal-quick-exclusion-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:1rem;">
+                <p style="font-size:0.85rem; color:var(--text-secondary); margin:0;">
+                    Define el alcance para omitir este término o intervención en el análisis metodológico.
+                </p>
+                <div class="form-group">
+                    <label for="quick-exclusion-term">Término, encabezado o frase a excluir:</label>
+                    <input type="text" id="quick-exclusion-term" placeholder="Ej: Investigador:, Entrevistador:, Notas de campo:">
+                </div>
+                <div class="form-group">
+                    <label>Alcance de la exclusión:</label>
+                    <div style="display:flex; flex-direction:column; gap:0.5rem; background:var(--bg-tertiary); padding:0.65rem 0.85rem; border-radius:6px; border:1px solid var(--border-color);">
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-scope" value="document" checked>
+                            <span>📄 <strong>En este documento:</strong> Excluir todas las apariciones en <em id="quick-exclusion-doc-title">este documento</em></span>
+                        </label>
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-scope" value="corpus">
+                            <span>🌐 <strong>En todo el corpus:</strong> Excluir todas las apariciones en todos los documentos del proyecto</span>
+                        </label>
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-scope" value="passage">
+                            <span>🎯 <strong>Solo este fragmento:</strong> Excluir únicamente el pasaje seleccionado</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de exclusión:</label>
+                    <div style="display:flex; gap:1.2rem; flex-wrap:wrap;">
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-mode" value="turn" checked>
+                            🗣️ Turno / párrafo completo <em>(Recomendado)</em>
+                        </label>
+                        <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                            <input type="radio" name="quick-exclusion-mode" value="exact">
+                            ✂️ Solo la frase exacta
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel" id="btn-cancel-quick-exclusion">Cancelar</button>
+                <button class="btn btn-warning" id="btn-confirm-quick-exclusion">🚫 Aplicar exclusión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Corpus Global Exclusion Management -->
+    <div id="modal-corpus-exclusion" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 680px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>🚫 Exclusiones Metodológicas del Corpus</h3>
+                <button class="modal-close" id="modal-corpus-exclusion-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:1rem; max-height:75vh; overflow-y:auto;">
+                <p style="font-size:0.85rem; color:var(--text-secondary); margin:0;">
+                    Define términos, encabezados o frases que deban ser omitidos automáticamente en el análisis de todo el corpus (ej: intervenciones del entrevistador, notas del observador o metadata técnica).
+                </p>
+                <div class="form-group">
+                    <label for="corpus-exclusion-terms">Términos o encabezados a excluir (separados por comas):</label>
+                    <input type="text" id="corpus-exclusion-terms" placeholder="Ej: Investigador:, Entrevistador:, Moderador:, Notas de campo:, Docente (consigna):">
+                    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.4rem;">
+                        <button type="button" class="btn btn-sm btn-outline preset-exclusion" data-terms="Investigador:, Investigadora:">+ Investigador/a</button>
+                        <button type="button" class="btn btn-sm btn-outline preset-exclusion" data-terms="Entrevistador:, Entrevistadora:">+ Entrevistador/a</button>
+                        <button type="button" class="btn btn-sm btn-outline preset-exclusion" data-terms="Moderador:, Moderadora:">+ Moderador/a</button>
+                        <button type="button" class="btn btn-sm btn-outline preset-exclusion" data-terms="Observador:, Notas de campo:">+ Notas de campo</button>
+                    </div>
+                </div>
+                <div class="form-group" style="display:flex; flex-direction:row; gap:1rem; align-items:center; flex-wrap:wrap;">
+                    <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.3rem; margin:0;">
+                        <input type="radio" name="corpus-exclusion-scope" value="all" checked> Todo el corpus
+                    </label>
+                    <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.3rem; margin:0;">
+                        <input type="radio" name="corpus-exclusion-scope" value="active"> Solo documento activo
+                    </label>
+                    <button id="btn-apply-corpus-exclusion" class="btn btn-primary btn-sm" style="margin-left:auto;">🔍 Aplicar exclusión</button>
+                </div>
+
+                <hr style="border:0; border-top:1px solid var(--border-color); margin:0.3rem 0;">
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="font-size:0.9rem; color:var(--text-primary); margin:0;">Pasajes actualmente excluidos (<span id="corpus-exclusion-count">0</span>):</h4>
+                    <button id="btn-clear-all-exclusions" class="btn btn-outline btn-sm" style="color:#ef4444;">🗑️ Levantar todas las exclusiones</button>
+                </div>
+                <div id="corpus-exclusion-list" style="max-height:220px; overflow-y:auto; border:1px solid var(--border-color); border-radius:6px; padding:0.5rem; background:var(--bg-tertiary);">
+                    <!-- Dynamic exclusion list items -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-close-corpus-exclusion">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Categorical Matrix & Frequency Statistics -->
+    <div id="modal-matrix" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 860px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>📊 Matriz categorial y ponderación de ocurrencias</h3>
+                <button class="modal-close" id="modal-matrix-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:1rem; max-height:75vh; overflow-y:auto;">
+                
+                <!-- Frequency & Percentage Statistics Table -->
+                <div class="matrix-section">
+                    <h4 style="font-size:0.95rem; color:var(--accent-primary); margin-bottom:0.5rem;">Ponderación y frecuencia por dimensión / categoría</h4>
+                    <table class="stats-table" id="stats-frequency-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Categoría / subcategoría</th>
+                                <th>Términos / palabras clave</th>
+                                <th>Ocurrencias</th>
+                                <th>Ponderación (%)</th>
+                                <th>Distribución visual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-table-body">
+                            <!-- Injected statistics rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Categorical Matrix per Fragment -->
+                <div class="matrix-section">
+                    <h4 style="font-size:0.95rem; color:var(--accent-primary); margin-bottom:0.5rem;">Matriz categorial de fragmentos coincidentes</h4>
+                    <div id="matrix-fragments-container" class="cards-container">
+                        <!-- Injected categorised fragments -->
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btn-export-executive-report" class="btn btn-outline" title="Configurar un informe analítico PDF">📄 Crear informe PDF</button>
+                <span class="beta-pro-note">CSV disponible en la versión Pro</span>
+                <button class="btn btn-secondary modal-cancel">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Analytical Report Builder -->
+    <div id="modal-report-builder" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width:760px; max-width:95vw;">
+            <div class="modal-header">
+                <h3>📑 Constructor de informe analítico</h3>
+                <button class="modal-close" id="modal-report-close">&times;</button>
+            </div>
+            <div class="modal-body report-builder-body">
+                <div class="report-form-grid">
+                    <div class="form-group"><label for="report-title">Título</label><input id="report-title" value="Informe de análisis cualitativo"></div>
+                    <div class="form-group"><label for="report-author">Responsable / autoría</label><input id="report-author" value="Equipo investigador"></div>
+                    <div class="form-group report-wide"><label for="report-objective">Objetivo del análisis</label><textarea id="report-objective" rows="2" placeholder="Pregunta u objetivo de investigación"></textarea></div>
+                    <div class="form-group report-wide"><label for="report-methodology">Metodología / criterios</label><textarea id="report-methodology" rows="2" placeholder="Corpus, estrategia de codificación y unidad de análisis"></textarea></div>
+                    <div class="form-group report-wide"><label for="report-conclusions">Conclusiones / interpretación</label><textarea id="report-conclusions" rows="3" placeholder="Conclusiones redactadas por el equipo investigador"></textarea></div>
+                </div>
+                <div class="report-options">
+                    <label><input type="radio" name="report-detail" value="summary" checked> Resumen ejecutivo</label>
+                    <label><input type="radio" name="report-detail" value="full"> Informe completo</label>
+                    <label><input id="report-include-evidence" type="checkbox" checked> Evidencias y memos</label>
+                    <label><input id="report-include-relations" type="checkbox" checked> Relaciones principales</label>
+                    <label><input id="report-include-quality" type="checkbox" checked> Control de calidad</label>
+                </div>
+                <div id="report-preview" class="report-preview"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-export-report-pdf" class="btn btn-outline">📄 Exportar PDF real</button>
+                <span class="beta-pro-note">Word disponible en la versión Pro</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Select Categories for Document PDF Export -->
+    <div id="modal-export-pdf" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 500px;">
+            <div class="modal-header">
+                <h3>🖨️ Exportar documento codificado a PDF</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:0.75rem;">
+                <p style="font-size:0.85rem; color:var(--text-secondary);">Selecciona qué categorías deseas incluir con sus <strong>pasajes, métricas, relaciones y memos</strong> en el PDF:</p>
+                <div id="pdf-category-checkboxes" style="display:flex; flex-direction:column; gap:0.4rem; max-height:40vh; overflow-y:auto; padding:0.5rem; background:var(--bg-tertiary); border-radius:6px; border:1px solid var(--border-color);">
+                    <!-- Checkboxes injected dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-confirm-pdf-export" class="btn btn-primary">📄 Generar PDF del documento</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Student Assignment PDF Export -->
+    <div id="modal-student-assignment" class="modal-backdrop" style="display:none; z-index:9600;">
+        <div class="modal-card" style="width: 520px;">
+            <div class="modal-header">
+                <h3>🎓 Exportar ficha de trabajo práctico (PDF)</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:0.85rem;">
+                <div class="form-group">
+                    <label for="student-name">Nombre del Alumno(s) / Equipo:</label>
+                    <input type="text" id="student-name" placeholder="Ej: Ana Silva y Mateo Rossi">
+                </div>
+                <div class="form-group">
+                    <label for="student-course">Asignatura / Cátedra / Institución:</label>
+                    <input type="text" id="student-course" placeholder="Ej: Metodología de la Investigación Cualitativa — UdelaR">
+                </div>
+                <div class="form-group">
+                    <label for="student-prompt">Pregunta de Investigación u Objetivo del Ejercicio:</label>
+                    <textarea id="student-prompt" rows="3" placeholder="Ej: ¿Qué factores facilitan u obstaculizan la adaptación a un nuevo espacio de formación?"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-generate-student-pdf" class="btn btn-primary">🎓 Generar PDF para Entrega</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Credits & Privacy Notice -->
+    <div id="modal-credits" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 580px;">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <img src="public/logo.png" alt="Logo" style="width:36px; height:36px; border-radius:8px; object-fit:cover;">
+                    <h3 style="margin:0;">Acerca de AnalizadorCualiUY Educativa</h3>
+                </div>
+                <button class="modal-close" id="modal-credits-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:0.85rem; font-size:0.85rem; max-height:70vh; overflow-y:auto;">
+                <div class="credits-box" style="background:var(--bg-tertiary); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color);">
+                    <p style="margin-bottom:0.4rem;"><strong>Edición:</strong> Beta web de evaluación.</p>
+                    <p style="margin-bottom:0.4rem;"><strong>Privacidad local:</strong> 🛡️ Los documentos y análisis se procesan en tu navegador y no se envían a ningún servidor.</p>
+                    <p style="margin-bottom:0.4rem;"><strong>Límites:</strong> hasta 2 documentos, 10.000 palabras y 4 categorías, incluidas subcategorías.</p>
+                    <p><strong>Formatos Soportados:</strong> TXT, DOCX (Microsoft Word), PDF, JSON (Proyectos Guardados).</p>
+                </div>
+
+                <div class="credits-box" style="background:var(--bg-tertiary); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color);">
+                    <h4 style="font-size:0.9rem; color:var(--accent-primary); margin-bottom:0.4rem;">🔒 Protección de datos y evaluación</h4>
+                    <p style="color:var(--text-secondary); font-size:0.8rem; line-line:1.4;">
+                        Esta edición se ofrece para evaluación. La versión completa agrega exportaciones profesionales y licencia de escritorio.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-open-citation-from-credits" class="btn btn-outline">📖 Citar software</button>
+                <button class="btn btn-primary modal-cancel">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Citar este software -->
+    <div id="modal-citation" class="modal-backdrop" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="citation-modal-title">
+        <div class="modal-card" style="width:640px; max-width:96vw;">
+            <div class="modal-header">
+                <h3 id="citation-modal-title">📖 Citar AnalizadorCualiUY</h3>
+                <button class="modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:1rem; font-size:0.85rem;">
+                <p style="color:var(--text-secondary); margin:0;">
+                    Si utilizas <strong>AnalizadorCualiUY</strong> en tus investigaciones, artículos o tesis de posgrado, puedes incluir la referencia en el formato de tu preferencia:
+                </p>
+                <div class="chart-type-selector" style="margin-top:0.3rem;" aria-label="Estándar de cita académica">
+                    <button class="btn-citation-format active" data-format="apa7">APA 7ª ed.</button>
+                    <button class="btn-citation-format" data-format="bibtex">BibTeX</button>
+                    <button class="btn-citation-format" data-format="chicago">Chicago 17ª</button>
+                    <button class="btn-citation-format" data-format="mla9">MLA 9ª</button>
+                    <button class="btn-citation-format" data-format="iso690">ISO 690</button>
+                </div>
+                <div style="position:relative;">
+                    <textarea id="citation-text-box" class="textarea-sm" rows="5" readonly style="font-family:monospace; font-size:0.82rem; width:100%; padding:0.65rem; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:6px; color:var(--text-primary); resize:none;"></textarea>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span id="citation-copied-toast" style="font-size:0.8rem; color:var(--accent-primary); font-weight:600; opacity:0; transition:opacity 0.2s ease;">✓ ¡Cita copiada al portapapeles!</span>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button id="btn-copy-citation" class="btn btn-primary btn-sm">📋 Copiar cita</button>
+                        <button class="btn btn-outline btn-sm modal-cancel">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Import Codebook from CSV/Excel -->
+    <div id="modal-import-codebook" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 720px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>📥 Importar libro de categorías (CSV / Excel)</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="background:var(--bg-tertiary, #f8fafc); border:1px solid var(--border-color, #e2e8f0); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+                    <h4 style="font-size:0.92rem; color:var(--accent-primary, #2563eb); margin:0 0 0.5rem 0; display:flex; align-items:center; gap:0.4rem;">
+                        <span>📄</span> Instructivo: ¿Cómo preparar tu archivo Excel o CSV?
+                    </h4>
+                    <ol style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text-secondary, #475569);">
+                        <li style="margin-bottom:0.3rem;">
+                            Creá una planilla en Excel o Calc con los siguientes <strong>encabezados en la primera fila</strong>:
+                            <div style="margin:0.4rem 0; padding:0.4rem 0.6rem; background:var(--bg-primary, #ffffff); border:1px dashed var(--border-color, #cbd5e1); border-radius:4px; font-family:monospace; font-size:0.8rem; color:var(--text-primary, #0f172a); overflow-x:auto;">
+                                Código,Categoría,Jerarquía,Descripción,Criterios,Términos,Color
+                            </div>
+                        </li>
+                        <li style="margin-bottom:0.3rem;">
+                            <strong>Jerarquía (Opcional):</strong> Para crear subcategorías, escribí en la columna <em>Jerarquía</em> el código o nombre de la categoría principal padre.
+                        </li>
+                        <li style="margin-bottom:0.3rem;">
+                            <strong>Términos (Opcional):</strong> Separá con comas las palabras clave que el sistema usará para buscar automáticamente pasajes en tus textos.
+                        </li>
+                        <li style="margin-bottom:0.3rem;">
+                            <strong>Guardar desde Excel:</strong> Seleccioná <em>Archivo &gt; Guardar como</em> y elegí el tipo <strong>CSV (delimitado por comas) (*.csv)</strong> o CSV UTF-8.
+                        </li>
+                    </ol>
+                    <div style="margin-top:0.75rem; text-align:right;">
+                        <button id="btn-download-codebook-template" type="button" class="btn btn-outline btn-sm">
+                            📄 Descargar plantilla de ejemplo (CSV/Excel)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label style="font-weight:600;">Modo de importación:</label>
+                    <div style="display:flex; gap:1.25rem; margin-top:0.35rem; font-size:0.88rem;">
+                        <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="import-codebook-mode" value="merge" checked>
+                            <span><strong>Añadir</strong> a las categorías actuales (conserva las existentes)</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="import-codebook-mode" value="replace">
+                            <span><strong>Reemplazar</strong> el libro de categorías actual</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="codebook-csv-file-input" style="font-weight:600;">Seleccionar archivo CSV o Excel exportado (.csv):</label>
+                    <input type="file" id="codebook-csv-file-input" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" class="select-full" style="padding:0.4rem;">
+                </div>
+
+                <div id="codebook-csv-preview-box" style="display:none; margin-top:1rem; padding:0.75rem; background:var(--bg-tertiary, #f8fafc); border-radius:6px; border:1px solid var(--border-color, #e2e8f0); font-size:0.84rem;">
+                    <!-- Preview summary populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-process-import-codebook" class="btn btn-primary" disabled>📥 Importar categorías</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add/Edit Category / Subcategory -->
+    <div id="modal-category" class="modal-backdrop" style="display:none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-cat-title">Nueva categoría / subcategoría</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-cat-id" value="">
+                
+                <div class="form-group">
+                    <label for="cat-parent-select">Categoría padre (jerarquía):</label>
+                    <select id="cat-parent-select" class="select-full">
+                        <option value="NONE">Ninguna (categoría principal)</option>
+                    </select>
+                    <span class="hint-text">Si seleccionas una categoría padre, esta subcategoría heredará automáticamente una escala de color combinada.</span>
+                </div>
+                <div class="form-group">
+                    <label for="cat-name">Nombre de la categoría / subcategoría:</label>
+                    <input type="text" id="cat-name" placeholder="Ej: Informática">
+                </div>
+                <div class="form-group">
+                    <label for="cat-code">Código sugerido (alfanumérico / etiqueta):</label>
+                    <input type="text" id="cat-code" placeholder="Ej: CAT-INF o SUBCAT-01">
+                    <span class="hint-text">Código corto para la matriz y reportes. Se genera automáticamente si se deja vacío.</span>
+                </div>
+                <div class="form-group">
+                    <label for="cat-keywords">Términos o variaciones de búsqueda (opcional, separados por comas):</label>
+                    <input type="text" id="cat-keywords" placeholder="Ej: informática, computación, software, sistemas">
+                    <span class="hint-text">El nombre de la categoría y su código se usarán automáticamente como términos de búsqueda.</span>
+                </div>
+                <div class="form-group">
+                    <label for="cat-exclude-keywords">Términos o frases de exclusión (opcional, separados por comas):</label>
+                    <input type="text" id="cat-exclude-keywords" placeholder="Ej: no aplica, fuera de contexto, obsoleto">
+                    <span class="hint-text">Si un pasaje contiene estos términos, se omitirá automáticamente de la codificación de esta categoría.</span>
+                </div>
+                <div class="form-group">
+                    <label for="cat-color">Color identificador (paleta):</label>
+                    <div class="color-picker-row">
+                        <input type="color" id="cat-color" value="#3b82f6">
+                        <div class="color-presets">
+                            <span class="color-preset" style="background:#ef4444;" data-color="#ef4444"></span>
+                            <span class="color-preset" style="background:#f59e0b;" data-color="#f59e0b"></span>
+                            <span class="color-preset" style="background:#10b981;" data-color="#10b981"></span>
+                            <span class="color-preset" style="background:#3b82f6;" data-color="#3b82f6"></span>
+                            <span class="color-preset" style="background:#8b5cf6;" data-color="#8b5cf6"></span>
+                            <span class="color-preset" style="background:#ec4899;" data-color="#ec4899"></span>
+                            <span class="color-preset" style="background:#14b8a6;" data-color="#14b8a6"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cat-desc">Descripción / criterio de inclusión (opcional):</label>
+                    <textarea id="cat-desc" rows="2" placeholder="Describe qué tipo de pasajes pertenecen a esta categoría..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="cat-criteria">Criterio de exclusión o decisión metodológica (opcional):</label>
+                    <textarea id="cat-criteria" rows="2" placeholder="Aclara límites, casos dudosos o cuándo no aplicar esta categoría..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-save-category" class="btn btn-primary">🔍 Guardar y buscar ocurrencias en el texto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add/Edit Decoding Memo -->
+    <div id="modal-memo" class="modal-backdrop" style="display:none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Decodificar significado / nota analítica</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="quote-preview">
+                    <strong>Pasaje seleccionado:</strong>
+                    <blockquote id="memo-quote-text">""</blockquote>
+                </div>
+                <div class="form-group">
+                    <label for="memo-category-select">Categoría principal:</label>
+                    <select id="memo-category-select" class="select-full"></select>
+                </div>
+                <div class="form-group">
+                    <label for="memo-text">Significado decodificado / interpretación cualitativa:</label>
+                    <textarea id="memo-text" rows="4" placeholder="Escribe aquí tu interpretación del significado profundo, contexto, emoción o intención de este pasaje..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                <button id="btn-save-memo" class="btn btn-primary">Guardar decodificación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Operational Guide Wizard -->
+    <div id="modal-operational-guide" class="modal-backdrop" style="display:none; z-index:9500;" aria-hidden="true">
+        <div class="modal-card modal-guide-card" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+            <div class="modal-header">
+                <div>
+                    <span class="guide-badge">Inducción Operativa</span>
+                    <h2 id="guide-title" style="margin:0;">Cómo funciona AnalizadorCualiUY</h2>
+                </div>
+                <button class="modal-close guide-skip-btn" aria-label="Cerrar guía">&times;</button>
+            </div>
+            <div class="modal-body modal-guide-body">
+                <div class="guide-steps-progress">
+                    <span class="step-dot active" data-step="1">1</span>
+                    <span class="step-line"></span>
+                    <span class="step-dot" data-step="2">2</span>
+                    <span class="step-line"></span>
+                    <span class="step-dot" data-step="3">3</span>
+                    <span class="step-line"></span>
+                    <span class="step-dot" data-step="4">4</span>
+                    <span class="step-line"></span>
+                    <span class="step-dot" data-step="5">5</span>
+                </div>
+
+                <div class="guide-step-panel active" data-step="1">
+                    <div class="guide-icon-box">📁</div>
+                    <h3>Paso 1: Cargar o importar datos y proyectar el corpus</h3>
+                    <p>Comenzá incorporando entrevistas, observaciones o documentos (formatos <strong>TXT, DOCX de Microsoft Word, PDF</strong>) o usá <strong>Cargar muestra</strong> para explorar datos de prueba. Podés guardar o restaurar todo el avance de tu proyecto en formato <strong>.json</strong>.</p>
+                    <div class="guide-tip-box">Tip: El procesamiento es 100% local en tu equipo; tus datos nunca se transmiten a internet.</div>
+                </div>
+
+                <div class="guide-step-panel" data-step="2" style="display:none;">
+                    <div class="guide-icon-box">🏷️</div>
+                    <h3>Paso 2: Crear, editar o importar el libro de categorías</h3>
+                    <p>En el panel izquierdo creá <strong>categorías y subcategorías</strong>, definí colores identificadores, descripciones y criterios de inclusión. También podés hacer clic en <strong>📥 Importar libro de categorías</strong> para cargar tu planilla de Excel o CSV de forma automática.</p>
+                    <div class="guide-tip-box">Tip: Usá el botón <strong>🔍 Buscar todo</strong> para analizar e identificar ocurrencias automáticas de tus palabras clave en los textos.</div>
+                </div>
+
+                <div class="guide-step-panel" data-step="3" style="display:none;">
+                    <div class="guide-icon-box">✍️</div>
+                    <h3>Paso 3: Seleccionar, editar o quitar pasajes de texto</h3>
+                    <p>Seleccioná cualquier fragmento de texto con el mouse en el lector central y asignale una categoría usando la barra flotante o los atajos de teclado rápido <strong>Ctrl+1 al 9</strong>. Podés <strong>agregar más categorías</strong> al mismo pasaje o <strong>desvincular codificaciones</strong> haciendo clic en las franjas de color.</p>
+                    <div class="guide-tip-box">Tip: Los pasajes quedan resaltados en colores y las categorías organizan escalas graduadas en los márgenes.</div>
+                </div>
+
+                <div class="guide-step-panel" data-step="4" style="display:none;">
+                    <div class="guide-icon-box">📝</div>
+                    <h3>Paso 4: Redactar memos e interpretar significados</h3>
+                    <p>Usá la solapa <strong>Decodificador</strong> en el panel derecho para redactar <strong>memos analíticos</strong> e interpretaciones cualitativas vinculadas a cada cita codificada. Podés editar, filtrar o buscar memos por categoría en cualquier momento.</p>
+                    <div class="guide-tip-box">Tip: El memo conecta la evidencia directa del testimonio con tus hipótesis de investigación.</div>
+                </div>
+
+                <div class="guide-step-panel" data-step="5" style="display:none;">
+                    <div class="guide-icon-box">📊</div>
+                    <h3>Paso 5: Matriz categorial, ocurrencias y exportación flexible</h3>
+                    <p>Hacé clic en <strong>Matriz categorial y estadísticas</strong> para explorar coocurrencias, frecuencias y gráficos de red. Al finalizar, elegí cómo presentar tus hallazgos:</p>
+                    <ul style="margin:0.4rem 0; padding-left:1.2rem; font-size:0.84rem; line-height:1.5; color:var(--text-secondary);">
+                        <li><strong>Exportar todo o filtrado a PDF:</strong> Generá PDFs completas o seleccioná solo las categorías que desees.</li>
+                        <li><strong>Exportar a Microsoft Word (DOCX):</strong> Exportá pasajes clasificados por categoría, incluyendo u omitiendo memos analíticos (en versión Pro).</li>
+                    </ul>
+                    <div class="guide-tip-box">Tip: El procesamiento es 100% local en tu equipo; tus datos nunca se transmiten a internet.</div>
+                </div>
+            </div>
+            <div class="modal-footer guide-footer">
+                <label class="guide-dont-show">
+                    <input type="checkbox" id="chk-guide-dont-show"> No volver a mostrar automáticamente al iniciar
+                </label>
+                <div class="guide-nav-buttons">
+                    <button id="btn-guide-skip" class="btn btn-outline guide-skip-btn">Saltar</button>
+                    <button id="btn-guide-prev" class="btn btn-secondary" style="display:none;">Anterior</button>
+                    <button id="btn-guide-next" class="btn btn-primary">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    <!-- Modal: Integrated User Manual & Methodological Reference -->
+    <div id="modal-user-manual" class="modal-backdrop" style="display:none; z-index:9600;" aria-hidden="true">
+        <div class="modal-card manual-modal-card" role="dialog" aria-modal="true" aria-labelledby="manual-main-title">
+            <!-- Header -->
+            <div class="manual-header">
+                <div class="manual-header-title">
+                    <span style="font-size:1.3rem;">📖</span>
+                    <h2 id="manual-main-title">Manual de Usuario y Referencia Metodológica</h2>
+                    <span class="manual-tag">Referencia Metodológica</span>
+                </div>
+                <div class="manual-header-actions">
+                    <div class="manual-search-box">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" id="manual-search-input" placeholder="Buscar concepto o función...">
+                    </div>
+                    <button id="btn-manual-download-pdf" class="btn btn-sm btn-outline" title="Descargar manual completo en formato PDF">
+                        📥 Descargar PDF
+                    </button>
+                    <button class="modal-close manual-close-btn" aria-label="Cerrar manual">&times;</button>
+                </div>
+            </div>
+
+            <!-- Body (Sidebar + Content) -->
+            <div class="manual-body">
+                <!-- Sidebar Navigation -->
+                <nav class="manual-sidebar" id="manual-nav-list">
+                    <button class="manual-nav-btn active" data-target="manual-sec-1">
+                        <span>🛡️</span> 1. Filosofía y Privacidad
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-2">
+                        <span>🖥️</span> 2. Espacio de Trabajo (3 Paneles)
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-3">
+                        <span>🏷️</span> 3. Codificación y Memos
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-4">
+                        <span>📊</span> 4. Cruce de Datos y Gráficos
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-5">
+                        <span>📐</span> 5. Glosario y Fórmulas
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-6">
+                        <span>▦</span> 6. Matrices y Consultas
+                    </button>
+                    <button class="manual-nav-btn" data-target="manual-sec-7">
+                        <span>📑</span> 7. Calidad y Exportación
+                    </button>
+                </nav>
+
+                <!-- Reading Pane -->
+                <div class="manual-content-pane" id="manual-content-pane">
+                    
+                    <!-- Section 1 -->
+                    <section id="manual-sec-1" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>🛡️ 1. Filosofía, Confidencialidad y Principios</h3>
+                            <span class="manual-tag">FUNDAMENTOS</span>
+                        </div>
+                        <p><strong>AnalizadorCualiUY</strong> es una plataforma de análisis cualitativo asistido por computadora (CAQDAS) diseñada con un estándar estricto de privacidad y rigor científico.</p>
+                        
+                        <div class="manual-callout tip">
+                            <div class="manual-callout-title">🔒 Procesamiento 100% Local y Confidencial</div>
+                            A diferencia de soluciones en la nube, todos los documentos (entrevistas, transcripciones, notas de campo), categorías y memos se procesan exclusivamente en la memoria y navegador local de tu equipo. Ningún dato se transmite a internet ni a servidores externos.
+                        </div>
+
+                        <div class="manual-grid-2">
+                            <div class="manual-card-box">
+                                <h4>🔗 Cadena de Custodia Inmutable</h4>
+                                <p>Cada segmento codificado conserva su identificador de documento, offsets de caracteres inicial/final y texto original exacto, garantizando trazabilidad total y reproducibilidad metodológica.</p>
+                            </div>
+                            <div class="manual-card-box">
+                                <h4>🧠 Asistencia sin Reduccionismo</h4>
+                                <p>El software no reemplaza el juicio hermenéutico del investigador. Los cálculos de coocurrencia y grafos actúan como catalizadores reflexivos para descubrir patrones discursivos.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 2 -->
+                    <section id="manual-sec-2" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>🖥️ 2. Arquitectura del Espacio de Trabajo</h3>
+                            <span class="manual-tag">INTERFAZ</span>
+                        </div>
+                        <p>La interfaz se organiza en un esquema ergonómico de 3 paneles ajustables mediante arrastre de sus barras divisorias:</p>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:25%;">Panel</th>
+                                        <th style="width:35%;">Componentes</th>
+                                        <th>Funcionalidad Metodológica</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Panel 1 (Izquierdo)</strong></td>
+                                        <td>Documentos & Libro de Códigos (Codebook)</td>
+                                        <td>Importación de corpus (TXT, DOCX, PDF), fichas contextuales por participante y administración del árbol jerárquico de categorías.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Panel 2 (Central)</strong></td>
+                                        <td>Lector de Texto & Taller de Codificación</td>
+                                        <td>Lectura fluida, franjas marginales tipo ATLAS.ti, barra flotante de asignación al seleccionar texto, atajos rápidos y buscador F3.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Panel 3 (Derecho)</strong></td>
+                                        <td>Decodificador, Gráficos y Buscador Multiarchivo</td>
+                                        <td>Redacción de memos analíticos, visualización en red/heatmap/barras/calidad y búsqueda global booleana en todo el corpus.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Section 3 -->
+                    <section id="manual-sec-3" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>🏷️ 3. Proceso de Codificación y Memos</h3>
+                            <span class="manual-tag">MÉTODO</span>
+                        </div>
+                        <p>El sistema soporta indistintamente estrategias deductivas (a priori) e inductivas (teoría fundamentada / emergentes):</p>
+
+                        <div class="manual-grid-2">
+                            <div class="manual-card-box">
+                                <h4>📋 Estructura de una Categoría</h4>
+                                <ul style="padding-left:1.1rem; font-size:0.83rem;">
+                                    <li><strong>Código y Nombre:</strong> Etiqueta abreviada y nombre descriptivo.</li>
+                                    <li><strong>Jerarquía:</strong> Asignación como categoría principal o subcategoría anidada.</li>
+                                    <li><strong>Criterio de Inclusión:</strong> Definición explícita de qué entra en la categoría.</li>
+                                    <li><strong>Criterio de Exclusión:</strong> Límites y decisiones metodológicas para evitar ambigüedades.</li>
+                                    <li><strong>Keywords / Términos:</strong> Palabras clave para la búsqueda automática.</li>
+                                </ul>
+                            </div>
+                            <div class="manual-card-box">
+                                <h4>✍️ Mecánicas de Codificación</h4>
+                                <ul style="padding-left:1.1rem; font-size:0.83rem;">
+                                    <li><strong>Manual:</strong> Seleccionar pasaje con mouse y elegir categoría (o Ctrl+1 a Ctrl+9).</li>
+                                    <li><strong>Múltiple y Solapada:</strong> Asignar varios códigos a un mismo fragmento sin duplicar texto.</li>
+                                    <li><strong>Buscar Todo:</strong> Autocodificación asistida basada en palabras clave con registro de auditoría.</li>
+                                    <li><strong>Memos:</strong> Registro reflexivo de hipótesis, emociones o tensiones teóricas.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="manual-callout">
+                            <div class="manual-callout-title">💡 El Valor Hermenéutico del Memo</div>
+                            Un memo no es un resumen del texto: es el registro donde el investigador dialoga con la cita, explica por qué es significativa para la pregunta de investigación y articula conexiones con el marco conceptual.
+                        </div>
+                    </section>
+
+                    <!-- Section 4 -->
+                    <section id="manual-sec-4" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>📊 4. Cruce de Datos y Gráficos Cualitativos</h3>
+                            <span class="manual-tag">ANÁLISIS</span>
+                        </div>
+                        <p>La solapa <strong>Gráficos Cuali</strong> integra cuatro herramientas de visualización y modelado conceptual:</p>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:25%;">Visualización</th>
+                                        <th style="width:35%;">Qué Representa</th>
+                                        <th>Uso e Interpretación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>🕸️ Red / Grafo</strong></td>
+                                        <td>Nodos = Categorías; Aristas = Coocurrencia</td>
+                                        <td>El tamaño del nodo refleja su presencia o frecuencia. El grosor del enlace indica la fuerza de asociación. Permite layouts Circular, Grilla o Red Libre por Fuerza.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>🔥 Coocurrencias (Heatmap)</strong></td>
+                                        <td>Matriz simétrica de cruce bidimensional</td>
+                                        <td>Colorea las celdas en gradiente térmico (Cero, Baja, Media, Alta) según el valor de Jaccard o recuento, revelando agrupamientos temáticos.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>📊 Comparación (Barras)</strong></td>
+                                        <td>Barras horizontales proporcionales</td>
+                                        <td>Compara simultáneamente el volumen bruto de citas y la densidad normalizada por cada 1.000 palabras, neutralizando diferencias de extensión entre documentos.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>✅ Calidad Metodológica</strong></td>
+                                        <td>Dashboard de rigor y cobertura</td>
+                                        <td>Monitorea el porcentaje de texto codificado, tasa de memos redactados, proporción manual vs. automática y detecta categorías vacías.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="manual-callout tip">
+                            <div class="manual-callout-title">💡 Interpretación Asistida y Edición de Notas</div>
+                            Bajo cada visualización, el sistema genera automáticamente una síntesis narrativa en lenguaje natural. Puedes hacer clic en <strong>✏️ Editar nota</strong> para ingresar tu propia interpretación cualitativa, la cual se incluirá en los informes exportados.
+                        </div>
+                    </section>
+
+                    <!-- Section 5 -->
+                    <section id="manual-sec-5" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>📐 5. Glosario Metodológico: Unidades y Métricas</h3>
+                            <span class="manual-tag">GLOSARIO</span>
+                        </div>
+                        <p>Definiciones operativas y matemáticas de cada control de la barra analítica:</p>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:25%;">Unidad de Análisis</th>
+                                        <th>Delimitación Textual y Significado Metodológico</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Párrafo (Estándar)</strong></td>
+                                        <td>Evalúa si dos categorías convergen en el mismo bloque narrativo o intervención. Es la unidad cualitativa recomendada por excelencia.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Oración</strong></td>
+                                        <td>Exige inmediatez sintáctica dentro de la misma frase delimitada por puntos. Indica conexión causal o discursiva directa.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Ventana (±50, 100, 250)</strong></td>
+                                        <td>Evalúa contigüidad temática fluida dentro de un radio de N palabras a cada lado. Ideal para transcripciones orales continuas.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Solapamiento (Overlap)</strong></td>
+                                        <td>Exige intersección exacta de caracteres en el mismo fragmento resaltado.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Documento</strong></td>
+                                        <td>Mide la co-presencia global en el mismo caso/entrevista, independientemente de la distancia entre párrafos.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:25%;">Métrica de Asociación</th>
+                                        <th>Fórmula y Justificación Científica</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Índice de Jaccard</strong></td>
+                                        <td><code>J = |A ∩ B| / |A ∪ B|</code> (valores entre 0 y 1). Mide la proporción de solapamiento relativo sin sesgo por alta frecuencia marginal. Es la métrica cualitativa estándar.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Recuento (Count)</strong></td>
+                                        <td>Número entero absoluto de unidades donde coexisten ambas categorías. Muestra el volumen bruto de evidencia.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>% Documentos</strong></td>
+                                        <td>Porcentaje de participantes o casos del corpus donde se registra la relación. Mide la transversalidad inter-sujetos.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Densidad / 1.000 palabras</strong></td>
+                                        <td><code>(Ocurrencias / Total palabras) × 1.000</code>. Permite contrastar la intensidad discursiva entre textos breves y extensos.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Section 6 -->
+                    <section id="manual-sec-6" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>▦ 6. Matrices Avanzadas y Consultas Booleanas</h3>
+                            <span class="manual-tag">HERRAMIENTAS</span>
+                        </div>
+                        <p>Al pulsar <strong>📊 Matriz Categorial y Estadísticas</strong> en la barra superior, accedes a las funciones avanzadas de cruce:</p>
+
+                        <div class="manual-grid-2">
+                            <div class="manual-card-box">
+                                <h4>▦ Matriz de Síntesis (Framework)</h4>
+                                <p>Organiza una grilla de <em>Documento × Categoría</em> para redactar resúmenes interpretativos transversales por cada cruce temático con acceso directo a las citas empíricas de respaldo.</p>
+                            </div>
+                            <div class="manual-card-box">
+                                <h4>🔎 Consultas Booleanas</h4>
+                                <p>Permite interrogar al corpus con operadores lógicos: <strong>A Y B</strong> (co-presencia), <strong>A SIN B</strong> (casos puros/negativos) y <strong>A CERCA DE B</strong> (distancia máxima en caracteres).</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 7 -->
+                    <section id="manual-sec-7" class="manual-section">
+                        <div class="manual-section-header">
+                            <h3>📑 7. Calidad, Auditoría y Exportación</h3>
+                            <span class="manual-tag">ENTREGABLES</span>
+                        </div>
+                        <p>Formatos de comunicación científica con trazabilidad completa:</p>
+
+                        <div class="manual-table-wrap">
+                            <table class="manual-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:30%;">Modalidad</th>
+                                        <th>Características del Formato</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Informe Resumen en PDF</strong></td>
+                                        <td>Documento formal con portada, metodología, objetivos, tablas de frecuencias, gráficos de red y conclusiones.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PDF de Documento Codificado</strong></td>
+                                        <td>Visualización de alta fidelidad con leyenda de colores y pasajes clasificados.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Cita Académica Oficial</strong></td>
+                                        <td>Generador integrado en normas APA 7ª, BibTeX, Chicago 17ª, MLA 9ª e ISO 690.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="manual-footer">
+                <span style="font-size:0.8rem; color:var(--text-muted);">
+                    AnalizadorCualiUY • Manual de Usuario y Referencia Metodológica
+                </span>
+                <button class="btn btn-primary manual-close-btn">Entendido / Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="project-integrity.js"></script>
+    <script src="analytics.js"></script>
+    <script src="public/vendor/pdf-lib.min.js"></script>
+    <script src="public/vendor/fontkit.umd.min.js"></script>
+    <script src="pdf-report.js"></script>
+    <script src="app.js"></script>
+    <script src="educational.js"></script>
+</body>
+</html>

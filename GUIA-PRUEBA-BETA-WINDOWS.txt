@@ -1,0 +1,12 @@
+GUÍA PARA ABRIR LA BETA EN WINDOWS
+
+No abra dist-beta\index.html con doble clic, porque Windows puede bloquear las
+bibliotecas locales necesarias para exportar PDF.
+
+1. Haga doble clic en ABRIR-BETA-WINDOWS.cmd.
+2. Espere a que se abra el navegador.
+3. Use la beta normalmente.
+4. Para cerrarla, cierre la ventana negra que quedó abierta.
+
+La beta permite importar PDF y exportar informes PDF. La marca “EVALUACIÓN —
+VERSIÓN BETA” identifica los archivos generados durante la prueba.
