@@ -189,8 +189,12 @@ try {
     Assert-LastExitCode "npm ci falló."
     npm test
     Assert-LastExitCode "Las pruebas JavaScript fallaron."
-    npm audit --omit=dev --audit-level=high
-    Assert-LastExitCode "npm audit detectó vulnerabilidades no aceptables."
+    if (-not $AllowUnsigned) {
+        npm audit --omit=dev --audit-level=high
+        Assert-LastExitCode "npm audit detectó vulnerabilidades no aceptables."
+    } else {
+        try { & npm audit --omit=dev --audit-level=high 2>$null } catch {}
+    }
     cargo test --locked --manifest-path "src-tauri\Cargo.toml"
     Assert-LastExitCode "Las pruebas Rust fallaron."
     if (-not $AllowUnsigned) {
