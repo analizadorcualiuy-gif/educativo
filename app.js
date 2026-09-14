@@ -56,6 +56,8 @@
         categoryCode: 512,
         categoryKeywordsText: 1024 * 1024,
         categoryKeyword: 16384,
+        categoryExcludeKeywordsText: 1024 * 1024,
+        categoryExcludeKeyword: 16384,
         categoryDescription: 1024 * 1024,
         categoryCriteria: 1024 * 1024,
         memo: 1024 * 1024,
@@ -186,6 +188,7 @@
         documents: [],
         categories: [],
         codings: [],
+        corpusExclusions: [],
         summaries: [],
         auditLog: [],
         projectTemplate: '',
@@ -390,6 +393,8 @@
             const parentId = category.parentId == null ? null : requireSafeId(category.parentId, `categories[${index}].parentId`);
             const keywords = category.keywords == null ? [] : category.keywords;
             if (!Array.isArray(keywords) || keywords.length > 10000) throw new Error(`categories[${index}].keywords es inválido.`);
+            const excludeKeywords = category.excludeKeywords == null ? [] : category.excludeKeywords;
+            if (!Array.isArray(excludeKeywords) || excludeKeywords.length > 10000) throw new Error(`categories[${index}].excludeKeywords es inválido.`);
             return {
                 id,
                 parentId,
@@ -397,6 +402,7 @@
                 name: requireString(category.name, `categories[${index}].name`, 4096),
                 color: safeColor(category.color),
                 keywords: keywords.map((keyword, keywordIndex) => requireString(keyword, `categories[${index}].keywords[${keywordIndex}]`, 16384, true)),
+                excludeKeywords: excludeKeywords.map((keyword, keywordIndex) => requireString(keyword, `categories[${index}].excludeKeywords[${keywordIndex}]`, 16384, true)),
                 description: requireString(category.description || '', `categories[${index}].description`, 1024 * 1024, true),
                 criteria: requireString(category.criteria || '', `categories[${index}].criteria`, 1024 * 1024, true)
             };
@@ -446,6 +452,30 @@
             summaryPairs.add(pairKey);
             return { id, docId, categoryId, text: requireString(summary.text || '', `summaries[${index}].text`, 1024 * 1024, true), updatedAt: Number.isFinite(summary.updatedAt) ? summary.updatedAt : Date.now() };
         }) : [];
+        const corpusExclusionIds = new Set();
+        const corpusExclusions = Array.isArray(parsed.corpusExclusions) ? parsed.corpusExclusions.slice(0, 100000).map((ex, index) => {
+            if (!ex || typeof ex !== 'object' || Array.isArray(ex)) throw new Error(`Exclusión del corpus ${index + 1} inválida.`);
+            const id = requireSafeId(ex.id, `corpusExclusions[${index}].id`);
+            if (corpusExclusionIds.has(id)) throw new Error(`ID de exclusión duplicado: ${id}`);
+            corpusExclusionIds.add(id);
+            const docId = requireSafeId(ex.docId, `corpusExclusions[${index}].docId`);
+            if (!documentIds.has(docId)) throw new Error(`La exclusión ${id} contiene una referencia inexistente al documento ${docId}.`);
+            const startChar = Number(ex.startChar);
+            const endChar = Number(ex.endChar);
+            if (!Number.isSafeInteger(startChar) || !Number.isSafeInteger(endChar) || startChar < 0 || endChar <= startChar) {
+                throw new Error(`Rango de caracteres inválido para la exclusión ${id}.`);
+            }
+            return {
+                id,
+                docId,
+                startChar,
+                endChar,
+                text: requireString(ex.text || '', `corpusExclusions[${index}].text`, limits.maxDocumentChars, true),
+                term: requireString(ex.term || '', `corpusExclusions[${index}].term`, 4096, true),
+                createdAt: Number.isFinite(ex.createdAt) ? ex.createdAt : Date.now()
+            };
+        }) : [];
+
         const auditLog = Array.isArray(parsed.auditLog) ? parsed.auditLog.slice(-10000).map((entry, index) => {
             if (!entry || typeof entry !== 'object' || Array.isArray(entry)) throw new Error(`Registro metodológico ${index + 1} inválido.`);
             return { id: requireSafeId(entry.id, `auditLog[${index}].id`), timestamp: Number.isFinite(entry.timestamp) ? entry.timestamp : Date.now(), action: requireString(entry.action || 'Actualización', `auditLog[${index}].action`, 512), detail: requireString(entry.detail || '', `auditLog[${index}].detail`, 4096, true) };
@@ -456,6 +486,7 @@
             documents,
             categories,
             codings,
+            corpusExclusions,
             theme: parsed.theme === 'light' ? 'light' : 'dark',
             isSampleLoaded: parsed.isSampleLoaded === true,
             analyticsUnit: ['paragraph', 'sentence', 'document', 'window', 'overlap'].includes(parsed.analyticsUnit) ? parsed.analyticsUnit : 'paragraph',
@@ -1141,6 +1172,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 documents: state.documents,
                 categories: state.categories,
                 codings: state.codings,
+                corpusExclusions: state.corpusExclusions,
                 theme: state.theme,
                 isSampleLoaded: state.isSampleLoaded,
                 analyticsUnit: state.analyticsUnit,
@@ -1390,6 +1422,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         state.categories = [];
         state.documents = [];
         state.codings = [];
+        state.corpusExclusions = [];
         state.summaries = [];
         state.auditLog = [];
         state.projectTemplate = '';
@@ -1537,6 +1570,10 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             seenTerms.add(normalized);
             return true;
         });
+        const excludeTerms = (cat.excludeKeywords || []).map(termValue => {
+            const normalized = normalizeText(String(termValue || '').trim());
+            return normalized && normalized.length >= 2 ? normalized : null;
+        }).filter(Boolean);
         let addedForPair = 0;
 
         for (const termRaw of terms) {
@@ -1569,8 +1606,39 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             const termSentenceRanges = sentenceRangesForMatches(content, termMatches);
 
             for (let matchIndex = 0; matchIndex < termMatches.length; matchIndex++) {
+                const match = termMatches[matchIndex];
                 const sentenceRange = termSentenceRanges[matchIndex];
                 if (!sentenceRange || sentenceRange.text.length <= 3) continue;
+
+                // Exclusión metodológica: no codificar turnos del entrevistador/investigador/moderador/observador
+                const matchPos = match && typeof match.start === 'number' ? match.start : sentenceRange.start;
+                const lastParaBreak = Math.max(0, content.lastIndexOf('\n\n', matchPos));
+                const turnSnippet = content.slice(lastParaBreak, lastParaBreak + 80).trim();
+                const isInterviewer = /^(moderador|moderadora|entrevistador|entrevistadora|investigador|investigadora|observador|observadora|docente\s*\(consigna\))\b/i.test(turnSnippet);
+                if (isInterviewer) {
+                    continue;
+                }
+
+                // Exclusión metodológica global del corpus
+                if (Array.isArray(state.corpusExclusions) && state.corpusExclusions.length > 0) {
+                    const isCorpusExcluded = state.corpusExclusions.some(ex =>
+                        ex.docId === doc.id &&
+                        sentenceRange.start < ex.endChar &&
+                        sentenceRange.end > ex.startChar
+                    );
+                    if (isCorpusExcluded) {
+                        continue;
+                    }
+                }
+
+                // Exclusión por términos o frases no deseadas definidas en la categoría
+                if (excludeTerms.length > 0) {
+                    const normalizedSentence = normalizeText(sentenceRange.text);
+                    if (excludeTerms.some(ex => normalizedSentence.includes(ex))) {
+                        continue;
+                    }
+                }
+
                 const rangeKey = autoCodingRangeKey(doc.id, cat.id, sentenceRange.start, sentenceRange.end);
                 const existingEntry = context.existingByRange.get(rangeKey);
                 const existingCoding = existingEntry && existingEntry.coding;
@@ -2199,12 +2267,42 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         if (!doc.content) return;
         const codingMap = new Map(docCodings.filter(coding => !coding.dismissed).map(coding => [coding.id, coding]));
         const categoryMap = new Map(state.categories.map(category => [category.id, category]));
-        const fragments = ProjectIntegrity.buildTextSegments(doc.content, docCodings);
+        const docExclusions = (state.corpusExclusions || []).filter(ex => ex.docId === doc.id);
+        const exclusionVirtualCodings = docExclusions.map(ex => ({
+            id: `__exclusion__${ex.id}`,
+            docId: ex.docId,
+            startChar: ex.startChar,
+            endChar: ex.endChar
+        }));
+        const combinedForSegmentation = [...docCodings, ...exclusionVirtualCodings];
+        const fragments = ProjectIntegrity.buildTextSegments(doc.content, combinedForSegmentation);
         let firstMatchMark = null;
         let renderedTierItems = 0;
         let maxHiddenOverlap = 0;
 
         fragments.forEach(frag => {
+            const hasExclusion = frag.codingIds.some(id => id.startsWith('__exclusion__'));
+            const activeExclusionIds = frag.codingIds
+                .filter(id => id.startsWith('__exclusion__'))
+                .map(id => id.replace('__exclusion__', ''));
+
+            if (hasExclusion) {
+                const element = document.createElement('span');
+                element.textContent = frag.text;
+                element.dataset.textStart = String(frag.start);
+                element.dataset.textEnd = String(frag.end);
+                element.className = 'corpus-excluded-segment';
+                element.title = '🚫 Pasaje excluido del análisis metodológico.\nHaz clic para reincorporar este pasaje al análisis.';
+                element.onclick = event => {
+                    event.stopPropagation();
+                    if (confirm(`¿Deseas reincorporar este pasaje al análisis levantando su exclusión?\n\n"${frag.text.slice(0, 160)}…"`)) {
+                        activeExclusionIds.forEach(id => removeCorpusExclusion(id));
+                    }
+                };
+                textBody.appendChild(element);
+                return;
+            }
+
             const allFragmentCodings = frag.codingIds
                 .map(id => codingMap.get(id))
                 .filter(Boolean);
@@ -3548,11 +3646,11 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             scopeDescription: `Alcance actual: ${state.analyticsDocumentId ? 'documento seleccionado' : state.analyticsDocumentGroup ? `grupo “${state.analyticsDocumentGroup}”` : 'todo el corpus'}; árbol completo de categorías.`,
             requireCategory: true
         })) return;
-        const csvRows = ['Código,Categoría,Jerarquía,Descripción,Criterios metodológicos,Términos,Color,Ocurrencias,Peso de evidencia\n'];
+        const csvRows = ['Código,Categoría,Jerarquía,Descripción,Criterios metodológicos,Términos,Términos de exclusión,Color,Ocurrencias,Peso de evidencia\n'];
         analytics.categories.forEach(category => {
             const parent = category.parentId ? categoryMap.get(category.parentId) : null;
             const stat = analytics.statsMap.get(category.id) || { count: 0, weightedCount: 0 };
-            csvRows.push(`"${escapeCsv(category.code || '')}","${escapeCsv(category.name)}","${escapeCsv(parent ? parent.name : 'Categoría principal')}","${escapeCsv(category.description || '')}","${escapeCsv(category.criteria || '')}","${escapeCsv((category.keywords || []).join(', '))}","${safeColor(category.color)}","${stat.count}","${stat.weightedCount || 0}"\n`);
+            csvRows.push(`"${escapeCsv(category.code || '')}","${escapeCsv(category.name)}","${escapeCsv(parent ? parent.name : 'Categoría principal')}","${escapeCsv(category.description || '')}","${escapeCsv(category.criteria || '')}","${escapeCsv((category.keywords || []).join(', '))}","${escapeCsv((category.excludeKeywords || []).join(', '))}","${safeColor(category.color)}","${stat.count}","${stat.weightedCount || 0}"\n`);
         });
         universalSaveFile(new Blob(['\uFEFF', ...csvRows], { type: 'text/csv;charset=utf-8;' }), `AnalizadorCualiUY_Pro_LibroDeCodigos_${new Date().toISOString().slice(0, 10)}.csv`);
     }
@@ -3560,11 +3658,11 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
     let pendingCodebookImportItems = null;
 
     function generateSampleCodebookCSV() {
-        const csvContent = 'Código,Categoría,Jerarquía,Descripción,Criterios metodológicos,Términos,Color\n' +
-            '"CAT-TD","Transformación Digital","","Uso de tecnologías y automatización","Excluir soporte técnico básico","tecnología, digital, software, sistemas","#3b82f6"\n' +
-            '"SUB-AUT","Automatización de Procesos","Transformación Digital","Optimización y automatización de flujos","","automatización, procesos, bots","#60a5fa"\n' +
-            '"CAT-LID","Liderazgo & Gestión","","Estilos de dirección y motivación de equipos","","liderazgo, equipo, gestión, comunicación","#10b981"\n' +
-            '"CAT-DES","Desafíos & Barreras","","Dificultades y resistencia al cambio","","resistencia, obstáculos, dificultad, problemas","#ef4444"\n';
+        const csvContent = 'Código,Categoría,Jerarquía,Descripción,Criterios metodológicos,Términos,Términos de exclusión,Color\n' +
+            '"CAT-TD","Transformación Digital","","Uso de tecnologías y automatización","Excluir soporte técnico básico","tecnología, digital, software, sistemas","soporte básico, impresora, periférico","#3b82f6"\n' +
+            '"SUB-AUT","Automatización de Procesos","Transformación Digital","Optimización y automatización de flujos","","automatización, procesos, bots","manual, artesanal","#60a5fa"\n' +
+            '"CAT-LID","Liderazgo & Gestión","","Estilos de dirección y motivación de equipos","","liderazgo, equipo, gestión, comunicación","imposición, autoritario","#10b981"\n' +
+            '"CAT-DES","Desafíos & Barreras","","Dificultades y resistencia al cambio","","resistencia, obstáculos, dificultad, problemas","éxito, logro","#ef4444"\n';
         const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
         universalSaveFile(blob, 'AnalizadorCualiUY_Plantilla_Libro_Categorias.csv');
     }
@@ -3634,8 +3732,9 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         let nameIdx = headers.findIndex(h => h.includes('categoria') || h.includes('nombre') || h.includes('name') || h.includes('subcategoria'));
         let parentIdx = headers.findIndex(h => h.includes('jerarquia') || h.includes('padre') || h.includes('parent') || h.includes('superior'));
         let descIdx = headers.findIndex(h => h.includes('descripcion') || h.includes('desc') || h.includes('inclusio'));
-        let criteriaIdx = headers.findIndex(h => h.includes('criterio') || h.includes('exclusio') || h.includes('limite'));
-        let keywordsIdx = headers.findIndex(h => h.includes('termino') || h.includes('palabra') || h.includes('keyword') || h.includes('busqueda'));
+        let excludeKeywordsIdx = headers.findIndex(h => h.includes('excluir') || h.includes('exclusiontermino') || h.includes('terminosdeexclusion') || h.includes('terminosdeexclusio') || h.includes('palabrasexcluidas') || h.includes('omitir') || h.includes('excludekeyword'));
+        let criteriaIdx = headers.findIndex((h, idx) => idx !== excludeKeywordsIdx && (h.includes('criterio') || h.includes('limite') || h.includes('regla') || (h.includes('exclusio') && !h.includes('termino'))));
+        let keywordsIdx = headers.findIndex((h, idx) => idx !== excludeKeywordsIdx && (h.includes('termino') || h.includes('palabra') || h.includes('keyword') || h.includes('busqueda')));
         let colorIdx = headers.findIndex(h => h.includes('color'));
 
         if (nameIdx === -1) {
@@ -3653,9 +3752,11 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             const rawDesc = (descIdx !== -1 && row[descIdx] ? row[descIdx] : '').trim();
             const rawCriteria = (criteriaIdx !== -1 && row[criteriaIdx] ? row[criteriaIdx] : '').trim();
             const rawKeywords = (keywordsIdx !== -1 && row[keywordsIdx] ? row[keywordsIdx] : '').trim();
+            const rawExcludeKeywords = (excludeKeywordsIdx !== -1 && row[excludeKeywordsIdx] ? row[excludeKeywordsIdx] : '').trim();
             const rawColor = (colorIdx !== -1 && row[colorIdx] ? row[colorIdx] : '').trim();
 
             const keywords = rawKeywords ? rawKeywords.split(/[,;]/).map(k => k.trim()).filter(Boolean) : [];
+            const excludeKeywords = rawExcludeKeywords ? rawExcludeKeywords.split(/[,;]/).map(k => k.trim()).filter(Boolean) : [];
 
             items.push({
                 code: rawCode,
@@ -3664,6 +3765,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 description: rawDesc,
                 criteria: rawCriteria,
                 keywords: keywords,
+                excludeKeywords: excludeKeywords,
                 color: rawColor
             });
         }
@@ -3789,6 +3891,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 name: name,
                 color: color,
                 keywords: Array.isArray(item.keywords) ? item.keywords : [],
+                excludeKeywords: Array.isArray(item.excludeKeywords) ? item.excludeKeywords : [],
                 description: item.description || '',
                 criteria: item.criteria || ''
             };
@@ -4263,6 +4366,220 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
         showFloatingToolbar(leftPos, topPos);
     }
 
+    function renderCorpusExclusionList() {
+        const countEl = document.getElementById('corpus-exclusion-count');
+        const listEl = document.getElementById('corpus-exclusion-list');
+        if (!listEl) return;
+        const exclusions = state.corpusExclusions || [];
+        if (countEl) countEl.textContent = exclusions.length.toLocaleString();
+        listEl.innerHTML = '';
+        if (exclusions.length === 0) {
+            listEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding:0.8rem;">No hay pasajes excluidos en el proyecto.</div>';
+            return;
+        }
+        const docMap = new Map((state.documents || []).map(d => [d.id, d.title]));
+        exclusions.forEach(ex => {
+            const item = document.createElement('div');
+            item.className = 'exclusion-item';
+            const docTitle = docMap.get(ex.docId) || 'Documento';
+            const textPreview = ex.text ? ex.text.slice(0, 70) : 'Pasaje excluido';
+            item.innerHTML = `
+                <div class="exclusion-text" title="${escapeHtml(ex.text || '')}">
+                    <strong>[${escapeHtml(docTitle)}]</strong> "${escapeHtml(textPreview)}${ex.text && ex.text.length > 70 ? '…' : ''}"
+                </div>
+                <div class="exclusion-meta">${escapeHtml(ex.term || 'Exclusión')}</div>
+                <button class="btn btn-outline btn-sm btn-delete-ex" title="Reincorporar pasaje" style="color:#ef4444; padding:0.1rem 0.4rem; font-size:0.75rem;">Levantar</button>
+            `;
+            const deleteBtn = item.querySelector('.btn-delete-ex');
+            if (deleteBtn) {
+                deleteBtn.onclick = () => removeCorpusExclusion(ex.id);
+            }
+            listEl.appendChild(item);
+        });
+    }
+
+    function openCorpusExclusionModal() {
+        renderCorpusExclusionList();
+        const modal = document.getElementById('modal-corpus-exclusion');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function removeCorpusExclusion(exclusionId) {
+        if (!state.corpusExclusions) return;
+        const target = state.corpusExclusions.find(ex => ex.id === exclusionId);
+        if (!target) return;
+        state.corpusExclusions = state.corpusExclusions.filter(ex => ex.id !== exclusionId);
+        recordAudit('Levantar exclusión de corpus', `Pasaje reincorporado en doc ${target.docId}: ${String(target.text || '').slice(0, 40)}`);
+        saveToStorage();
+        if (state.activeDocId === target.docId) {
+            setActiveDocument(state.activeDocId);
+        }
+        renderCorpusExclusionList();
+        renderDecoderList();
+        updateQualitativeCharts();
+    }
+
+    function clearAllCorpusExclusions() {
+        if (!state.corpusExclusions || state.corpusExclusions.length === 0) return;
+        if (!confirm('¿Deseas levantar y eliminar todas las exclusiones del corpus? Los pasajes volverán a ser considerados en el análisis.')) return;
+        const count = state.corpusExclusions.length;
+        state.corpusExclusions = [];
+        recordAudit('Levantar todas las exclusiones', `${count} pasajes reincorporados.`);
+        saveToStorage();
+        if (state.activeDocId) {
+            setActiveDocument(state.activeDocId);
+        }
+        renderCorpusExclusionList();
+        renderDecoderList();
+        updateQualitativeCharts();
+    }
+
+    function applyGlobalCorpusExclusion(termsString, scope = 'all') {
+        const rawTerms = String(termsString || '')
+            .split(',')
+            .map(t => t.trim())
+            .filter(t => t.length >= 2);
+        if (rawTerms.length === 0) {
+            alert('Por favor ingresa al menos un término o encabezado para excluir.');
+            return;
+        }
+
+        const targetDocs = scope === 'active'
+            ? (state.documents || []).filter(d => d.id === state.activeDocId)
+            : (state.documents || []);
+
+        if (targetDocs.length === 0) {
+            alert('No hay documentos disponibles en el alcance seleccionado.');
+            return;
+        }
+
+        if (!state.corpusExclusions) state.corpusExclusions = [];
+        let addedCount = 0;
+        const newExclusions = [...state.corpusExclusions];
+
+        targetDocs.forEach(doc => {
+            const content = String(doc.content || '');
+            const normalizedContent = normalizeText(content);
+
+            rawTerms.forEach(term => {
+                const normalizedTerm = normalizeText(term);
+                if (!normalizedTerm) return;
+
+                let searchFrom = 0;
+                let foundPos;
+                while ((foundPos = normalizedContent.indexOf(normalizedTerm, searchFrom)) !== -1) {
+                    searchFrom = foundPos + normalizedTerm.length;
+
+                    let segStart = content.lastIndexOf('\n\n', foundPos);
+                    segStart = segStart === -1 ? 0 : segStart + 2;
+                    let segEnd = content.indexOf('\n\n', foundPos + term.length);
+                    segEnd = segEnd === -1 ? content.length : segEnd;
+
+                    const trimmed = ProjectIntegrity.trimSelectionOffsets(content, segStart, segEnd);
+                    if (trimmed.start >= trimmed.end || trimmed.text.length < 2) continue;
+
+                    const alreadyExists = newExclusions.some(ex =>
+                        ex.docId === doc.id &&
+                        ex.startChar <= trimmed.start &&
+                        ex.endChar >= trimmed.end
+                    );
+                    if (alreadyExists) continue;
+
+                    const newEx = {
+                        id: `ex-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                        docId: doc.id,
+                        startChar: trimmed.start,
+                        endChar: trimmed.end,
+                        text: trimmed.text,
+                        term: term,
+                        createdAt: Date.now()
+                    };
+                    newExclusions.push(newEx);
+                    addedCount++;
+                }
+            });
+        });
+
+        if (addedCount === 0) {
+            alert('No se encontraron nuevos pasajes que coincidan con los términos indicados.');
+            return;
+        }
+
+        state.corpusExclusions = newExclusions;
+
+        // Dismiss automatic codings that fall inside these new exclusions
+        state.codings = (state.codings || []).map(coding => {
+            if (coding.dismissed) return coding;
+            const isOverlap = state.corpusExclusions.some(ex =>
+                ex.docId === coding.docId &&
+                coding.startChar < ex.endChar &&
+                coding.endChar > ex.startChar
+            );
+            if (isOverlap && coding.source === 'automatic') {
+                return { ...coding, dismissed: true };
+            }
+            return coding;
+        });
+
+        recordAudit('Exclusión global de corpus', `Términos: "${rawTerms.join(', ')}" (${scope === 'all' ? 'Todo el corpus' : 'Doc activo'}). ${addedCount} pasaje(s) excluido(s).`);
+        saveToStorage();
+        if (state.activeDocId) {
+            setActiveDocument(state.activeDocId);
+        }
+        renderCorpusExclusionList();
+        renderDecoderList();
+        updateQualitativeCharts();
+        alert(`✅ Se identificaron y excluyeron ${addedCount} pasaje(s) del análisis automático.`);
+    }
+
+    function excludeSelectedRange() {
+        if (!state.selectedRange) return;
+        if (!state.corpusExclusions) state.corpusExclusions = [];
+        const { docId, startChar, endChar, quoteText } = state.selectedRange;
+        const newEx = {
+            id: `ex-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            docId,
+            startChar,
+            endChar,
+            text: quoteText,
+            term: 'Selección manual',
+            createdAt: Date.now()
+        };
+        state.corpusExclusions.push(newEx);
+
+        state.codings = (state.codings || []).map(coding => {
+            if (coding.docId === docId && coding.startChar < endChar && coding.endChar > startChar && coding.source === 'automatic') {
+                return { ...coding, dismissed: true };
+            }
+            return coding;
+        });
+
+        recordAudit('Exclusión manual de pasaje', `Fragmento excluido en doc ${docId}: "${quoteText.slice(0, 40)}…"`);
+        saveToStorage();
+        hideFloatingToolbar();
+        setActiveDocument(docId);
+        renderDecoderList();
+        updateQualitativeCharts();
+    }
+
+    function liftExclusionForSelectedRange() {
+        if (!state.selectedRange || !state.corpusExclusions) return;
+        const { docId, startChar, endChar } = state.selectedRange;
+        const initialCount = state.corpusExclusions.length;
+        state.corpusExclusions = state.corpusExclusions.filter(ex =>
+            !(ex.docId === docId && startChar < ex.endChar && endChar > ex.startChar)
+        );
+        const removedCount = initialCount - state.corpusExclusions.length;
+        if (removedCount > 0) {
+            recordAudit('Levantar exclusión de pasaje', `${removedCount} exclusión(es) levantada(s) manualmente.`);
+            saveToStorage();
+        }
+        hideFloatingToolbar();
+        setActiveDocument(docId);
+        renderDecoderList();
+        updateQualitativeCharts();
+    }
+
     function showFloatingToolbar(x, y) {
         const toolbar = document.getElementById('floating-toolbar');
         const codeButtonsRow = document.getElementById('floating-code-buttons');
@@ -4279,6 +4596,16 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             };
             codeButtonsRow.appendChild(btn);
         });
+
+        const isExcluded = state.selectedRange && (state.corpusExclusions || []).some(ex =>
+            ex.docId === state.selectedRange.docId &&
+            state.selectedRange.startChar < ex.endChar &&
+            state.selectedRange.endChar > ex.startChar
+        );
+        const btnExclude = document.getElementById('btn-quick-exclude');
+        const btnLift = document.getElementById('btn-quick-lift-exclude');
+        if (btnExclude) btnExclude.style.display = isExcluded ? 'none' : 'inline-block';
+        if (btnLift) btnLift.style.display = isExcluded ? 'inline-block' : 'none';
 
         toolbar.style.display = 'flex';
         toolbar.style.left = `${Math.max(10, Math.min(x, window.innerWidth - 340))}px`;
@@ -6016,6 +6343,47 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 openMemoModal(state.selectedRange);
             }
         };
+        const btnQuickExclude = document.getElementById('btn-quick-exclude');
+        if (btnQuickExclude) btnQuickExclude.onclick = excludeSelectedRange;
+        const btnQuickLift = document.getElementById('btn-quick-lift-exclude');
+        if (btnQuickLift) btnQuickLift.onclick = liftExclusionForSelectedRange;
+
+        // Corpus Global Exclusion Modal Buttons
+        const btnOpenCorpusEx = document.getElementById('btn-open-corpus-exclusion');
+        if (btnOpenCorpusEx) btnOpenCorpusEx.onclick = openCorpusExclusionModal;
+
+        const btnCloseCorpusEx = document.getElementById('btn-close-corpus-exclusion');
+        if (btnCloseCorpusEx) btnCloseCorpusEx.onclick = () => {
+            const m = document.getElementById('modal-corpus-exclusion');
+            if (m) m.style.display = 'none';
+        };
+
+        const btnApplyCorpusEx = document.getElementById('btn-apply-corpus-exclusion');
+        if (btnApplyCorpusEx) {
+            btnApplyCorpusEx.onclick = () => {
+                const termsInput = document.getElementById('corpus-exclusion-terms');
+                const scopeRadio = document.querySelector('input[name="corpus-exclusion-scope"]:checked');
+                const terms = termsInput ? termsInput.value : '';
+                const scope = scopeRadio ? scopeRadio.value : 'all';
+                applyGlobalCorpusExclusion(terms, scope);
+            };
+        }
+
+        const btnClearAllEx = document.getElementById('btn-clear-all-exclusions');
+        if (btnClearAllEx) btnClearAllEx.onclick = clearAllCorpusExclusions;
+
+        document.querySelectorAll('.preset-exclusion').forEach(btn => {
+            btn.onclick = () => {
+                const termsInput = document.getElementById('corpus-exclusion-terms');
+                if (!termsInput) return;
+                const termsToAdd = btn.dataset.terms || '';
+                if (termsInput.value.trim()) {
+                    termsInput.value = `${termsInput.value.trim()}, ${termsToAdd}`;
+                } else {
+                    termsInput.value = termsToAdd;
+                }
+            };
+        });
 
         // Modal Category Buttons
         document.getElementById('btn-open-credits').onclick = () => {
@@ -6057,6 +6425,8 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 document.getElementById('modal-advanced-query').style.display = 'none';
                 document.getElementById('modal-project-templates').style.display = 'none';
                 document.getElementById('modal-import-codebook').style.display = 'none';
+                const corpusExModal = document.getElementById('modal-corpus-exclusion');
+                if (corpusExModal) corpusExModal.style.display = 'none';
                 const citationModal = document.getElementById('modal-citation');
                 if (citationModal) citationModal.style.display = 'none';
                 memoEditingCodingId = null;
@@ -6151,6 +6521,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             const name = document.getElementById('cat-name').value.trim();
             let code = document.getElementById('cat-code').value.trim();
             const keywordsRaw = document.getElementById('cat-keywords').value.trim();
+            const excludeKeywordsRaw = document.getElementById('cat-exclude-keywords') ? document.getElementById('cat-exclude-keywords').value.trim() : '';
             const color = document.getElementById('cat-color').value;
             const desc = document.getElementById('cat-desc').value.trim();
             const criteria = document.getElementById('cat-criteria').value.trim();
@@ -6160,6 +6531,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             }
 
             const keywordsArr = keywordsRaw ? keywordsRaw.split(',').map(k => k.trim()).filter(Boolean) : [];
+            const excludeKeywordsArr = excludeKeywordsRaw ? excludeKeywordsRaw.split(',').map(k => k.trim()).filter(Boolean) : [];
             const proposedParentId = parentIdVal === 'NONE' ? null : parentIdVal;
             const proposedId = editId || `cat-${Date.now()}`;
             const proposedCategory = {
@@ -6169,6 +6541,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 name,
                 color,
                 keywords: keywordsArr,
+                excludeKeywords: excludeKeywordsArr,
                 description: desc,
                 criteria
             };
@@ -6179,10 +6552,13 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                 requireString(name, 'Nombre de categoría', FIELD_LIMITS.categoryName);
                 requireString(code, 'Código de categoría', FIELD_LIMITS.categoryCode, true);
                 requireString(keywordsRaw, 'Términos de búsqueda', FIELD_LIMITS.categoryKeywordsText, true);
+                requireString(excludeKeywordsRaw, 'Términos de exclusión', FIELD_LIMITS.categoryExcludeKeywordsText, true);
                 requireString(desc, 'Descripción de categoría', FIELD_LIMITS.categoryDescription, true);
                 requireString(criteria, 'Criterios de categoría', FIELD_LIMITS.categoryCriteria, true);
                 if (keywordsArr.length > 10000) throw new Error('La categoría supera el máximo de 10.000 términos de búsqueda.');
+                if (excludeKeywordsArr.length > 10000) throw new Error('La categoría supera el máximo de 10.000 términos de exclusión.');
                 keywordsArr.forEach((keyword, index) => requireString(keyword, `Término ${index + 1}`, FIELD_LIMITS.categoryKeyword, true));
+                excludeKeywordsArr.forEach((keyword, index) => requireString(keyword, `Término de exclusión ${index + 1}`, FIELD_LIMITS.categoryExcludeKeyword, true));
                 if (editId && ProjectIntegrity.wouldCreateCycle(state.categories, editId, proposedParentId)) {
                     throw new Error('La categoría no puede depender de sí misma ni de una descendiente.');
                 }
@@ -6205,6 +6581,7 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
                     cat.code = code;
                     cat.color = color;
                     cat.keywords = keywordsArr;
+                    cat.excludeKeywords = excludeKeywordsArr;
                     cat.description = desc;
                     cat.criteria = criteria;
                 }
@@ -6323,6 +6700,9 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             document.getElementById('cat-name').value = existingCat.name;
             document.getElementById('cat-code').value = existingCat.code || generateSuggestedCode(existingCat.name, existingCat.parentId);
             document.getElementById('cat-keywords').value = existingCat.keywords ? existingCat.keywords.join(', ') : '';
+            if (document.getElementById('cat-exclude-keywords')) {
+                document.getElementById('cat-exclude-keywords').value = existingCat.excludeKeywords ? existingCat.excludeKeywords.join(', ') : '';
+            }
             document.getElementById('cat-desc').value = existingCat.description || '';
             document.getElementById('cat-criteria').value = existingCat.criteria || '';
             document.getElementById('cat-parent-select').value = existingCat.parentId || 'NONE';
@@ -6333,6 +6713,9 @@ Entrevistado: Nos brinda herramientas increíbles para ahorrar tiempo, pero el v
             document.getElementById('cat-name').value = '';
             document.getElementById('cat-code').value = '';
             document.getElementById('cat-keywords').value = '';
+            if (document.getElementById('cat-exclude-keywords')) {
+                document.getElementById('cat-exclude-keywords').value = '';
+            }
             document.getElementById('cat-desc').value = '';
             document.getElementById('cat-criteria').value = '';
             document.getElementById('cat-parent-select').value = 'NONE';

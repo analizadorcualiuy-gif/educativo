@@ -67,128 +67,67 @@
         </div>
 
         <div class="header-actions">
-            <button id="btn-new-blank-project" class="btn btn-outline" title="Iniciar un nuevo proyecto cualitativo en blanco">
-                ✨ Nuevo Proyecto
-            </button>
-
-            <button id="btn-import-files" type="button" class="btn btn-secondary" title="Importar uno o varios documentos. Para seleccionar varios archivos, usa Ctrl o Shift en la ventana de Windows.">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                <span>Importar Documentos (TXT / DOCX / PDF)</span>
-            </button>
-            <input type="file" id="file-input" accept=".txt,.docx,.pdf,.json,application/json" multiple hidden>
-
-            <button id="btn-load-sample" class="btn btn-secondary" title="Cargar proyecto de muestra precargado">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                    <polyline points="10 9 9 9 8 9"/>
-                </svg>
-                <span>Cargar Muestra</span>
-            </button>
-
-            <button id="btn-open-project-templates" class="btn btn-outline" title="Crear una estructura inicial de categorías">
-                ✨ Plantillas de proyecto
-            </button>
-
-            <div class="divider-vertical"></div>
-
-            <button id="btn-open-matrix" class="btn btn-primary" title="Ver matriz categorial completa, frecuencias y porcentajes">
-                📊 Matriz categorial y estadísticas
-            </button>
-
-            <button id="btn-save-project" class="btn btn-outline" title="Guardar todo el proyecto como archivo JSON local">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                    <polyline points="17 21 17 13 7 13 7 21"/>
-                    <polyline points="7 3 7 8 15 8"/>
-                </svg>
-                <span>Guardar Proyecto</span>
-            </button>
-
-            <div id="btn-open-project" class="btn btn-outline" style="position:relative; overflow:hidden;" title="Abrir archivo de proyecto guardado (.json)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                </svg>
-                <span>Abrir Proyecto (.json)</span>
-                <input type="file" id="project-input" accept=".json,application/json" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:10;">
+            <!-- Tira 1: Proyecto & Corpus -->
+            <div class="ribbon-group" title="Operaciones de Proyecto y Documentos">
+                <span class="ribbon-label">Proyecto & Corpus</span>
+                <div class="ribbon-buttons">
+                    <button id="btn-new-blank-project" class="btn btn-outline btn-sm" title="Iniciar un nuevo proyecto cualitativo en blanco">✨ Nuevo</button>
+                    <div id="btn-open-project" class="btn btn-outline btn-sm" style="position:relative; overflow:hidden;" title="Abrir archivo de proyecto guardado (.json)">
+                        📂 Abrir (.json)
+                        <input type="file" id="project-input" accept=".json,application/json" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:10;">
+                    </div>
+                    <button id="btn-save-project" class="btn btn-outline btn-sm" title="Guardar todo el proyecto como archivo JSON local">💾 Guardar (.json)</button>
+                    <button id="btn-import-files" type="button" class="btn btn-secondary btn-sm" title="Importar uno o varios documentos (TXT / DOCX / PDF)">📥 Importar Docs</button>
+                    <input type="file" id="file-input" accept=".txt,.docx,.pdf,.json,application/json" multiple hidden>
+                    <button id="btn-load-sample" class="btn btn-secondary btn-sm" title="Cargar proyecto de muestra precargado">📦 Muestra</button>
+                    <button id="btn-open-project-templates" class="btn btn-outline btn-sm" title="Crear una estructura inicial de categorías">📐 Plantillas</button>
+                </div>
             </div>
 
-            <button id="btn-export-csv" class="btn btn-outline" title="Exportar matriz categorial y reporte a CSV">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <path d="M8 13h2a2 2 0 1 0 0-4H8v8"/>
-                    <path d="M20 17H4"/>
-                </svg>
-                <span>Exportar CSV</span>
-            </button>
+            <!-- Tira 2: Análisis & Filtros -->
+            <div class="ribbon-group" title="Herramientas Analíticas y Reglas Metodológicas">
+                <span class="ribbon-label">Análisis & Filtros</span>
+                <div class="ribbon-buttons">
+                    <button id="btn-open-matrix" class="btn btn-primary btn-sm" title="Ver matriz categorial completa, frecuencias y porcentajes">📊 Matriz & Stats</button>
+                    <button id="btn-open-corpus-exclusion" class="btn btn-warning btn-sm" title="Gestionar y aplicar exclusiones globales en el corpus (entrevistador, notas, etc.)">🚫 Exclusiones Corpus</button>
+                </div>
+            </div>
 
-            <button id="btn-export-docx" class="btn btn-primary" title="Exportar a Microsoft Word (DOCX): documento completo sombreado o pasajes clasificados por categoría">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                </svg>
-                <span>Exportar DOCX (Word)</span>
-            </button>
+            <!-- Tira 3: Exportación -->
+            <div class="ribbon-group" title="Exportación y Reportes">
+                <span class="ribbon-label">Exportación</span>
+                <div class="ribbon-buttons">
+                    <button id="btn-export-docx" class="btn btn-primary btn-sm" title="Exportar a Microsoft Word (DOCX)">📄 Word (DOCX)</button>
+                    <button id="btn-export-csv" class="btn btn-outline btn-sm" title="Exportar matriz categorial y reporte a CSV">📊 CSV</button>
+                </div>
+            </div>
 
-            <button id="btn-open-credits" class="btn btn-outline" title="Información del producto e instalación">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="16" x2="12" y2="12"/>
-                    <line x1="12" y1="8" x2="12.01" y2="8"/>
-                </svg>
-                <span>Acerca de / Créditos</span>
-            </button>
-
-            <button id="btn-cite-software" class="btn btn-outline" title="Obtener la cita académica oficial de AnalizadorCualiUY para publicaciones y tesis">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                </svg>
-                <span>📖 Citar este software</span>
-            </button>
-
-            <button id="btn-open-guide" class="btn btn-outline" title="Ver guía tutorial e inducción operativa">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-                <span>💡 Tutorial</span>
-            </button>
-
-            <button id="btn-open-manual" class="btn btn-primary" title="Abrir el Manual de Usuario y Referencia Metodológica Integral">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                </svg>
-                <span>📘 Manual y Metodología</span>
-            </button>
-
-            <button id="theme-toggle" class="btn-icon" title="Cambiar Tema Claro / Oscuro">
-                <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="5"/>
-                    <line x1="12" y1="1" x2="12" y2="3"/>
-                    <line x1="12" y1="21" x2="12" y2="23"/>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                    <line x1="1" y1="12" x2="3" y2="12"/>
-                    <line x1="21" y1="12" x2="23" y2="12"/>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                </svg>
-                <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                </svg>
-            </button>
+            <!-- Tira 4: Ayuda & Metodología -->
+            <div class="ribbon-group" title="Documentación, Tutorial y Configuración">
+                <span class="ribbon-label">Ayuda & Metodología</span>
+                <div class="ribbon-buttons">
+                    <button id="btn-open-manual" class="btn btn-primary btn-sm" title="Abrir el Manual de Usuario y Referencia Metodológica Integral">📘 Manual</button>
+                    <button id="btn-open-guide" class="btn btn-outline btn-sm" title="Ver guía tutorial e inducción operativa">💡 Tutorial</button>
+                    <button id="btn-cite-software" class="btn btn-outline btn-sm" title="Obtener la cita académica oficial de AnalizadorCualiUY">📖 Citar</button>
+                    <button id="btn-open-credits" class="btn btn-outline btn-sm" title="Información del producto e instalación">ℹ️ Info</button>
+                    <button id="theme-toggle" class="btn-icon" title="Cambiar Tema Claro / Oscuro">
+                        <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -590,9 +529,58 @@
         <div id="floating-code-buttons" class="code-buttons-row">
             <!-- Category buttons injected dynamically -->
         </div>
-        <div class="toolbar-footer">
-            <button id="btn-quick-new-code" class="btn-text">+ Nueva categoría</button>
-            <button id="btn-add-memo-quick" class="btn-text-primary">+ Añadir nota / decodificación</button>
+        <div class="toolbar-footer" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.4rem; padding-top:0.4rem; border-top:1px solid var(--border-color);">
+            <button id="btn-quick-new-code" class="btn-text">+ Categoría</button>
+            <button id="btn-add-memo-quick" class="btn-text-primary">+ Nota / Memo</button>
+            <button id="btn-quick-exclude" class="btn-text" style="color:#ef4444; font-weight:600;" title="Excluir este fragmento del análisis automático">🚫 Excluir pasaje</button>
+            <button id="btn-quick-lift-exclude" class="btn-text" style="color:#10b981; font-weight:600; display:none;" title="Reincorporar este pasaje al análisis">🔓 Levantar exclusión</button>
+        </div>
+    </div>
+
+    <!-- Modal: Corpus Global Exclusion Management -->
+    <div id="modal-corpus-exclusion" class="modal-backdrop" style="display:none;">
+        <div class="modal-card" style="width: 680px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>🚫 Exclusiones Metodológicas del Corpus</h3>
+                <button class="modal-close" id="modal-corpus-exclusion-close">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:1rem; max-height:75vh; overflow-y:auto;">
+                <p style="font-size:0.85rem; color:var(--text-secondary); margin:0;">
+                    Define términos, encabezados o frases que deban ser omitidos automáticamente en el análisis de todo el corpus (ej: intervenciones del entrevistador, notas del observador o metadata técnica).
+                </p>
+                <div class="form-group">
+                    <label for="corpus-exclusion-terms">Términos o encabezados a excluir (separados por comas):</label>
+                    <input type="text" id="corpus-exclusion-terms" placeholder="Ej: Investigador:, Entrevistador:, Moderador:, Notas de campo:, Docente (consigna):">
+                    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.4rem;">
+                        <button type="button" class="btn btn-sm btn-outline preset-exclusion" data-terms="Investigador:, Investigadora:">+ Investigador/a</button>
+                        <button type="button" class="btn btn-sm btn-outline preset-exclusion" data-terms="Entrevistador:, Entrevistadora:">+ Entrevistador/a</button>
+                        <button type="button" class="btn btn-sm btn-outline preset-exclusion" data-terms="Moderador:, Moderadora:">+ Moderador/a</button>
+                        <button type="button" class="btn btn-sm btn-outline preset-exclusion" data-terms="Observador:, Notas de campo:">+ Notas de campo</button>
+                    </div>
+                </div>
+                <div class="form-group" style="display:flex; flex-direction:row; gap:1rem; align-items:center; flex-wrap:wrap;">
+                    <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.3rem; margin:0;">
+                        <input type="radio" name="corpus-exclusion-scope" value="all" checked> Todo el corpus
+                    </label>
+                    <label style="font-size:0.85rem; font-weight:normal; display:flex; align-items:center; gap:0.3rem; margin:0;">
+                        <input type="radio" name="corpus-exclusion-scope" value="active"> Solo documento activo
+                    </label>
+                    <button id="btn-apply-corpus-exclusion" class="btn btn-primary btn-sm" style="margin-left:auto;">🔍 Aplicar exclusión</button>
+                </div>
+
+                <hr style="border:0; border-top:1px solid var(--border-color); margin:0.3rem 0;">
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="font-size:0.9rem; color:var(--text-primary); margin:0;">Pasajes actualmente excluidos (<span id="corpus-exclusion-count">0</span>):</h4>
+                    <button id="btn-clear-all-exclusions" class="btn btn-outline btn-sm" style="color:#ef4444;">🗑️ Levantar todas las exclusiones</button>
+                </div>
+                <div id="corpus-exclusion-list" style="max-height:220px; overflow-y:auto; border:1px solid var(--border-color); border-radius:6px; padding:0.5rem; background:var(--bg-tertiary);">
+                    <!-- Dynamic exclusion list items -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-close-corpus-exclusion">Cerrar</button>
+            </div>
         </div>
     </div>
 
@@ -932,6 +920,11 @@
                     <label for="cat-keywords">Términos o variaciones de búsqueda (opcional, separados por comas):</label>
                     <input type="text" id="cat-keywords" maxlength="1048576" placeholder="Ej: informática, computación, software, sistemas">
                     <span class="hint-text">El nombre de la categoría y su código se usarán automáticamente como términos de búsqueda.</span>
+                </div>
+                <div class="form-group">
+                    <label for="cat-exclude-keywords">Términos o frases de exclusión (opcional, separados por comas):</label>
+                    <input type="text" id="cat-exclude-keywords" maxlength="1048576" placeholder="Ej: no aplica, fuera de contexto, obsoleto">
+                    <span class="hint-text">Si un pasaje contiene estos términos, se omitirá automáticamente de la codificación de esta categoría.</span>
                 </div>
                 <div class="form-group">
                     <label for="cat-color">Color identificador (paleta):</label>

@@ -323,12 +323,12 @@ test('frontend recovery and destructive-load guards remain wired', () => {
     assert.match(appSource, /modal-import-codebook/);
 });
 
-test('codebook CSV parser extracts categories, subcategories, keywords and handles comma/semicolon delimiters', () => {
+test('codebook CSV parser extracts categories, subcategories, keywords, excludeKeywords and handles comma/semicolon delimiters', () => {
     const { hooks } = loadFrontendHarness();
 
-    const csvComma = '\uFEFF' + 'Código,Categoría,Jerarquía,Descripción,Criterios,Términos,Color\n' +
-        '"CAT-A","Categoría A","","Descripción A","Criterio A","termino1, termino2","#ef4444"\n' +
-        '"SUB-B","Subcategoría B","CAT-A","Descripción B","","termino3","#3b82f6"\n';
+    const csvComma = '\uFEFF' + 'Código,Categoría,Jerarquía,Descripción,Criterios,Términos,Términos de exclusión,Color\n' +
+        '"CAT-A","Categoría A","","Descripción A","Criterio A","termino1, termino2","excluido1, excluido2","#ef4444"\n' +
+        '"SUB-B","Subcategoría B","CAT-A","Descripción B","","termino3","","#3b82f6"\n';
 
     const itemsComma = hooks.parseCodebookCSV(csvComma);
     assert.equal(itemsComma.length, 2);
@@ -336,22 +336,58 @@ test('codebook CSV parser extracts categories, subcategories, keywords and handl
     assert.equal(itemsComma[0].name, 'Categoría A');
     assert.equal(itemsComma[0].rawParent, '');
     assert.deepEqual(Array.from(itemsComma[0].keywords), ['termino1', 'termino2']);
+    assert.deepEqual(Array.from(itemsComma[0].excludeKeywords), ['excluido1', 'excluido2']);
 
     assert.equal(itemsComma[1].code, 'SUB-B');
     assert.equal(itemsComma[1].name, 'Subcategoría B');
     assert.equal(itemsComma[1].rawParent, 'CAT-A');
     assert.deepEqual(Array.from(itemsComma[1].keywords), ['termino3']);
+    assert.deepEqual(Array.from(itemsComma[1].excludeKeywords), []);
 
-    const csvSemicolon = 'Código;Categoría;Jerarquía;Descripción;Criterios;Términos;Color\n' +
-        '"CAT-C";"Categoría C";"";"Desc C";"Crit C";"palabra1, palabra2";"#10b981"\n';
+    const csvSemicolon = 'Código;Categoría;Jerarquía;Descripción;Criterios;Términos;Excluir;Color\n' +
+        '"CAT-C";"Categoría C";"";"Desc C";"Crit C";"palabra1, palabra2";"no-aplicar";"#10b981"\n';
 
     const itemsSemi = hooks.parseCodebookCSV(csvSemicolon);
     assert.equal(itemsSemi.length, 1);
     assert.equal(itemsSemi[0].code, 'CAT-C');
     assert.equal(itemsSemi[0].name, 'Categoría C');
     assert.deepEqual(Array.from(itemsSemi[0].keywords), ['palabra1', 'palabra2']);
+    assert.deepEqual(Array.from(itemsSemi[0].excludeKeywords), ['no-aplicar']);
 
     assert.throws(() => hooks.parseCodebookCSV(''), /El archivo CSV está vacío/);
+});
+
+test('autocoding respects interviewer turn exclusions and category excludeKeywords', () => {
+    const { hooks } = loadFrontendHarness();
+    const state = hooks.getState();
+    state.documents = [{
+        id: 'doc-entrevista',
+        title: 'Entrevista 1',
+        content: 'Investigador: ¿Qué opinas sobre el liderazgo y la gestión?\n\nParticipante: Siento que el liderazgo aquí es muy inspirador y fomenta el trabajo en equipo.\n\nParticipante 2: El liderazgo autoritario no funciona para nada.',
+        wordCount: 30,
+        profile: {}
+    }];
+    state.categories = [
+        {
+            id: 'cat-liderazgo',
+            parentId: null,
+            code: 'LID',
+            name: 'Liderazgo',
+            color: '#10b981',
+            keywords: ['liderazgo'],
+            excludeKeywords: ['autoritario'],
+            description: '',
+            criteria: ''
+        }
+    ];
+    state.codings = [];
+    state.summaries = [];
+    state.auditLog = [];
+
+    const added = hooks.autoCodeCategoryInDocument('doc-entrevista', 'cat-liderazgo');
+    assert.equal(added, 1);
+    assert.equal(state.codings.length, 1);
+    assert.match(state.codings[0].quoteText, /liderazgo aquí es muy inspirador/);
 });
 
 test('qualitative chart interpretation generators produce detailed qualitative summaries', () => {
@@ -392,5 +428,36 @@ test('qualitative chart interpretation generators produce detailed qualitative s
     assert.match(qualInterp, /Diagnóstico global de codificación/);
     assert.match(qualInterp, /Guía cualitativa:/);
 });
+
+test('ribbon toolbar layout and global corpus exclusion functions operate correctly', async () => {
+    const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+    const betaHtml = await readFile(new URL('../web-beta/index.html', import.meta.url), 'utf8');
+
+    // Verify ribbons in index.html
+    assert.match(html, /class="ribbon-group"/);
+    assert.match(html, /Proyecto &amp; Corpus|Proyecto & Corpus/);
+    assert.match(html, /Análisis &amp; Filtros|Análisis & Filtros/);
+    assert.match(html, /Exportación/);
+    assert.match(html, /Ayuda &amp; Metodología|Ayuda & Metodología/);
+    assert.match(html, /id="btn-open-corpus-exclusion"/);
+    assert.match(html, /id="modal-corpus-exclusion"/);
+    assert.match(html, /id="btn-quick-exclude"/);
+    assert.match(html, /id="btn-quick-lift-exclude"/);
+
+    // Verify ribbons in web-beta/index.html
+    assert.match(betaHtml, /class="ribbon-group"/);
+    assert.match(betaHtml, /id="btn-open-corpus-exclusion"/);
+    assert.match(betaHtml, /id="modal-corpus-exclusion"/);
+
+    // Verify exclusion logic in app.js
+    const appSource = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+    assert.match(appSource, /corpusExclusions/);
+    assert.match(appSource, /applyGlobalCorpusExclusion/);
+    assert.match(appSource, /excludeSelectedRange/);
+    assert.match(appSource, /removeCorpusExclusion/);
+    assert.match(appSource, /clearAllCorpusExclusions/);
+    assert.match(appSource, /corpus-excluded-segment/);
+});
+
 
 
