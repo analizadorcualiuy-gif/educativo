@@ -20,6 +20,12 @@
                 if (raw.trim()) spans.push({ start: offset, end: offset + raw.length, index: spans.length });
                 if (match[0].length === 0) re.lastIndex++;
             }
+        } else if (unit === 'line') {
+            const re = /[^\r\n]+/g;
+            let match;
+            while ((match = re.exec(value))) {
+                if (match[0].trim()) spans.push({ start: match.index, end: match.index + match[0].length, index: spans.length });
+            }
         } else {
             const re = /[^.!?\n]+(?:[.!?]+|(?=\n|$))/g;
             let match;
@@ -32,7 +38,7 @@
 
     function codingUnitKeys(coding, document, unit, cache) {
         if (unit === 'document') return [`${coding.docId}:document`];
-        if (unit !== 'paragraph' && unit !== 'sentence') return [`${coding.docId}:${coding.id}`];
+        if (unit !== 'paragraph' && unit !== 'sentence' && unit !== 'line') return [`${coding.docId}:${coding.id}`];
         const key = `${coding.docId}:${unit}`;
         if (!cache.has(key)) cache.set(key, spansFor(document ? document.content : '', unit));
         const start = Number(coding.startChar) || 0;
@@ -49,6 +55,36 @@
         const bEnd = Number(b.endChar) || bStart;
         if (aStart < bEnd && bStart < aEnd) return 0;
         return Math.max(0, Math.max(aStart, bStart) - Math.min(aEnd, bEnd));
+    }
+
+    function isAutomaticCoding(coding) {
+        return Boolean(coding) && (['search', 'model', 'automatic'].includes(coding.source) || String(coding.id || '').startsWith('cod-auto-'));
+    }
+
+    function codingReviewStatus(coding) {
+        if (global.ProjectIntegrity && typeof global.ProjectIntegrity.codingReviewStatus === 'function') {
+            return global.ProjectIntegrity.codingReviewStatus(coding);
+        }
+        const explicit = String(coding && coding.reviewStatus || '');
+        if (['proposed', 'accepted', 'rejected', 'pending', 'legacy_unverified'].includes(explicit)) return explicit;
+        if (coding && coding.dismissed === true) return 'rejected';
+        return coding && coding.source === 'manual' ? 'accepted' : 'legacy_unverified';
+    }
+
+    function codingIncludedInReviewScope(coding, scope) {
+        if (global.ProjectIntegrity && typeof global.ProjectIntegrity.codingIncludedInReviewScope === 'function') {
+            return global.ProjectIntegrity.codingIncludedInReviewScope(coding, scope);
+        }
+        const status = codingReviewStatus(coding);
+        if (scope === 'all') return true;
+        if (scope === 'accepted') return status === 'accepted';
+        return status !== 'rejected';
+    }
+
+    function hasInterpretiveMemo(coding) {
+        const memo = String(coding.memo || '').trim();
+        if (!memo) return false;
+        return !isAutomaticCoding(coding) || !/^Ocurrencia identificada por t[eé]rmino: "[^"\r\n]*"$/i.test(memo);
     }
 
     function unionLength(intervals) {
@@ -117,13 +153,13 @@
         return union ? intersection / union : 0;
     }
 
-    function filterCorpus(input, documentId) {
+    function filterCorpus(input, documentId, reviewScope = 'open') {
         const documents = (input.documents || []).filter(doc => !documentId || doc.id === documentId);
         const ids = new Set(documents.map(doc => doc.id));
         return {
             documents,
             categories: input.categories || [],
-            codings: (input.codings || []).filter(coding => ids.has(coding.docId))
+            codings: (input.codings || []).filter(coding => codingIncludedInReviewScope(coding, reviewScope) && ids.has(coding.docId))
         };
     }
 
@@ -149,8 +185,8 @@
     }
 
     function analyze(input, options) {
-        const opts = Object.assign({ unit: 'paragraph', metric: 'jaccard', windowSize: 100, threshold: 0, documentId: '', categoryMode: 'main' }, options || {});
-        const corpus = aggregateCategories(filterCorpus(input || {}, opts.documentId), opts.categoryMode);
+        const opts = Object.assign({ unit: 'paragraph', metric: 'jaccard', windowSize: 100, threshold: 0, documentId: '', categoryMode: 'main', reviewScope: 'open' }, options || {});
+        const corpus = aggregateCategories(filterCorpus(input || {}, opts.documentId, opts.reviewScope), opts.categoryMode);
         const documentMap = new Map(corpus.documents.map(doc => [doc.id, doc]));
         const categoryMap = new Map(corpus.categories.map(cat => [cat.id, cat]));
         const cache = new Map();
@@ -175,9 +211,9 @@
                 docCount,
                 documentShare: corpus.documents.length ? docCount / corpus.documents.length : 0,
                 perThousand: totalWords ? rows.length * 1000 / totalWords : 0,
-                memoCount: rows.filter(row => String(row.memo || '').trim()).length,
-                manualCount: rows.filter(row => row.source === 'manual' || !String(row.id || '').startsWith('cod-auto-')).length,
-                automaticCount: rows.filter(row => row.source === 'automatic' || String(row.id || '').startsWith('cod-auto-')).length,
+                memoCount: rows.filter(hasInterpretiveMemo).length,
+                manualCount: rows.filter(row => !isAutomaticCoding(row)).length,
+                automaticCount: rows.filter(isAutomaticCoding).length,
                 codedChars: rows.reduce((sum, row) => sum + Math.max(0, (row.endChar || 0) - (row.startChar || 0)), 0)
             };
         });
@@ -239,8 +275,13 @@
     }
 
     function quality(input, options) {
-        const opts = Object.assign({ longFragmentChars: 500 }, options || {});
-        const corpus = filterCorpus(input || {}, opts.documentId || '');
+        const opts = Object.assign({ longFragmentChars: 500, reviewScope: 'open' }, options || {});
+        const corpus = filterCorpus(input || {}, opts.documentId || '', opts.reviewScope);
+        const allReviewCodings = filterCorpus(input || {}, opts.documentId || '', 'all').codings;
+        const reviewCounts = Object.fromEntries(['proposed', 'accepted', 'rejected', 'pending', 'legacy_unverified'].map(status => [
+            status,
+            allReviewCodings.filter(coding => codingReviewStatus(coding) === status).length
+        ]));
         const totalChars = corpus.documents.reduce((sum, doc) => sum + String(doc.content || '').length, 0);
         const duplicates = [];
         const seen = new Map();
@@ -257,10 +298,13 @@
         });
         const codedChars = corpus.documents.reduce((sum, doc) => sum + unionLength(corpus.codings.filter(c => c.docId === doc.id)), 0);
         const categoryDocs = new Map(corpus.categories.map(cat => [cat.id, new Set(corpus.codings.filter(c => c.categoryId === cat.id).map(c => c.docId))]));
-        const automatic = corpus.codings.filter(c => c.source === 'automatic' || String(c.id || '').startsWith('cod-auto-')).length;
+        const automatic = corpus.codings.filter(isAutomaticCoding).length;
         return {
-            missingMemos: corpus.codings.filter(c => !String(c.memo || '').trim()),
-            incompleteCategories: corpus.categories.filter(cat => !String(cat.code || '').trim() || !String(cat.description || '').trim() || !(cat.keywords || []).length),
+            missingMemos: corpus.codings.filter(c => !hasInterpretiveMemo(c)),
+            incompleteCategories: corpus.categories.filter(cat => {
+                const hasCriterion = Boolean(String(cat.description || '').trim() || String(cat.criteria || '').trim());
+                return !String(cat.code || '').trim() || !hasCriterion;
+            }),
             duplicates,
             overlaps,
             uncodedDocuments: corpus.documents.filter(doc => !corpus.codings.some(c => c.docId === doc.id)),
@@ -271,7 +315,8 @@
             totalChars,
             automatic,
             manual: corpus.codings.length - automatic,
-            totalCodings: corpus.codings.length
+            totalCodings: corpus.codings.length,
+            reviewCounts
         };
     }
 

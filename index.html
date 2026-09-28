@@ -13,6 +13,7 @@
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="educational.css">
+    <link rel="stylesheet" href="web-experience.css">
 </head>
 <body>
 
@@ -52,7 +53,7 @@
                     <strong>Licencia Pro con pago único</strong>
                     <p style="font-size:0.82rem; margin:0.35rem 0 0;">Sin suscripción mensual: adquirís una licencia para usar la versión completa en tu equipo. También existe Pro Equipo, con tres licencias para tres computadoras.</p>
                 </div>
-                <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0;">La Beta admite hasta 2 documentos, 10.000 palabras y 4 categorías. Sus informes PDF llevan marca de agua de evaluación.</p>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0;">La Beta admite hasta 6 documentos, 35.000 palabras y 15 categorías. Sus informes PDF llevan marca de agua de evaluación.</p>
             </div>
             <div class="modal-footer">
                 <button id="btn-intro-contact-pro" class="btn btn-primary">Actualizar a Pro — pago único</button>
@@ -63,7 +64,7 @@
 
     <div class="beta-edition-banner">
         <strong>Edición Educativa</strong>
-        <span>Hasta 2 documentos · 10.000 palabras · 4 categorías · exportación PDF · <a href="EDUCATIONAL-LICENSE.txt" target="_blank" rel="noopener">Términos</a> · <a href="PRIVACY-BETA.html" target="_blank" rel="noopener">Privacidad</a></span>
+        <span>Hasta 6 documentos · 35.000 palabras · 15 categorías · exportación PDF · <a href="EDUCATIONAL-LICENSE.txt" target="_blank" rel="noopener">Términos</a> · <a href="PRIVACY-BETA.html" target="_blank" rel="noopener">Privacidad</a></span>
         <button id="btn-contact-pro" data-contact-url="mailto:analizadorcualiuy@gmail.com?subject=Consulta%20sobre%20AnalizadorCualiUY%20Pro&amp;body=Hola%20departamento%20de%20ventas%20de%20AnalizadorCualiUY%2C%0A%0AProb%C3%A9%20la%20versi%C3%B3n%20Beta%20de%20AnalizadorCualiUY%20y%20quisiera%20recibir%20informaci%C3%B3n%20sobre%20la%20versi%C3%B3n%20completa.%0A%0ASaludos." class="btn-banner-action beta-contact-cta">Actualizar a Pro</button>
     </div>
 
@@ -117,6 +118,8 @@
                     <button id="btn-import-files" type="button" class="btn btn-secondary btn-sm" title="Importar archivos TXT, DOCX, PDF o un Proyecto JSON">📥 Importar Docs</button>
                     <input type="file" id="file-input" accept=".txt,.docx,.pdf,.json,application/json" multiple hidden>
                     <button id="btn-load-sample" class="btn btn-secondary btn-sm" title="Cargar proyecto de muestra precargado">📦 Muestra</button>
+                    <button id="btn-undo" class="btn btn-outline btn-sm" title="Deshacer última acción (Ctrl+Z)" disabled>↩ Deshacer</button>
+                    <button id="btn-redo" class="btn btn-outline btn-sm" title="Rehacer última acción (Ctrl+Y)" disabled>↪ Rehacer</button>
                 </div>
             </div>
 
@@ -362,6 +365,15 @@
                         <select id="decoder-filter-code" class="select-sm">
                             <option value="ALL">Todas las categorías</option>
                         </select>
+                        <select id="decoder-filter-status" class="select-sm" title="Filtrar por estado de revisión">
+                            <option value="open">No rechazadas</option>
+                            <option value="proposed">Propuestas</option>
+                            <option value="accepted">Aceptadas</option>
+                            <option value="pending">Pendientes</option>
+                            <option value="legacy_unverified">Legado sin verificar</option>
+                            <option value="rejected">Rechazadas</option>
+                            <option value="all">Todos los estados</option>
+                        </select>
                     </div>
                 </div>
                 <div id="decoder-list" class="cards-container">
@@ -383,6 +395,13 @@
                     </div>
 
                     <div class="analytics-toolbar" aria-label="Opciones analíticas">
+                        <label title="Define qué decisiones de revisión participan en cálculos e informes">Revisión
+                            <select id="analytics-review-scope" class="select-sm">
+                                <option value="accepted">Solo aceptadas</option>
+                                <option value="open">Todas salvo rechazadas</option>
+                                <option value="all">Todos los estados</option>
+                            </select>
+                        </label>
                         <label title="Nivel de desagregación del libro de códigos">Nivel categorial
                             <select id="analytics-category-mode" class="select-sm">
                                 <option value="main" title="Sintetiza subcategorías en sus categorías superiores para informes macro">Categorías principales</option>
@@ -398,9 +417,10 @@
                         </label>
                         <label title="Delimita la proximidad textual requerida entre categorías para considerar coocurrencia">Unidad
                             <select id="cooccurrence-unit" class="select-sm">
-                                <option value="paragraph" title="Párrafo: Mide convergencia en el mismo bloque narrativo o argumento continuo">Párrafo</option>
-                                <option value="sentence" title="Oración: Exige inmediatez sintáctica dentro de la misma frase">Oración</option>
-                                <option value="window" title="Ventana: Evalúa contigüidad temática fluida dentro de N palabras consecutivas">Ventana</option>
+                                <option value="paragraph" title="Párrafo: bloque separado por líneas en blanco">Párrafo</option>
+                                <option value="sentence" title="Oración: citas en la misma frase">Oración</option>
+                                <option value="line" title="Renglón: citas en la misma línea de una transcripción">Renglón</option>
+                                <option value="window" title="Ventana: proximidad entre pasajes medida en caracteres">Ventana</option>
                                 <option value="overlap" title="Solapamiento: Exige coincidencia exacta de caracteres o pasaje compartido">Solapamiento</option>
                                 <option value="document" title="Documento: Mide la co-presencia global dentro de la misma entrevista o caso">Documento</option>
                             </select>
@@ -412,11 +432,11 @@
                                 <option value="documentShare" title="% Documentos: Porcentaje de casos donde coexisten ambas categorías">% documentos</option>
                             </select>
                         </label>
-                        <label title="Extensión en número de palabras a cada lado para el modo Ventana">Ventana
+                        <label title="Distancia máxima entre pasajes en caracteres para el modo Ventana">Ventana
                             <select id="cooccurrence-window" class="select-sm">
-                                <option value="50" title="Ventana estrecha (±50 palabras): Alta proximidad temática">±50</option>
-                                <option value="100" selected title="Ventana estándar (±100 palabras): Proximidad conceptual media">±100</option>
-                                <option value="250" title="Ventana amplia (±250 palabras): Contexto discursivo amplio">±250</option>
+                                <option value="50" title="Distancia máxima: 50 caracteres">50 car.</option>
+                                <option value="100" selected title="Distancia máxima: 100 caracteres">100 car.</option>
+                                <option value="250" title="Distancia máxima: 250 caracteres">250 car.</option>
                             </select>
                         </label>
                         <label title="Filtra los datos por un documento individual del corpus">Documento
@@ -510,7 +530,7 @@
                     <div id="chart-interpretation-content-wrapper">
                         <div id="chart-interpretation-body" class="chart-interpretation-body"></div>
                         <div id="chart-interpretation-editor" class="chart-interpretation-editor" style="display:none;">
-                            <textarea id="chart-interpretation-textarea" class="textarea-sm" rows="3" placeholder="Ingresa observaciones o interpretaciones cualitativas personalizadas para este gráfico..."></textarea>
+                            <textarea id="chart-interpretation-textarea" class="textarea-sm" rows="3" maxlength="4000" placeholder="Ingresa observaciones o interpretaciones cualitativas personalizadas para este gráfico..."></textarea>
                             <div class="chart-interpretation-actions">
                                 <button id="btn-save-interpretation" class="btn-sm btn-primary">Guardar nota</button>
                                 <button id="btn-reset-interpretation" class="btn-sm btn-outline">Restablecer síntesis automática</button>
@@ -543,10 +563,10 @@
     </main>
 
     <!-- Floating Quick-Coding Popup Toolbar -->
-    <div id="floating-toolbar" class="floating-toolbar" style="display:none;">
-        <div class="toolbar-header">
-            <span>Codificar pasaje seleccionado:</span>
-            <button id="close-toolbar" class="btn-close-sm">&times;</button>
+    <div id="floating-toolbar" class="floating-toolbar" style="display:none;" role="dialog" aria-label="Codificar pasaje seleccionado">
+        <div class="toolbar-header" title="Haz clic y arrastra para mover esta ventana a cualquier parte">
+            <span class="toolbar-drag-title"><span class="toolbar-drag-icon">⠿</span> Codificar pasaje seleccionado:</span>
+            <button id="close-toolbar" class="btn-close-sm" title="Cerrar">&times;</button>
         </div>
         <div id="floating-code-buttons" class="code-buttons-row">
             <!-- Category buttons injected dynamically -->
@@ -554,6 +574,8 @@
         <div class="toolbar-footer" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.4rem; padding-top:0.4rem; border-top:1px solid var(--border-color);">
             <button id="btn-quick-new-code" class="btn-text">+ Categoría</button>
             <button id="btn-add-memo-quick" class="btn-text-primary">+ Nota / Memo</button>
+            <button id="btn-quick-adjust-coding" class="btn-text" style="color:#2563eb; font-weight:600; display:none;" title="Reemplazar los límites de una asociación por la selección actual">↔ Ajustar límites</button>
+            <button id="btn-quick-remove-coding" class="btn-text" style="color:#d97706; font-weight:600; display:none;" title="Podar la categoría o quitar la asociación del tramo seleccionado (o presiona Espacio)">✂️ Podar / Quitar asociación (Espacio)</button>
             <button id="btn-quick-exclude" class="btn-text" style="color:#ef4444; font-weight:600;" title="Excluir este pasaje, en este documento o en todo el corpus">🚫 Excluir pasaje</button>
             <button id="btn-quick-lift-exclude" class="btn-text" style="color:#10b981; font-weight:600; display:none;" title="Reincorporar este pasaje al análisis">🔓 Levantar exclusión</button>
         </div>
@@ -799,7 +821,7 @@
                 <div class="credits-box" style="background:var(--bg-tertiary); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color);">
                     <p style="margin-bottom:0.4rem;"><strong>Edición:</strong> Beta web de evaluación.</p>
                     <p style="margin-bottom:0.4rem;"><strong>Privacidad local:</strong> 🛡️ Los documentos y análisis se procesan en tu navegador y no se envían a ningún servidor.</p>
-                    <p style="margin-bottom:0.4rem;"><strong>Límites:</strong> hasta 2 documentos, 10.000 palabras y 4 categorías, incluidas subcategorías.</p>
+                    <p style="margin-bottom:0.4rem;"><strong>Límites:</strong> hasta 6 documentos, 35.000 palabras y 15 categorías, incluidas subcategorías.</p>
                     <p><strong>Formatos Soportados:</strong> TXT, DOCX (Microsoft Word), PDF, JSON (Proyectos Guardados).</p>
                 </div>
 
@@ -865,7 +887,7 @@
                         <li style="margin-bottom:0.3rem;">
                             Creá una planilla en Excel o Calc con los siguientes <strong>encabezados en la primera fila</strong>:
                             <div style="margin:0.4rem 0; padding:0.4rem 0.6rem; background:var(--bg-primary, #ffffff); border:1px dashed var(--border-color, #cbd5e1); border-radius:4px; font-family:monospace; font-size:0.8rem; color:var(--text-primary, #0f172a); overflow-x:auto;">
-                                Código,Categoría,Jerarquía,Descripción,Criterios,Términos,Color
+                                Código,Categoría,Jerarquía,Descripción,Criterios,Términos,Términos de exclusión,Color
                             </div>
                         </li>
                         <li style="margin-bottom:0.3rem;">
@@ -873,6 +895,9 @@
                         </li>
                         <li style="margin-bottom:0.3rem;">
                             <strong>Términos (Opcional):</strong> Separá con comas las palabras clave que el sistema usará para buscar automáticamente pasajes en tus textos.
+                        </li>
+                        <li style="margin-bottom:0.3rem;">
+                            Los archivos exportados por AnalizadorCualiUY también incluyen <strong>ID, ID Padre y reglas de búsqueda</strong>; mantené esas columnas para conservar exactamente la jerarquía y la detección automática al reimportar.
                         </li>
                         <li style="margin-bottom:0.3rem;">
                             <strong>Guardar desde Excel:</strong> Seleccioná <em>Archivo &gt; Guardar como</em> y elegí el tipo <strong>CSV (delimitado por comas) (*.csv)</strong> o CSV UTF-8.
@@ -944,13 +969,36 @@
                 <div class="form-group">
                     <label for="cat-keywords">Términos o variaciones de búsqueda (opcional, separados por comas):</label>
                     <input type="text" id="cat-keywords" placeholder="Ej: informática, computación, software, sistemas">
-                    <span class="hint-text">El nombre de la categoría y su código se usarán automáticamente como términos de búsqueda.</span>
+                    <span class="hint-text">Los términos se buscan según las reglas configuradas abajo. El nombre solo se incluye al activar esa opción; el código no se busca.</span>
                 </div>
                 <div class="form-group">
                     <label for="cat-exclude-keywords">Términos o frases de exclusión (opcional, separados por comas):</label>
                     <input type="text" id="cat-exclude-keywords" placeholder="Ej: no aplica, fuera de contexto, obsoleto">
                     <span class="hint-text">Si un pasaje contiene estos términos, se omitirá automáticamente de la codificación de esta categoría.</span>
                 </div>
+                <fieldset class="search-rules-fieldset">
+                    <legend>Reglas de recuperación</legend>
+                    <div class="search-rules-grid">
+                        <label>Coincidencia
+                            <select id="cat-search-match-mode"><option value="variants">Variantes de mayúsculas y tildes</option><option value="literal">Literal exacta</option></select>
+                        </label>
+                        <label>Pasaje propuesto
+                            <select id="cat-search-passage-unit"><option value="sentence">Oración</option><option value="paragraph">Párrafo</option><option value="match">Sólo coincidencia</option></select>
+                        </label>
+                        <label>Alcance de exclusiones
+                            <select id="cat-search-exclusion-scope"><option value="passage">Pasaje propuesto</option><option value="document">Documento completo</option></select>
+                        </label>
+                        <label>Contexto visible (caracteres)
+                            <input id="cat-search-context-chars" type="number" min="0" max="2000" step="20" value="160">
+                        </label>
+                    </div>
+                    <div class="search-rules-toggles">
+                        <label><input id="cat-search-include-name" type="checkbox" checked> Usar el nombre de la categoría</label>
+                        <label><input id="cat-search-word-boundary" type="checkbox" checked> Exigir límites de palabra</label>
+                    </div>
+                    <label for="cat-search-speaker-labels">Etiquetas de voz a omitir (separadas por comas):</label>
+                    <input id="cat-search-speaker-labels" type="text" maxlength="65536" placeholder="Ej: Entrevistador, Moderación">
+                </fieldset>
                 <div class="form-group">
                     <label for="cat-color">Color identificador (paleta):</label>
                     <div class="color-picker-row">
@@ -994,6 +1042,10 @@
                     <strong>Pasaje seleccionado:</strong>
                     <blockquote id="memo-quote-text">""</blockquote>
                 </div>
+                <div id="memo-context-block" class="context-preview" style="display:none;">
+                    <strong>Contexto visible (no codificado):</strong>
+                    <blockquote id="memo-context-text"></blockquote>
+                </div>
                 <div class="form-group">
                     <label for="memo-category-select">Categoría principal:</label>
                     <select id="memo-category-select" class="select-full"></select>
@@ -1003,9 +1055,12 @@
                     <textarea id="memo-text" rows="4" placeholder="Escribe aquí tu interpretación del significado profundo, contexto, emoción o intención de este pasaje..."></textarea>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary modal-cancel">Cancelar</button>
-                <button id="btn-save-memo" class="btn btn-primary">Guardar decodificación</button>
+            <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+                <button id="btn-memo-delete-coding" class="btn btn-outline" style="color:#ef4444; border-color:#ef4444; display:none;">Rechazar asociación</button>
+                <div style="display:flex; gap:0.5rem; margin-left:auto;">
+                    <button class="btn btn-secondary modal-cancel">Cancelar</button>
+                    <button id="btn-save-memo" class="btn btn-primary">Guardar decodificación</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1304,15 +1359,19 @@
                                 <tbody>
                                     <tr>
                                         <td><strong>Párrafo (Estándar)</strong></td>
-                                        <td>Evalúa si dos categorías convergen en el mismo bloque narrativo o intervención. Es la unidad cualitativa recomendada por excelencia.</td>
+                                        <td>Evalúa si dos categorías aparecen en el mismo bloque separado por líneas en blanco. Un salto de línea simple no lo divide.</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Oración</strong></td>
-                                        <td>Exige inmediatez sintáctica dentro de la misma frase delimitada por puntos. Indica conexión causal o discursiva directa.</td>
+                                        <td>Evalúa si las citas aparecen en la misma oración. La proximidad no demuestra causalidad.</td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Ventana (±50, 100, 250)</strong></td>
-                                        <td>Evalúa contigüidad temática fluida dentro de un radio de N palabras a cada lado. Ideal para transcripciones orales continuas.</td>
+                                        <td><strong>Renglón</strong></td>
+                                        <td>Evalúa si las citas aparecen en una misma línea de texto. Útil cuando cada intervención ocupa un renglón.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Ventana (50, 100, 250 caracteres)</strong></td>
+                                        <td>Evalúa la distancia máxima entre pasajes en caracteres. Los valores históricos se conservan para proyectos existentes.</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Solapamiento (Overlap)</strong></td>
@@ -1423,12 +1482,17 @@
         </div>
     </div>
 
+    <!-- Floating Toast Notification -->
+    <div id="toast-notice" class="toast-notice" aria-live="polite"></div>
+
     <!-- Application Script -->
     <script src="project-integrity.js"></script>
     <script src="analytics.js"></script>
     <script src="public/vendor/pdf-lib.min.js"></script>
     <script src="public/vendor/fontkit.umd.min.js"></script>
     <script src="pdf-report.js"></script>
+    <script src="methodology-guide.js"></script>
+    <script src="web-experience.js"></script>
     <script src="app.js"></script>
     <script src="educational.js"></script>
 </body>

@@ -858,11 +858,17 @@
                 <div class="educational-context-card" style="border-left-color:#0f766e;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.35rem;">
                         <strong>🧭 ¿Construyendo una categoría inductiva?</strong>
-                        <button type="button" onclick="window.openInductiveGuideModal && window.openInductiveGuideModal()" style="background:none; border:none; color:#0f766e; font-size:0.78rem; text-decoration:underline; cursor:pointer; font-weight:700; padding:0;">Ver guía metodológica ↗</button>
+                        <button id="btn-open-inductive-guide-context" type="button" style="background:none; border:none; color:#0f766e; font-size:0.78rem; text-decoration:underline; cursor:pointer; font-weight:700; padding:0;">Ver guía metodológica ↗</button>
                     </div>
                     <span>Recordá que una categoría inductiva nace de la evidencia del texto (código in vivo). Definí un <strong>nombre analítico</strong> y redactá en la <em>descripción</em> el <strong>criterio de inclusión</strong> (qué tipo de citas incluye y cuáles quedan excluidas según la metodología cualitativa).</span>
                 </div>
             `);
+            const contextGuideButton = categoryModal.querySelector('#btn-open-inductive-guide-context');
+            if (contextGuideButton) {
+                contextGuideButton.addEventListener('click', () => {
+                    if (window.openInductiveGuideModal) window.openInductiveGuideModal();
+                });
+            }
         }
         const memoModal = document.querySelector('#modal-memo .modal-body');
         if (memoModal) memoModal.insertAdjacentHTML('afterbegin', '<div class="educational-context-card"><strong>¿Para qué sirve un memo?</strong> Registrá tu interpretación del pasaje, su contexto, preguntas y vínculos con otras evidencias. El memo convierte la codificación en razonamiento analítico.</div>');
@@ -1395,4 +1401,3 @@
         setTimeout(syncEducationalState, 800);
     });
 })();
-

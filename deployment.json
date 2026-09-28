@@ -1,0 +1,13 @@
+﻿{
+    "id":  "60a317c656144306840d03734dbfd536",
+    "interface":  "methodology-workspace-1",
+    "appSha256":  "56351AA9244ED12C34FBA9A9417145C79F0EA9E41EA08690CA26D69154A3AE2C",
+    "previousCommit":  "66736e115fab408da299e7bb14b1566916e85824",
+    "date":  "2026-09-28T02:29:22.1076013Z",
+    "edition":  "Educativa",
+    "limits":  {
+                   "categories":  15,
+                   "documents":  6,
+                   "words":  35000
+               }
+}

@@ -154,6 +154,12 @@
         }
         heading('2. Corpus y metodología');
         text(options.methodology || `Codificación categorial. Unidad de coocurrencia: ${analytics.options ? analytics.options.unit : 'párrafo'}; métrica: ${analytics.options ? analytics.options.metric : 'Jaccard'}.`);
+        const analysisContext = options.analysisContext || {};
+        if (analysisContext.scopeLabel) {
+            text('Ficha de cálculo reproducible', 10, true);
+            text(`Alcance: ${analysisContext.scopeLabel}. Estados incluidos: ${analysisContext.reviewScopeLabel}. Nivel categorial: ${analysisContext.categoryModeLabel}.`, 9, false, 8, colors.muted);
+            text(`Unidad: ${analysisContext.unitLabel}. Métrica: ${analysisContext.metricLabel}. Umbral: ${analysisContext.thresholdLabel}.${analysisContext.unit === 'window' ? ` Ventana: ${analysisContext.windowSize} caracteres.` : ''} Tamaño de nodos: ${analysisContext.nodeSizeLabel}. Ceros ocultos: ${analysisContext.hideZeros ? 'sí' : 'no'}.`, 9, false, 8, colors.muted);
+        }
         text(`Cobertura: ${fixed(Number(quality.coverage || 0) * 100)}% | Manual: ${quality.manual || 0} | Automática: ${quality.automatic || 0}`, 10, true);
 
         heading('3. Distribución categorial');
@@ -187,7 +193,7 @@
                 heading(`${category.name} [${category.code || 'SIN CÓDIGO'}]`, 2);
                 for (const coding of matches.slice(0, options.detail === 'full' ? matches.length : 3)) {
                     const source = documentMap.get(coding.docId);
-                    text(`${source ? source.title : 'Documento'}: “${coding.quoteText || ''}”`, 9, false, 8);
+                    text(`${source ? source.title : 'Documento'} | ID ${coding.id || 'sin-id'} | caracteres ${coding.startChar ?? '?'}-${coding.endChar ?? '?'} | ${coding.reviewStatus || 'sin estado'}: “${coding.quoteText || ''}”`, 9, false, 8);
                     if (coding.memo) text(`Memo: ${coding.memo}`, 9, false, 16, colors.muted);
                 }
             }

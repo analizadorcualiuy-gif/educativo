@@ -1,15 +1,15 @@
-# AnalizadorCualiUY Beta
+# AnalizadorCualiUY Educativa
 
-Edición web de evaluación. Procesa todos los documentos dentro del navegador y
+Edición web de uso formativo. Procesa todos los documentos dentro del navegador y
 no requiere servidor, base de datos ni cuenta de usuario.
 
 ## Límites
 
-- 1 documento por proyecto.
-- 10.000 palabras totales.
-- 4 categorías en total, incluidas las subcategorías.
+- 6 documentos por proyecto.
+- 35.000 palabras totales.
+- 15 categorías en total, incluidas las subcategorías.
 - Guardado y apertura de proyectos JSON.
-- Exportación únicamente a PDF, identificada como versión Beta.
+- Exportación únicamente a PDF, identificada como versión Educativa.
 
 ## Componentes locales
 
