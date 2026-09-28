@@ -15,7 +15,13 @@
     function guidance(key) {
         const target = el('web-method-guidance'); target.replaceChildren();
         const approach = global.MethodologyGuide.approaches[key];
-        target.append(node('p', approach.rationale), node('p', approach.caution));
+        const webScope = {
+            mixed: ['Un diseño mixto requiere integrar explícitamente componentes cualitativos y cuantitativos. Las comparaciones de esta edición pueden apoyar la exploración del componente cualitativo.', 'Los recuentos de codificaciones no constituyen por sí solos un diseño mixto. Esta edición no incluye Joint Displays ni integración con una base cuantitativa independiente.'],
+            visual: ['El análisis visual interpreta imágenes atendiendo a su producción, contexto y recepción. Aquí puedes organizar descripciones textuales y notas sobre esas fuentes.', 'Esta edición web no ofrece codificación de regiones de imágenes. Sus gráficas de texto no realizan una interpretación visual.'],
+            'narrative-discourse': ['Las tradiciones narrativas y discursivas requieren interpretar relatos, secuencias y usos situados del lenguaje. Prioriza la lectura de la fuente completa y los memos.', 'Estas gráficas organizan codificaciones; no analizan automáticamente la estructura narrativa ni las posiciones discursivas.']
+        };
+        const [rationale, caution] = webScope[key] || [approach.rationale, approach.caution];
+        target.append(node('p', rationale), node('p', caution));
         const suggested = ['content-analysis', 'mixed'].includes(key) ? 'bars' : ['framework-analysis', 'case-study'].includes(key) ? 'matrix' : ['narrative-discourse', 'visual'].includes(key) ? 'quality' : 'network';
         target.append(node('p', `Sugerencia de apoyo en esta edición: ${help[suggested][0]}. El enfoque orienta la lectura; no habilita ni bloquea funciones.`));
         for (const ref of approach.refs) { const source = global.MethodologyGuide.references[ref]; const a = node('a', source.title); a.href = source.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; target.append(a, node('br')); }
