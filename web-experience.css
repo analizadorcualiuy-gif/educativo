@@ -20,3 +20,25 @@
 .web-profile-card a { color:var(--accent-primary); }
 @keyframes web-intro { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
 @media(prefers-reduced-motion:reduce) { .web-method-invite { animation:none; } }
+.web-intro-news { padding:12px; border:1px solid var(--accent-primary); border-radius:8px; background:var(--accent-subtle); }
+.web-intro-news h3 { margin:0 0 8px; }
+.web-intro-news ul { padding-left:20px; line-height:1.6; }
+.web-view-picker { border:0; padding:8px 0; min-width:0; }
+.web-view-picker legend { font-weight:600; }
+.web-view-picker p { font-size:.85rem; margin-top:8px; }
+.web-view-picker-inline { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-left:auto; }
+.web-view-picker button[aria-pressed=true] { border-color:var(--accent-primary); background:var(--accent-subtle); font-weight:700; }
+.web-view-status { font-size:.75rem; color:var(--text-secondary); }
+.web-more-tools { padding:8px; border:1px solid var(--border-color); border-radius:8px; }
+.web-more-tools summary { cursor:pointer; font-weight:600; font-size:.85rem; }
+.web-more-tools-content { display:flex; gap:8px; flex-wrap:wrap; padding-top:8px; }
+.web-more-tools summary:focus-visible { outline:2px solid var(--accent-primary); outline-offset:3px; }
+.web-simple-steps { display:none; padding:8px 18px; gap:8px; flex-wrap:wrap; align-items:center; flex-shrink:0; }
+:root[data-web-view="simple"] .web-simple-steps { display:flex; }
+.web-simple-steps [aria-current="step"] { border-color:var(--accent-primary); font-weight:700; }
+.web-step-hint { color:var(--text-secondary); font-size:.8rem; }
+:root[data-web-view="simple"][data-web-step="sources"] .web-categories-section,
+:root[data-web-view="simple"][data-web-step="sources"] #pane-sidebar .section-divider,
+:root[data-web-view="simple"][data-web-review="closed"] #pane-analysis,
+:root[data-web-view="simple"][data-web-review="closed"] #resizer-right { display:none!important; }
+:root[data-web-view="simple"] .pane-editor { min-width:0; }

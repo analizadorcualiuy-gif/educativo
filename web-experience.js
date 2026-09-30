@@ -44,12 +44,81 @@
     function onTab(id) {
         if (!api) return;
         const graphical = id === 'tab-network';
+        if (graphical) document.documentElement.dataset.webStep = 'results';
+        else if (document.documentElement.dataset.webStep === 'results') document.documentElement.dataset.webStep = 'coding';
+        if (id === 'tab-search') document.documentElement.dataset.webReview = 'open';
+        syncSteps();
         el('app-workspace').hidden = graphical; el('web-graphics').hidden = !graphical;
         el('web-tab-corpus').setAttribute('aria-pressed', String(!graphical)); el('web-tab-graphics').setAttribute('aria-pressed', String(graphical));
         if (!graphical) maximize(false);
         else requestAnimationFrame(api.refreshCharts);
     }
     function maximize(value) { el('web-graphics').classList.toggle('web-maximized', value); el('web-maximize').textContent = value ? 'Restaurar' : 'Maximizar'; el('web-maximize').setAttribute('aria-pressed', String(value)); requestAnimationFrame(api.refreshCharts); }
+    function syncSteps() {
+        const step = document.documentElement.dataset.webStep;
+        document.querySelectorAll('[data-web-step-button]').forEach(control => {
+            if (control.dataset.webStepButton === step) control.setAttribute('aria-current', 'step');
+            else control.removeAttribute('aria-current');
+        });
+        const hint = el('web-step-hint');
+        if (hint) hint.textContent = { sources: 'Importá TXT, DOCX o PDF y seleccioná una fuente para leerla.', coding: 'Seleccioná un pasaje y asigná una categoría. Abrí pasajes y notas cuando los necesites.', results: 'Explorá las gráficas y volvé a la evidencia antes de interpretar.' }[step];
+    }
+    function mountViewSelector(nav) {
+        const storageKey = `ACUY_WEB_VIEW_V1:${location.pathname}`;
+        const picker = node('div', '', 'web-view-picker web-view-picker-inline');
+        picker.setAttribute('role', 'group'); picker.setAttribute('aria-label', 'Vista de la interfaz');
+        for (const [value, label] of [['simple', 'Vista simplificada'], ['complete', 'Vista completa']]) {
+            const control = button(label, () => {}); control.dataset.webView = value; picker.append(control);
+        }
+        const status = node('span', '', 'web-view-status'); status.setAttribute('role', 'status');
+        picker.append(status); nav.append(picker);
+        document.documentElement.dataset.webStep = 'sources';
+        document.documentElement.dataset.webReview = 'closed';
+        const steps = node('nav', '', 'web-simple-steps'); steps.setAttribute('aria-label', 'Recorrido simplificado');
+        for (const [value, label] of [['sources', '1. Fuentes'], ['coding', '2. Codificación'], ['results', '3. Resultados']]) {
+            const control = button(label, () => {
+                document.documentElement.dataset.webStep = value;
+                api.switchTab(value === 'results' ? 'tab-network' : 'tab-decoder');
+            });
+            control.dataset.webStepButton = value; steps.append(control);
+        }
+        const review = button('Ver pasajes y notas', () => {
+            const open = document.documentElement.dataset.webReview !== 'open';
+            document.documentElement.dataset.webReview = open ? 'open' : 'closed';
+            review.setAttribute('aria-expanded', String(open)); review.textContent = open ? 'Cerrar pasajes y notas' : 'Ver pasajes y notas';
+            if (open) { document.documentElement.dataset.webStep = 'coding'; api.switchTab('tab-decoder'); }
+        });
+        review.id = 'web-review-toggle'; review.setAttribute('aria-expanded', 'false'); review.setAttribute('aria-controls', 'pane-analysis');
+        const hint = node('span', '', 'web-step-hint'); hint.id = 'web-step-hint'; steps.append(review, hint); nav.after(steps);
+        el('document-list').closest('.sidebar-section').classList.add('web-sources-section');
+        el('btn-add-category').closest('.sidebar-section').classList.add('web-categories-section');
+        const more = node('details', '', 'web-more-tools'); more.id = 'web-more-tools';
+        more.append(node('summary', 'Más herramientas'));
+        const content = node('div', '', 'web-more-tools-content'); more.append(content);
+        for (const id of ['btn-load-sample', 'btn-open-corpus-exclusion', 'btn-cite-software', 'btn-open-credits']) {
+            const control = el(id); if (control) content.append(control);
+        }
+        document.querySelector('.header-actions').append(more);
+        const graphOptions = node('details', '', 'web-more-tools'); graphOptions.id = 'web-graph-options';
+        graphOptions.append(node('summary', 'Más herramientas de presentación de la gráfica'));
+        const toolbar = el('graph-toolbar-container'); toolbar.before(graphOptions); graphOptions.append(toolbar);
+        function setView(value, persist) {
+            const complete = value === 'complete';
+            document.documentElement.dataset.webView = complete ? 'complete' : 'simple';
+            document.querySelectorAll('button[data-web-view]').forEach(control => control.setAttribute('aria-pressed', String(control.dataset.webView === value)));
+            more.open = complete; graphOptions.open = complete;
+            status.textContent = complete ? 'Todas las opciones de esta edición desplegadas' : 'Opciones adicionales en Más herramientas';
+            if (persist) {
+                try { localStorage.setItem(storageKey, value); }
+                catch { status.textContent += ' · Preferencia aplicada solo en esta sesión'; }
+            }
+            if (!el('web-graphics').hidden) requestAnimationFrame(api.refreshCharts);
+        }
+        document.querySelectorAll('button[data-web-view]').forEach(control => control.addEventListener('click', () => setView(control.dataset.webView, true)));
+        let saved;
+        try { saved = localStorage.getItem(storageKey); } catch { /* Session-only preference. */ }
+        setView(saved === 'complete' ? 'complete' : 'simple', false);
+    }
     function mount(bridge) {
         api = bridge;
         const badge = button('Perfil metodológico', openProfile); badge.id = 'web-method-badge'; document.querySelector('.brand-text').append(badge);
@@ -86,6 +155,7 @@
         form.onsubmit = event => { event.preventDefault(); try { const next = { ...api.project().methodologyProfile, updatedAt: Date.now() }; for (const f of ['approach', 'customApproach', 'purpose', 'researchQuestions', 'unitOfAnalysis']) next[f] = el(`web-method-${f}`).value; if (api.saveProfile(next)) { sync(); modal.style.display = 'none'; } } catch (error) { alert(error.message); } };
         card.append(form); modal.append(card); document.body.append(modal);
         document.addEventListener('keydown', e => { if (e.key === 'Escape' && graphics.classList.contains('web-maximized')) { maximize(false); max.focus(); } });
+        mountViewSelector(nav);
         sync(); onTab('tab-decoder');
     }
     global.WebExperience = { mount, sync, onTab, showCorpus() { if (api && !el('web-graphics').hidden) api.switchTab('tab-decoder'); } };

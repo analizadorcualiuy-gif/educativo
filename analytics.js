@@ -12,14 +12,16 @@
         if (unit === 'document') return [{ start: 0, end: value.length, index: 0 }];
         const spans = [];
         if (unit === 'paragraph') {
-            const re = /(?:^|\n\s*\n)([\s\S]*?)(?=\n\s*\n|$)/g;
+            const leadingBlankLines = value.match(/^(?:[^\S\r\n]*(?:\r\n|\n|\r(?!\n)))+/);
+            let start = leadingBlankLines ? leadingBlankLines[0].length : 0;
+            const separator = /(?:\r\n|\n|\r(?!\n))[^\S\r\n]*(?:\r\n|\n|\r(?!\n))(?:[^\S\r\n]*(?:\r\n|\n|\r(?!\n)))*/g;
+            separator.lastIndex = start;
             let match;
-            while ((match = re.exec(value))) {
-                const raw = match[1] || '';
-                const offset = match.index + match[0].indexOf(raw);
-                if (raw.trim()) spans.push({ start: offset, end: offset + raw.length, index: spans.length });
-                if (match[0].length === 0) re.lastIndex++;
+            while ((match = separator.exec(value))) {
+                if (value.slice(start, match.index).trim()) spans.push({ start, end: match.index, index: spans.length });
+                start = separator.lastIndex;
             }
+            if (value.slice(start).trim()) spans.push({ start, end: value.length, index: spans.length });
         } else if (unit === 'line') {
             const re = /[^\r\n]+/g;
             let match;
@@ -38,6 +40,7 @@
 
     function codingUnitKeys(coding, document, unit, cache) {
         if (unit === 'document') return [`${coding.docId}:document`];
+        if (!Number.isSafeInteger(coding.startChar) || !Number.isSafeInteger(coding.endChar)) return [];
         if (unit !== 'paragraph' && unit !== 'sentence' && unit !== 'line') return [`${coding.docId}:${coding.id}`];
         const key = `${coding.docId}:${unit}`;
         if (!cache.has(key)) cache.set(key, spansFor(document ? document.content : '', unit));
@@ -156,10 +159,27 @@
     function filterCorpus(input, documentId, reviewScope = 'open') {
         const documents = (input.documents || []).filter(doc => !documentId || doc.id === documentId);
         const ids = new Set(documents.map(doc => doc.id));
+        const documentMap = new Map(documents.map(doc => [doc.id, doc]));
+        const textAnchorDiagnostics = { invalidCodingIds: [], excludedNonTextCodings: 0 };
+        const codings = (input.codings || []).filter(coding => codingIncludedInReviewScope(coding, reviewScope) && ids.has(coding.docId)).map(coding => {
+            const document = documentMap.get(coding.docId);
+            const textual = (!document.kind || document.kind === 'text') && (!coding.anchor || coding.anchor.kind === 'text');
+            const rawStart = coding.anchor?.startChar ?? coding.startChar, rawEnd = coding.anchor?.endChar ?? coding.endChar;
+            const startChar = Number(rawStart), endChar = Number(rawEnd);
+            const valid = textual && rawStart != null && rawEnd != null && Number.isSafeInteger(startChar) && Number.isSafeInteger(endChar)
+                && startChar >= 0 && endChar > startChar && endChar <= String(document.content || '').length;
+            if (!valid) {
+                if (textual) textAnchorDiagnostics.invalidCodingIds.push(coding.id);
+                else textAnchorDiagnostics.excludedNonTextCodings++;
+                return { ...coding, startChar: NaN, endChar: NaN };
+            }
+            return startChar === coding.startChar && endChar === coding.endChar ? coding : { ...coding, startChar, endChar };
+        });
         return {
             documents,
             categories: input.categories || [],
-            codings: (input.codings || []).filter(coding => codingIncludedInReviewScope(coding, reviewScope) && ids.has(coding.docId))
+            codings,
+            textAnchorDiagnostics
         };
     }
 
@@ -181,7 +201,7 @@
             const categoryId = rootId(coding.categoryId);
             return valid.has(categoryId) ? Object.assign({}, coding, { originalCategoryId: coding.categoryId, categoryId }) : coding;
         }).filter(coding => valid.has(coding.categoryId));
-        return { documents: corpus.documents, categories, codings };
+        return { ...corpus, categories, codings };
     }
 
     function analyze(input, options) {
@@ -235,8 +255,9 @@
                 if (opts.unit === 'window' || opts.unit === 'overlap') {
                     rowsA.forEach(a => rowsB.forEach(b => {
                         if (a.docId !== b.docId) return;
+                        if (![a.startChar, a.endChar, b.startChar, b.endChar].every(Number.isSafeInteger)) return;
                         const gap = intervalGap(a, b);
-                        const matches = opts.unit === 'overlap' ? gap === 0 : gap <= Math.max(0, Number(opts.windowSize) || 0);
+                        const matches = opts.unit === 'overlap' ? a.startChar < b.endChar && b.startChar < a.endChar : gap <= Math.max(0, Number(opts.windowSize) || 0);
                         if (matches) {
                             const pairKey = `${a.id}|${b.id}`;
                             pairUnits.add(pairKey);
@@ -271,7 +292,7 @@
             }
         }
 
-        return { options: opts, documents: corpus.documents, categories: corpus.categories, codings: corpus.codings, totalWords, stats, statsMap, edges, matrix, categoryMap };
+        return { options: opts, documents: corpus.documents, categories: corpus.categories, codings: corpus.codings, totalWords, stats, statsMap, edges, matrix, categoryMap, diagnostics: { textAnchors: corpus.textAnchorDiagnostics } };
     }
 
     function quality(input, options) {
@@ -286,12 +307,13 @@
         const duplicates = [];
         const seen = new Map();
         corpus.codings.forEach(coding => {
+            if (!Number.isSafeInteger(coding.startChar)) return;
             const key = [coding.docId, coding.categoryId, coding.startChar, coding.endChar].join('|');
             if (seen.has(key)) duplicates.push([seen.get(key), coding]); else seen.set(key, coding);
         });
         const overlaps = [];
         corpus.documents.forEach(doc => {
-            const rows = corpus.codings.filter(c => c.docId === doc.id).sort((a, b) => a.startChar - b.startChar);
+            const rows = corpus.codings.filter(c => c.docId === doc.id && Number.isSafeInteger(c.startChar)).sort((a, b) => a.startChar - b.startChar);
             for (let i = 0; i < rows.length; i++) for (let j = i + 1; j < rows.length && rows[j].startChar < rows[i].endChar; j++) {
                 if (rows[i].id !== rows[j].id) overlaps.push([rows[i], rows[j]]);
             }
@@ -300,6 +322,7 @@
         const categoryDocs = new Map(corpus.categories.map(cat => [cat.id, new Set(corpus.codings.filter(c => c.categoryId === cat.id).map(c => c.docId))]));
         const automatic = corpus.codings.filter(isAutomaticCoding).length;
         return {
+            textAnchorDiagnostics: corpus.textAnchorDiagnostics,
             missingMemos: corpus.codings.filter(c => !hasInterpretiveMemo(c)),
             incompleteCategories: corpus.categories.filter(cat => {
                 const hasCriterion = Boolean(String(cat.description || '').trim() || String(cat.criteria || '').trim());
