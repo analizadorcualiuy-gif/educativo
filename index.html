@@ -124,7 +124,8 @@
             </div>
         </div>
 
-        <div class="header-actions">
+        <button id="btn-toggle-ribbon" type="button" class="btn btn-outline btn-sm workspace-ribbon-toggle" aria-expanded="true" aria-controls="app-ribbon" title="Mostrar u ocultar la cinta de herramientas (Ctrl+F1)">Ocultar cinta</button>
+        <div class="header-actions" id="app-ribbon">
             <!-- Tira 1: Proyecto & Corpus -->
             <div class="ribbon-group" title="Operaciones de Proyecto y Documentos">
                 <span class="ribbon-label">Proyecto & Corpus</span>
@@ -189,13 +190,23 @@
         </div>
     </header>
 
+    <nav class="workspace-layout-bar" aria-label="Distribución del espacio de trabajo">
+        <span class="workspace-layout-label">Área de lectura</span>
+        <div class="workspace-layout-controls" role="toolbar" aria-label="Ajustar paneles del corpus">
+            <button id="btn-toggle-left-panel" type="button" class="btn btn-outline btn-sm" aria-expanded="true" aria-controls="pane-sidebar">Ocultar fuentes</button>
+            <button id="btn-toggle-focus-mode" type="button" class="btn btn-outline btn-sm" aria-pressed="false" title="Oculta los paneles laterales y la cinta para concentrarse en el texto">Modo enfoque</button>
+            <button id="btn-toggle-right-panel" type="button" class="btn btn-outline btn-sm" aria-expanded="true" aria-controls="pane-analysis">Ocultar análisis</button>
+            <button id="btn-reset-workspace-layout" type="button" class="btn btn-outline btn-sm" title="Restablecer tamaños y paneles">Restablecer</button>
+        </div>
+    </nav>
+
     <!-- Main Workspace Split 3-Pane Layout -->
     <main class="app-workspace" id="app-workspace">
         
         <!-- PANE 1: Left Sidebar (Documents & Codebook) -->
         <aside class="pane pane-sidebar" id="pane-sidebar">
             <!-- Section 1: Documents -->
-            <div class="sidebar-section">
+            <div class="sidebar-section" id="basic-sources-section">
                 <div class="section-header">
                     <h2>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -222,10 +233,10 @@
             </div>
 
             <!-- Section divider -->
-            <div class="section-divider"></div>
+            <div class="section-divider" id="basic-sidebar-divider" role="separator" aria-label="Ajustar altura entre documentos y categorías" aria-orientation="horizontal" aria-valuemin="20" aria-valuemax="80" aria-valuenow="50" tabindex="0" title="Arrastra para ajustar la altura de documentos y categorías"></div>
 
             <!-- Section 2: Category Codebook Hierarchy -->
-            <div class="sidebar-section">
+            <div class="sidebar-section" id="basic-categories-section">
                 <div class="section-header">
                     <h2>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -303,6 +314,29 @@
                         <button id="btn-search-prev" class="btn-nav-search" title="Coincidencia anterior (Mayús+F3)">▲ Anterior</button>
                         <button id="btn-search-next" class="btn-nav-search" title="Siguiente coincidencia (F3 / Enter)">Siguiente ▼</button>
                         <button id="btn-search-clear" class="btn-nav-search" title="Limpiar búsqueda">&times;</button>
+                    </div>
+                </div>
+                <div class="editor-bar-row corpus-reader-row">
+                    <div id="corpus-reader" class="corpus-reader" role="toolbar" aria-label="Lectura local del corpus">
+                        <span class="corpus-reader-title">🔊 Lector</span>
+                        <button id="btn-corpus-read-previous" type="button" class="btn btn-outline btn-sm" title="Pasaje anterior" disabled>◀ Anterior</button>
+                        <button id="btn-corpus-read-play" type="button" class="btn btn-primary btn-sm" aria-pressed="false" disabled>▶ Leer</button>
+                        <button id="btn-corpus-read-pause" type="button" class="btn btn-outline btn-sm" disabled>⏸ Pausa</button>
+                        <button id="btn-corpus-read-stop" type="button" class="btn btn-outline btn-sm" disabled>■ Detener</button>
+                        <button id="btn-corpus-read-next" type="button" class="btn btn-outline btn-sm" title="Pasaje siguiente" disabled>Siguiente ▶</button>
+                        <output id="corpus-reader-position" class="corpus-reader-position" aria-label="Posición de lectura">0/0</output>
+                        <button id="btn-corpus-reader-options" type="button" class="btn btn-outline btn-sm" aria-expanded="false" aria-controls="corpus-reader-options">Voz y velocidad</button>
+                        <div id="corpus-reader-options" class="corpus-reader-options" hidden>
+                            <label for="corpus-reader-voice">Voz local
+                                <select id="corpus-reader-voice" aria-describedby="corpus-reader-local-note"></select>
+                            </label>
+                            <label for="corpus-reader-rate">Velocidad
+                                <input id="corpus-reader-rate" type="range" min="0.6" max="1.8" step="0.1" value="1">
+                                <output id="corpus-reader-rate-value" for="corpus-reader-rate">1.0×</output>
+                            </label>
+                            <span id="corpus-reader-local-note">Solo usa voces instaladas en este equipo.</span>
+                        </div>
+                        <span id="corpus-reader-status" class="corpus-reader-status" role="status" aria-live="polite">Selecciona un documento de texto para comenzar.</span>
                     </div>
                 </div>
             </div>
@@ -1513,6 +1547,8 @@
     <script src="pdf-report.js"></script>
     <script src="methodology-guide.js"></script>
     <script src="web-experience.js"></script>
+    <script src="workspace-layout.js"></script>
+    <script src="corpus-reader.js"></script>
     <script src="app.js"></script>
     <script src="educational.js"></script>
 </body>

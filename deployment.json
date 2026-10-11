@@ -1,9 +1,9 @@
 ﻿{
-    "id":  "116ecbad5e2749f2808c4127abc4cdce",
-    "interface":  "methodology-workspace-1",
-    "appSha256":  "B0A77D01D7071EE76D1C1E307BF1AB897A8D458431E58945E85503B8D4BCEE1D",
-    "previousCommit":  "a2d8b63d689c37867d8e54464d8df998e514fc13",
-    "date":  "2026-09-30T22:05:15.3241323Z",
+    "id":  "8bc1cc88d3fa4995bd280ef93571de61",
+    "interface":  "workspace-reader-2",
+    "appSha256":  "B58C9BD7854BB63C4E4F8377E948B5C169A9D4221709C492DEB871EA24211F86",
+    "previousCommit":  "371d3b6f5fb9c04a5542dcf88be2ba96783dae52",
+    "date":  "2026-10-11T21:22:44.9099363Z",
     "edition":  "Educativa",
     "limits":  {
                    "categories":  15,
