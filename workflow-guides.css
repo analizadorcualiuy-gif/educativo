@@ -1,0 +1,225 @@
+.workflow-guide-backdrop {
+    z-index: 9550;
+}
+
+.workflow-guide-card {
+    width: min(980px, 96vw);
+    max-height: 92vh;
+    overflow: hidden;
+}
+
+.workflow-guide-header {
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+}
+
+.workflow-guide-header h2,
+.workflow-guide-header p,
+.workflow-route-summary h3,
+.workflow-route-summary p,
+.workflow-step-detail h3,
+.workflow-step-detail p {
+    margin: 0;
+}
+
+.workflow-guide-header p,
+.workflow-route-summary p,
+.workflow-step-description {
+    color: var(--text-secondary);
+}
+
+.workflow-beta-badge,
+.workflow-step-count {
+    color: var(--accent-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.workflow-route-tabs {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.75rem 1.25rem 0;
+}
+
+.workflow-route-tab {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    flex: 0 0 auto;
+    padding: 0.45rem 0.8rem;
+}
+
+.workflow-route-tab[aria-selected="true"] {
+    background: var(--accent-subtle);
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+}
+
+.workflow-guide-body {
+    display: grid;
+    gap: 1rem;
+    max-height: 68vh;
+    overflow-y: auto;
+    padding: 1rem 1.25rem;
+}
+
+.workflow-route-summary {
+    align-items: center;
+    display: flex;
+    gap: 0.85rem;
+}
+
+.workflow-route-icon {
+    align-items: center;
+    background: var(--accent-subtle);
+    border-radius: 12px;
+    display: inline-flex;
+    font-size: 1.5rem;
+    height: 48px;
+    justify-content: center;
+    width: 48px;
+}
+
+.workflow-map {
+    display: grid;
+    gap: 1.35rem;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.workflow-map li {
+    min-width: 0;
+    position: relative;
+}
+
+.workflow-map li:not(:last-child)::after {
+    color: var(--text-muted);
+    content: '→';
+    position: absolute;
+    right: -1rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.workflow-node {
+    align-items: flex-start;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 0.55rem;
+    height: 100%;
+    padding: 0.7rem;
+    text-align: left;
+    width: 100%;
+}
+
+.workflow-node:hover,
+.workflow-node:focus-visible {
+    border-color: var(--border-highlight);
+    color: var(--text-primary);
+}
+
+.workflow-node.is-complete {
+    background: var(--accent-subtle);
+    color: var(--text-primary);
+}
+
+.workflow-node.is-current {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+
+.workflow-node-number {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-weight: 700;
+    height: 24px;
+    justify-content: center;
+    width: 24px;
+}
+
+.workflow-manual-mark {
+    font-size: 0.78rem;
+}
+
+.workflow-step-detail {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    display: grid;
+    gap: 0.65rem;
+    padding: 1rem;
+}
+
+.workflow-result {
+    background: var(--accent-subtle);
+    border-left: 3px solid var(--accent-primary);
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.65rem 0.75rem;
+}
+
+.workflow-step-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.workflow-guide-footer {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+}
+
+.workflow-guide-footer .workflow-previous {
+    justify-self: start;
+}
+
+.workflow-guide-footer .workflow-next {
+    justify-self: end;
+}
+
+.workflow-position {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 760px) {
+    .workflow-guide-card {
+        max-height: 96vh;
+    }
+
+    .workflow-map {
+        grid-template-columns: 1fr;
+    }
+
+    .workflow-map li:not(:last-child)::after {
+        bottom: -1.15rem;
+        left: 50%;
+        right: auto;
+        top: auto;
+        transform: translateX(-50%) rotate(90deg);
+    }
+
+    .workflow-route-tabs,
+    .workflow-step-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}

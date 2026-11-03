@@ -11,6 +11,16 @@ no requiere servidor, base de datos ni cuenta de usuario.
 - Guardado y apertura de proyectos JSON.
 - Exportación únicamente a PDF, identificada como versión Educativa.
 
+## Piloto de rutas guiadas
+
+El botón **Rutas** abre seis mapas breves: carga y preparación del corpus,
+categorías y validación, análisis del corpus, exportaciones, análisis gráfico y
+planificación del análisis semántico. Cada paso enlaza la sección pertinente del
+Manual de Usuario y, cuando corresponde, permite abrir directamente la función
+indicada. La ruta semántica está identificada como vista previa metodológica:
+esta Educativa no ejecuta el motor disponible en Pro. Esta capa de ayuda no modifica
+el proyecto ni guarda decisiones analíticas.
+
 ## Componentes locales
 
 - Mammoth.js 1.12.0 para DOCX (BSD-2-Clause).

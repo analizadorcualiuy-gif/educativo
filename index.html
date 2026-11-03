@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="educational.css">
     <link rel="stylesheet" href="web-experience.css">
+    <link rel="stylesheet" href="workflow-guides.css">
 </head>
 <body>
 
@@ -167,6 +168,7 @@
                 <div class="ribbon-buttons">
                     <button id="btn-open-manual" class="btn btn-primary btn-sm" title="Abrir el Manual de Usuario y Referencia Metodológica Integral">📘 Manual</button>
                     <button id="btn-open-guide" class="btn btn-outline btn-sm" title="Ver guía tutorial e inducción operativa">💡 Tutorial</button>
+                    <button id="btn-open-workflow-guides" class="btn btn-outline btn-sm" title="Abrir rutas paso a paso para tareas concretas">🧭 Rutas</button>
                     <button id="btn-cite-software" class="btn btn-outline btn-sm" title="Obtener la cita académica oficial de AnalizadorCualiUY">📖 Citar</button>
                     <button id="btn-open-credits" class="btn btn-outline btn-sm" title="Información del producto e instalación">ℹ️ Info</button>
                     <button id="theme-toggle" class="btn-icon" title="Cambiar Tema Claro / Oscuro">
@@ -874,6 +876,7 @@
             <div class="modal-body" style="gap:0.85rem; font-size:0.85rem; max-height:70vh; overflow-y:auto;">
                 <div class="credits-box" style="background:var(--bg-tertiary); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color);">
                     <p style="margin-bottom:0.4rem;"><strong>Edición:</strong> Beta web de evaluación.</p>
+                    <p style="margin-bottom:0.4rem;"><strong>Versión Web:</strong> 1.5.0-dev.20</p>
                     <p style="margin-bottom:0.4rem;"><strong>Privacidad local:</strong> 🛡️ Los documentos y análisis se procesan en tu navegador y no se envían a ningún servidor.</p>
                     <p style="margin-bottom:0.4rem;"><strong>Límites:</strong> hasta 6 documentos, 35.000 palabras y 15 categorías, incluidas subcategorías.</p>
                     <p><strong>Formatos Soportados:</strong> TXT, DOCX (Microsoft Word), PDF, JSON (Proyectos Guardados).</p>
@@ -1192,6 +1195,7 @@
                 </div>
             </div>
         </div>
+    </div>
     <!-- Modal: Integrated User Manual & Methodological Reference -->
     <div id="modal-user-manual" class="modal-backdrop" style="display:none; z-index:9600;" aria-hidden="true">
         <div class="modal-card manual-modal-card" role="dialog" aria-modal="true" aria-labelledby="manual-main-title">
@@ -1551,5 +1555,6 @@
     <script src="corpus-reader.js"></script>
     <script src="app.js"></script>
     <script src="educational.js"></script>
+    <script src="workflow-guides.js"></script>
 </body>
 </html>

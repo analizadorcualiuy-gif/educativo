@@ -1,13 +1,14 @@
 ﻿{
-    "id":  "8bc1cc88d3fa4995bd280ef93571de61",
-    "interface":  "workspace-reader-2",
-    "appSha256":  "B58C9BD7854BB63C4E4F8377E948B5C169A9D4221709C492DEB871EA24211F86",
-    "previousCommit":  "371d3b6f5fb9c04a5542dcf88be2ba96783dae52",
-    "date":  "2026-10-11T21:22:44.9099363Z",
-    "edition":  "Educativa",
+    "version":  "1.5.0-dev.20",
     "limits":  {
                    "categories":  15,
                    "documents":  6,
                    "words":  35000
-               }
+               },
+    "appSha256":  "97D8A840432225124A21EDB3E9C3B7821AD39908C71E1A6EAA911F87EAA91379",
+    "id":  "2828ed43da724c7d92490722a399f513",
+    "interface":  "workspace-reader-2",
+    "edition":  "Educativa",
+    "date":  "2026-11-03T00:45:18.7185909Z",
+    "previousCommit":  "d178bb596099e07dc5ad4048d8beaa1a51f405f6"
 }

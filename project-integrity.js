@@ -35,6 +35,8 @@
     const ANALYTICS_REVIEW_SCOPES = Object.freeze(['accepted', 'open', 'all']);
     const SEMANTIC_RUN_STATUSES = Object.freeze(['complete', 'cancelled', 'failed', 'legacy_unverified']);
     const SEMANTIC_OUTCOME_STATUSES = Object.freeze(['complete', 'abstained', 'omitted', 'failed']);
+    const SEMANTIC_VECTOR_ORIGINS = Object.freeze(['deductive', 'emergent', 'free']);
+    const MAX_SEMANTIC_VECTORS_PER_CATEGORY = 20;
 
     function semanticText(value, field, maxLength, { allowEmpty = false, nullable = false } = {}) {
         if (value == null && nullable) return null;
@@ -81,6 +83,38 @@
             code: semanticText(value.code, `${field}.code`, 128),
             message: semanticText(value.message, `${field}.message`, 2048)
         };
+    }
+
+    function normalizeSemanticVector(value, index, categoryId, field = 'semanticVectors') {
+        const vectorField = `${field}[${index}]`;
+        if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${vectorField} debe ser un objeto.`);
+        const normalizedCategoryId = semanticId(categoryId, `${vectorField}.categoryId`);
+        if (!SEMANTIC_VECTOR_ORIGINS.includes(value.origin)) throw new Error(`${vectorField}.origin no es válido.`);
+        const text = semanticText(value.text, `${vectorField}.text`, 4000);
+        if (text.trim().length < 12) throw new Error(`${vectorField}.text debe contener al menos 12 caracteres.`);
+        return {
+            id: semanticId(value.id, `${vectorField}.id`),
+            categoryId: normalizedCategoryId,
+            name: semanticText(value.name, `${vectorField}.name`, 160),
+            text,
+            origin: value.origin,
+            createdAt: semanticInteger(value.createdAt, `${vectorField}.createdAt`, 0, Number.MAX_SAFE_INTEGER)
+        };
+    }
+
+    function normalizeSemanticVectors(value, categoryId, { required = false, field = 'semanticVectors' } = {}) {
+        if (value == null && !required) return [];
+        if (!Array.isArray(value) || value.length > MAX_SEMANTIC_VECTORS_PER_CATEGORY) {
+            throw new Error(`${field} debe ser una lista de hasta ${MAX_SEMANTIC_VECTORS_PER_CATEGORY} vectores.`);
+        }
+        const ids = new Set();
+        return value.map((vector, index) => {
+            const normalized = normalizeSemanticVector(vector, index, categoryId, field);
+            if (ids.has(normalized.id)) throw new Error(`${field} contiene el ID duplicado ${normalized.id}.`);
+            ids.add(normalized.id);
+            const { categoryId: _categoryId, ...stored } = normalized;
+            return stored;
+        });
     }
 
     function normalizeSemanticRun(run, index) {
@@ -135,6 +169,17 @@
         const documentIds = semanticIdList(scope.documentIds, `${field}.scope.documentIds`, 500);
         const categoryIds = semanticIdList(scope.categoryIds, `${field}.scope.categoryIds`, 100);
         if (!documentIds.length || !categoryIds.length) throw new Error(`${field}.scope debe incluir documentos y categorías.`);
+        let semanticVector = null;
+        if (run.semanticVector != null) {
+            if (!run.semanticVector || typeof run.semanticVector !== 'object' || Array.isArray(run.semanticVector)) {
+                throw new Error(`${field}.semanticVector debe ser un objeto.`);
+            }
+            const vectorCategoryId = semanticId(run.semanticVector.categoryId, `${field}.semanticVector.categoryId`);
+            if (!categoryIds.includes(vectorCategoryId)) throw new Error(`${field}.semanticVector queda fuera del alcance categorial.`);
+            const normalizedVector = normalizeSemanticVector(run.semanticVector, 0, vectorCategoryId, `${field}.semanticVectorSnapshot`);
+            const { categoryId, ...vector } = normalizedVector;
+            semanticVector = { categoryId, ...vector };
+        }
         const processedDocuments = semanticInteger(scope.processedDocuments, `${field}.scope.processedDocuments`, 0, 500);
         const omittedDocuments = semanticInteger(scope.omittedDocuments, `${field}.scope.omittedDocuments`, 0, 500);
         const failedDocuments = semanticInteger(scope.failedDocuments, `${field}.scope.failedDocuments`, 0, 500);
@@ -201,7 +246,8 @@
                 omittedDocuments,
                 failedDocuments
             },
-            outcomes
+            outcomes,
+            ...(semanticVector ? { semanticVector } : {})
         };
     }
 
@@ -1127,6 +1173,7 @@
         ANALYTICS_REVIEW_SCOPES,
         SEMANTIC_RUN_STATUSES,
         SEMANTIC_OUTCOME_STATUSES,
+        SEMANTIC_VECTOR_ORIGINS,
         validateProjectMetadata,
         createProjectEnvelope,
         validateMediaAssets,
@@ -1144,6 +1191,7 @@
         createProjectPackageManifest,
         validateProjectPackageManifest,
         validateSemanticRuns,
+        normalizeSemanticVectors,
         createLegacySemanticRun,
         normalizeModelDetectionMetadata,
         normalizeCodingSource,
