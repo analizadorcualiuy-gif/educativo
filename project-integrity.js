@@ -1155,6 +1155,422 @@
         return trimSelectionOffsets(content, Math.min(start, end), Math.max(start, end));
     }
 
+    function findTextDiffBounds(oldContent, newContent) {
+        const oldText = String(oldContent ?? '');
+        const newText = String(newContent ?? '');
+        const minLen = Math.min(oldText.length, newText.length);
+        let prefixLen = 0;
+        while (prefixLen < minLen && oldText.charCodeAt(prefixLen) === newText.charCodeAt(prefixLen)) {
+            prefixLen += 1;
+        }
+        let suffixLen = 0;
+        const maxSuffix = minLen - prefixLen;
+        while (
+            suffixLen < maxSuffix &&
+            oldText.charCodeAt(oldText.length - 1 - suffixLen) === newText.charCodeAt(newText.length - 1 - suffixLen)
+        ) {
+            suffixLen += 1;
+        }
+        return {
+            prefixLen,
+            suffixLen,
+            oldChangeEnd: oldText.length - suffixLen,
+            newChangeEnd: newText.length - suffixLen,
+            delta: newText.length - oldText.length
+        };
+    }
+
+    function findBestContextMatch(newText, needle, expectedPos, windowRadius = 400) {
+        if (!needle) return -1;
+        const searchStart = Math.max(0, Math.floor(expectedPos - windowRadius));
+        const searchEnd = Math.min(newText.length, Math.ceil(expectedPos + windowRadius + needle.length));
+        const slice = newText.slice(searchStart, searchEnd);
+        let bestIdx = -1;
+        let bestDist = Infinity;
+        let pos = slice.indexOf(needle);
+        while (pos !== -1) {
+            const absIdx = searchStart + pos;
+            const dist = Math.abs(absIdx - expectedPos);
+            if (dist < bestDist) {
+                bestDist = dist;
+                bestIdx = absIdx;
+            }
+            pos = slice.indexOf(needle, pos + 1);
+        }
+        return bestIdx;
+    }
+
+    function realignBoundaryOffset(oldText, newText, offset, isEnd, bounds) {
+        if (offset <= bounds.prefixLen) return offset;
+        if (offset >= bounds.oldChangeEnd) return offset + bounds.delta;
+
+        const oldRegionLen = Math.max(1, bounds.oldChangeEnd - bounds.prefixLen);
+        const newRegionLen = Math.max(0, bounds.newChangeEnd - bounds.prefixLen);
+        const relativeRatio = (offset - bounds.prefixLen) / oldRegionLen;
+        const expectedPos = bounds.prefixLen + relativeRatio * newRegionLen;
+        const windowRadius = Math.max(250, Math.abs(bounds.delta) * 4 + 120);
+
+        const contextLengths = [32, 20, 12, 6, 4];
+        for (const len of contextLengths) {
+            const leftCtx = oldText.slice(Math.max(0, offset - len), offset);
+            const rightCtx = oldText.slice(offset, Math.min(oldText.length, offset + len));
+            if (leftCtx.length >= 4 && rightCtx.length >= 4) {
+                const combinedIdx = findBestContextMatch(newText, leftCtx + rightCtx, expectedPos - leftCtx.length, windowRadius);
+                if (combinedIdx !== -1) {
+                    return combinedIdx + leftCtx.length;
+                }
+            }
+            if (!isEnd && rightCtx.length >= len) {
+                const rightIdx = findBestContextMatch(newText, rightCtx, expectedPos, windowRadius);
+                if (rightIdx !== -1) return rightIdx;
+            }
+            if (isEnd && leftCtx.length >= len) {
+                const leftIdx = findBestContextMatch(newText, leftCtx, expectedPos - leftCtx.length, windowRadius);
+                if (leftIdx !== -1) return leftIdx + leftCtx.length;
+            }
+            if (!isEnd && leftCtx.length >= len) {
+                const leftIdx = findBestContextMatch(newText, leftCtx, expectedPos - leftCtx.length, windowRadius);
+                if (leftIdx !== -1) return leftIdx + leftCtx.length;
+            }
+            if (isEnd && rightCtx.length >= len) {
+                const rightIdx = findBestContextMatch(newText, rightCtx, expectedPos, windowRadius);
+                if (rightIdx !== -1) return rightIdx;
+            }
+        }
+
+        return null;
+    }
+
+    function correctionTextKey(value) {
+        return String(value ?? '')
+            .normalize('NFD')
+            .replace(/\p{M}+/gu, '')
+            .replace(/\s+/gu, ' ')
+            .trim()
+            .toLocaleLowerCase('es');
+    }
+
+    function isPlausibleTextCorrection(oldSlice, newSlice) {
+        if (oldSlice === newSlice) return true;
+        const oldKey = correctionTextKey(oldSlice);
+        const newKey = correctionTextKey(newSlice);
+        if (oldKey && oldKey === newKey) return true;
+        if (!oldSlice.trim() || !newSlice.trim()) return false;
+
+        const localBounds = findTextDiffBounds(oldSlice, newSlice);
+        const unchanged = localBounds.prefixLen + localBounds.suffixLen;
+        const maxLength = Math.max(oldSlice.length, newSlice.length);
+        const minimumContext = maxLength <= 8 ? 2 : 4;
+        const changedLength = Math.max(oldSlice.length - unchanged, newSlice.length - unchanged);
+        return unchanged >= minimumContext
+            && unchanged / maxLength >= 0.55
+            && changedLength <= Math.max(12, Math.floor(maxLength * 0.45));
+    }
+
+    function realignTextSpanDetailed(oldContent, newContent, startChar, endChar, options = {}) {
+        const oldText = String(oldContent ?? '');
+        const newText = String(newContent ?? '');
+        if (!Number.isInteger(startChar) || !Number.isInteger(endChar) || startChar < 0 || endChar <= startChar || endChar > oldText.length) {
+            return { status: 'invalid', reason: 'invalid-source-range' };
+        }
+        if (newText.length === 0) return { status: 'deleted', reason: 'empty-document' };
+        if (oldText === newText) {
+            return { status: 'aligned', method: 'unchanged', start: startChar, end: endChar, text: newText.slice(startChar, endChar) };
+        }
+
+        const bounds = options.bounds || findTextDiffBounds(oldText, newText);
+        const shouldTrim = options.trim !== false;
+        const oldSlice = oldText.slice(startChar, endChar);
+        let newStart = -1;
+        let newEnd = -1;
+        let method = 'shifted';
+        let validateCorrection = false;
+
+        if (endChar <= bounds.prefixLen) {
+            newStart = startChar;
+            newEnd = endChar;
+        } else if (startChar >= bounds.oldChangeEnd) {
+            newStart = startChar + bounds.delta;
+            newEnd = endChar + bounds.delta;
+        } else if (startChar <= bounds.prefixLen && endChar >= bounds.oldChangeEnd) {
+            newStart = startChar;
+            newEnd = endChar + bounds.delta;
+            method = 'bounded-correction';
+            validateCorrection = true;
+        } else {
+            if (oldText.indexOf(oldSlice) !== oldText.lastIndexOf(oldSlice)) {
+                return { status: 'unresolved', reason: 'repeated-passage-in-edit' };
+            }
+            const oldRegionLen = Math.max(1, bounds.oldChangeEnd - bounds.prefixLen);
+            const newRegionLen = Math.max(0, bounds.newChangeEnd - bounds.prefixLen);
+            const expectedStart = startChar <= bounds.prefixLen
+                ? startChar
+                : bounds.prefixLen + ((startChar - bounds.prefixLen) / oldRegionLen) * newRegionLen;
+            const windowRadius = Math.max(300, Math.abs(bounds.delta) * 4 + 150);
+            const exactIdx = oldSlice.length >= 3
+                ? findBestContextMatch(newText, oldSlice, expectedStart, windowRadius)
+                : -1;
+
+            // A surviving identical phrase outside the edited region can belong to a
+            // different occurrence. Keep only a match within the replacement itself.
+            if (exactIdx >= bounds.prefixLen && exactIdx + oldSlice.length <= bounds.newChangeEnd) {
+                newStart = exactIdx;
+                newEnd = exactIdx + oldSlice.length;
+                method = 'exact-text';
+            } else {
+                newStart = realignBoundaryOffset(oldText, newText, startChar, false, bounds);
+                newEnd = realignBoundaryOffset(oldText, newText, endChar, true, bounds);
+                method = 'context-correction';
+                validateCorrection = true;
+            }
+        }
+
+        if (!Number.isFinite(newStart) || !Number.isFinite(newEnd)) {
+            return { status: 'unresolved', reason: 'missing-context' };
+        }
+        if (method === 'context-correction' && (
+            (startChar > bounds.prefixLen && newStart < bounds.prefixLen)
+            || (endChar < bounds.oldChangeEnd && newEnd > bounds.newChangeEnd)
+        )) {
+            return { status: 'unresolved', reason: 'context-outside-edit' };
+        }
+        newStart = Math.max(0, Math.min(newText.length, newStart));
+        newEnd = Math.max(0, Math.min(newText.length, newEnd));
+        if (newEnd <= newStart) {
+            return { status: 'deleted', reason: 'empty-target-range' };
+        }
+
+        let result;
+        if (shouldTrim) {
+            const trimmed = trimSelectionOffsets(newText, newStart, newEnd);
+            if (!trimmed) return { status: 'deleted', reason: 'blank-target-range' };
+            result = {
+                start: trimmed.start,
+                end: trimmed.end,
+                text: newText.slice(trimmed.start, trimmed.end)
+            };
+        } else {
+            const slice = newText.slice(newStart, newEnd);
+            if (!slice.length) return { status: 'deleted', reason: 'empty-target-range' };
+            result = { start: newStart, end: newEnd, text: slice };
+        }
+
+        if (validateCorrection && result.text !== oldSlice && !isPlausibleTextCorrection(oldSlice, result.text)) {
+            return { status: 'unresolved', reason: 'ambiguous-replacement' };
+        }
+        if (result.text === oldSlice && oldText.indexOf(oldSlice) !== oldText.lastIndexOf(oldSlice)) {
+            const occurrenceIndex = (text, offset) => {
+                let count = 0;
+                let position = text.indexOf(oldSlice);
+                while (position !== -1 && position < offset) {
+                    count += 1;
+                    position = text.indexOf(oldSlice, position + 1);
+                }
+                return count;
+            };
+            if (occurrenceIndex(oldText, startChar) !== occurrenceIndex(newText, result.start)) {
+                return { status: 'unresolved', reason: 'repeated-passage-moved' };
+            }
+        }
+        return { status: 'aligned', method, ...result };
+    }
+
+    function realignTextSpan(oldContent, newContent, startChar, endChar, options = {}) {
+        const result = realignTextSpanDetailed(oldContent, newContent, startChar, endChar, options);
+        if (result.status !== 'aligned') return null;
+        return { start: result.start, end: result.end, text: result.text };
+    }
+
+    function realignDocumentTextRecords(oldContent, newContent, {
+        docId,
+        codings = [],
+        detections = [],
+        corpusExclusions = []
+    } = {}) {
+        const oldText = String(oldContent ?? '');
+        const newText = String(newContent ?? '');
+        const bounds = findTextDiffBounds(oldText, newText);
+        let preservedCodings = 0;
+        let adjustedCodings = 0;
+        let changedTextCodings = 0;
+        let droppedCodings = 0;
+        let unresolvedCodings = 0;
+        let droppedDetections = 0;
+        let unresolvedDetections = 0;
+        let droppedExclusions = 0;
+        let unresolvedExclusions = 0;
+        let reclassifiedCodings = 0;
+        const codingSpanByDetectionId = new Map();
+
+        const nextCodings = [];
+        for (const coding of (Array.isArray(codings) ? codings : [])) {
+            if (!coding || coding.docId !== docId) {
+                nextCodings.push(coding);
+                continue;
+            }
+            const anchorKind = coding.anchor && typeof coding.anchor === 'object' ? coding.anchor.kind : 'text';
+            if (anchorKind && anchorKind !== 'text') {
+                nextCodings.push(coding);
+                continue;
+            }
+            const startChar = Number.isInteger(coding.startChar)
+                ? coding.startChar
+                : (coding.anchor && Number.isInteger(coding.anchor.startChar) ? coding.anchor.startChar : -1);
+            const endChar = Number.isInteger(coding.endChar)
+                ? coding.endChar
+                : (coding.anchor && Number.isInteger(coding.anchor.endChar) ? coding.anchor.endChar : -1);
+
+            const alignment = realignTextSpanDetailed(oldText, newText, startChar, endChar, { bounds, trim: true });
+            if (alignment.status !== 'aligned' || !alignment.text.trim()) {
+                droppedCodings += 1;
+                if (alignment.status === 'unresolved') unresolvedCodings += 1;
+                continue;
+            }
+            const realigned = alignment;
+
+            preservedCodings += 1;
+            if (realigned.start !== startChar || realigned.end !== endChar || realigned.text !== coding.quoteText) {
+                adjustedCodings += 1;
+            }
+            if (realigned.text !== oldText.slice(startChar, endChar)) changedTextCodings += 1;
+
+            const updatedCoding = {
+                ...coding,
+                startChar: realigned.start,
+                endChar: realigned.end,
+                quoteText: realigned.text,
+                anchor: {
+                    kind: 'text',
+                    startChar: realigned.start,
+                    endChar: realigned.end
+                }
+            };
+            if (Array.isArray(updatedCoding.detectionIds)) {
+                updatedCoding.detectionIds.forEach(detId => {
+                    if (detId && !codingSpanByDetectionId.has(detId)) {
+                        codingSpanByDetectionId.set(detId, realigned);
+                    }
+                });
+            }
+            nextCodings.push(updatedCoding);
+        }
+
+        const survivingDetectionIds = new Set();
+        const nextDetections = [];
+        for (const detection of (Array.isArray(detections) ? detections : [])) {
+            if (!detection || detection.docId !== docId) {
+                if (detection && detection.id) survivingDetectionIds.add(detection.id);
+                nextDetections.push(detection);
+                continue;
+            }
+            let passageAlignment = realignTextSpanDetailed(oldText, newText, detection.startChar, detection.endChar, { bounds, trim: true });
+            let passageSpan = passageAlignment.status === 'aligned' ? passageAlignment : null;
+            if ((!passageSpan || !passageSpan.text.trim()) && detection.id && codingSpanByDetectionId.has(detection.id)) {
+                passageSpan = codingSpanByDetectionId.get(detection.id);
+                passageAlignment = { status: 'aligned', method: 'coding-anchor' };
+            }
+            if (!passageSpan || !passageSpan.text.trim()) {
+                droppedDetections += 1;
+                if (passageAlignment.status === 'unresolved') unresolvedDetections += 1;
+                continue;
+            }
+
+            const matchAlignment = realignTextSpanDetailed(
+                oldText,
+                newText,
+                Number.isInteger(detection.matchStart) ? detection.matchStart : detection.startChar,
+                Number.isInteger(detection.matchEnd) ? detection.matchEnd : detection.endChar,
+                { bounds, trim: false }
+            );
+            if (matchAlignment.status !== 'aligned') {
+                droppedDetections += 1;
+                if (matchAlignment.status === 'unresolved') unresolvedDetections += 1;
+                continue;
+            }
+            const matchSpan = matchAlignment;
+            let matchStart = matchSpan ? Math.max(passageSpan.start, Math.min(passageSpan.end - 1, matchSpan.start)) : passageSpan.start;
+            let matchEnd = matchSpan ? Math.max(matchStart + 1, Math.min(passageSpan.end, matchSpan.end)) : passageSpan.end;
+            let matchedText = newText.slice(matchStart, matchEnd);
+            if (!matchedText.trim()) {
+                matchStart = passageSpan.start;
+                matchEnd = passageSpan.end;
+                matchedText = passageSpan.text;
+            }
+
+            survivingDetectionIds.add(detection.id);
+            nextDetections.push({
+                ...detection,
+                startChar: passageSpan.start,
+                endChar: passageSpan.end,
+                passageText: passageSpan.text,
+                matchStart,
+                matchEnd,
+                matchedText
+            });
+        }
+
+        const sanitizedCodings = nextCodings.map(coding => {
+            if (!coding || coding.docId !== docId || !Array.isArray(coding.detectionIds) || coding.detectionIds.length === 0) {
+                return coding;
+            }
+            const validDetectionIds = coding.detectionIds.filter(id => survivingDetectionIds.has(id));
+            if (validDetectionIds.length === coding.detectionIds.length) {
+                return coding;
+            }
+            if (validDetectionIds.length === 0 && (coding.source === 'search' || coding.source === 'model')) {
+                reclassifiedCodings += 1;
+                return {
+                    ...coding,
+                    source: 'manual',
+                    detectionIds: []
+                };
+            }
+            return {
+                ...coding,
+                detectionIds: validDetectionIds
+            };
+        });
+
+        const nextCorpusExclusions = [];
+        for (const ex of (Array.isArray(corpusExclusions) ? corpusExclusions : [])) {
+            if (!ex || ex.docId !== docId) {
+                nextCorpusExclusions.push(ex);
+                continue;
+            }
+            const alignment = realignTextSpanDetailed(oldText, newText, ex.startChar, ex.endChar, { bounds, trim: false });
+            if (alignment.status !== 'aligned' || !alignment.text.trim()) {
+                droppedExclusions += 1;
+                if (alignment.status === 'unresolved') unresolvedExclusions += 1;
+                continue;
+            }
+            const span = alignment;
+            nextCorpusExclusions.push({
+                ...ex,
+                startChar: span.start,
+                endChar: span.end,
+                text: span.text
+            });
+        }
+
+        return {
+            codings: sanitizedCodings,
+            detections: nextDetections,
+            corpusExclusions: nextCorpusExclusions,
+            stats: {
+                preservedCodings,
+                adjustedCodings,
+                changedTextCodings,
+                droppedCodings,
+                unresolvedCodings,
+                droppedDetections,
+                unresolvedDetections,
+                droppedExclusions,
+                unresolvedExclusions,
+                reclassifiedCodings
+            }
+        };
+    }
+
     global.ProjectIntegrity = {
         DEFAULT_MAX_DEPTH,
         PROJECT_FORMAT,
@@ -1205,6 +1621,8 @@
         canonicalQuote,
         buildTextSegments,
         trimSelectionOffsets,
-        rangeToOffsets
+        rangeToOffsets,
+        realignTextSpan,
+        realignDocumentTextRecords
     };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -11,6 +11,8 @@
         analysisWidth: 360,
         sidebarSplit: 50,
         ribbonCollapsed: false,
+        navigationCollapsed: false,
+        topbarDirection: 'closing',
         leftCollapsed: false,
         rightCollapsed: false,
         focusMode: false
@@ -31,6 +33,10 @@
             analysisWidth: Math.round(clamp(source.analysisWidth, 220, 600, defaults.analysisWidth)),
             sidebarSplit: Math.round(clamp(source.sidebarSplit, 20, 80, defaults.sidebarSplit)),
             ribbonCollapsed: source.ribbonCollapsed === true,
+            navigationCollapsed: source.navigationCollapsed === undefined
+                ? source.ribbonCollapsed === true
+                : source.navigationCollapsed === true,
+            topbarDirection: source.topbarDirection === 'opening' ? 'opening' : 'closing',
             leftCollapsed: source.leftCollapsed === true,
             rightCollapsed: source.rightCollapsed === true,
             focusMode: source.focusMode === true
@@ -53,9 +59,24 @@
     function setButton(id, expanded, expandedLabel, collapsedLabel) {
         const button = document.getElementById(id);
         if (!button) return;
+        const label = expanded ? expandedLabel : collapsedLabel;
         button.setAttribute('aria-expanded', String(expanded));
         button.setAttribute('aria-pressed', String(!expanded));
-        button.textContent = expanded ? expandedLabel : collapsedLabel;
+        button.setAttribute('aria-label', label);
+        button.title = label;
+        button.textContent = label;
+    }
+
+    function setPanelButton(id, expanded, panelName, collapseGlyph) {
+        const button = document.getElementById(id);
+        if (!button) return;
+        const label = expanded ? `Ocultar ${panelName}` : `Mostrar ${panelName}`;
+        button.setAttribute('aria-expanded', String(expanded));
+        button.setAttribute('aria-label', label);
+        button.title = label;
+        button.textContent = button.classList?.contains('workspace-pane-toggle')
+            ? (expanded ? collapseGlyph : panelName[0].toUpperCase() + panelName.slice(1))
+            : label;
     }
 
     function refresh({ notify = false } = {}) {
@@ -63,13 +84,26 @@
         root.style.setProperty('--acuy-analysis-width', `${state.analysisWidth}px`);
         root.style.setProperty('--acuy-sidebar-split', `${state.sidebarSplit}%`);
         root.dataset.ribbonState = state.ribbonCollapsed ? 'collapsed' : 'expanded';
+        root.dataset.navigationState = state.navigationCollapsed ? 'collapsed' : 'expanded';
         root.dataset.leftPanel = state.leftCollapsed ? 'closed' : 'open';
         root.dataset.rightPanel = state.rightCollapsed ? 'closed' : 'open';
         root.dataset.workspaceFocus = state.focusMode ? 'on' : 'off';
 
-        setButton('btn-toggle-ribbon', !state.ribbonCollapsed, 'Ocultar cinta', 'Mostrar cinta');
-        setButton('btn-toggle-left-panel', !state.leftCollapsed, 'Ocultar fuentes', 'Mostrar fuentes');
-        setButton('btn-toggle-right-panel', !state.rightCollapsed, 'Ocultar análisis', 'Mostrar análisis');
+        const hasHeaderRestore = Boolean(document.getElementById('btn-restore-topbar'));
+        const ribbonButton = document.getElementById('btn-toggle-ribbon');
+        if (ribbonButton) {
+            const label = hasHeaderRestore
+                ? state.ribbonCollapsed ? 'Mostrar barra superior' : state.navigationCollapsed ? 'Mostrar navegación' : 'Ocultar barra superior'
+                : state.ribbonCollapsed ? 'Mostrar herramientas' : 'Ocultar herramientas';
+            ribbonButton.setAttribute('aria-expanded', String(!state.ribbonCollapsed));
+            ribbonButton.setAttribute('aria-label', label);
+            ribbonButton.title = `${label} (Ctrl+F1)`;
+            ribbonButton.textContent = label;
+        }
+        setPanelButton('btn-toggle-left-panel', !state.leftCollapsed, 'fuentes', '‹');
+        setPanelButton('btn-toggle-right-panel', !state.rightCollapsed, 'análisis', '›');
+        const restoreTopbar = document.getElementById('btn-restore-topbar');
+        if (restoreTopbar) restoreTopbar.hidden = !state.ribbonCollapsed;
         const focus = document.getElementById('btn-toggle-focus-mode');
         if (focus) {
             focus.setAttribute('aria-pressed', String(state.focusMode));
@@ -87,7 +121,13 @@
         return { ...state };
     }
 
-    function toggleRibbon() { return update({ ribbonCollapsed: !state.ribbonCollapsed }); }
+    function toggleRibbon() {
+        if (!document.getElementById('btn-restore-topbar')) {
+            return update({ ribbonCollapsed: !state.ribbonCollapsed, navigationCollapsed: false, topbarDirection: 'closing' });
+        }
+        const collapse = !state.ribbonCollapsed && !state.navigationCollapsed;
+        return update({ ribbonCollapsed: collapse, navigationCollapsed: collapse, topbarDirection: 'closing' });
+    }
     function togglePanel(side) {
         if (side === 'left') return update({ leftCollapsed: !state.leftCollapsed });
         if (side === 'right') return update({ rightCollapsed: !state.rightCollapsed });
@@ -172,6 +212,7 @@
         if (initialized) return;
         initialized = true;
         document.getElementById('btn-toggle-ribbon')?.addEventListener('click', toggleRibbon);
+        document.getElementById('btn-restore-topbar')?.addEventListener('click', toggleRibbon);
         document.getElementById('btn-toggle-left-panel')?.addEventListener('click', () => togglePanel('left'));
         document.getElementById('btn-toggle-right-panel')?.addEventListener('click', () => togglePanel('right'));
         document.getElementById('btn-toggle-focus-mode')?.addEventListener('click', toggleFocus);

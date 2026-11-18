@@ -749,6 +749,10 @@ button, input, select, textarea {
     color: var(--danger, #dc2626);
     background-color: rgba(220, 38, 38, 0.12);
 }
+.btn-doc-action.btn-edit-doc:hover {
+    color: var(--accent-primary, #2563eb);
+    background-color: rgba(37, 99, 235, 0.14);
+}
 
 .cat-code-badge {
     font-family: 'JetBrains Mono', monospace;
@@ -1216,6 +1220,121 @@ button, input, select, textarea {
     margin-top: 0.25rem;
     border-radius: 0 4px 4px 0;
     font-family: 'Inter', sans-serif;
+}
+
+.corpus-quick-editor {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    flex: 1;
+    min-height: 360px;
+}
+
+.corpus-quick-editor-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.65rem 0.85rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent-primary);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.corpus-quick-editor-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1 1 280px;
+    min-width: 0;
+}
+
+.corpus-quick-editor-badge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+    background: var(--accent-subtle);
+    border: 1px solid var(--accent-primary);
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.corpus-quick-editor-title-input {
+    flex: 1;
+    min-width: 160px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.corpus-quick-editor-title-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+}
+
+.corpus-quick-editor-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.corpus-quick-editor-stats {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-right: 0.25rem;
+}
+
+.corpus-quick-editor-hint {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.corpus-quick-editor-textarea {
+    width: 100%;
+    flex: 1;
+    min-height: 420px;
+    padding: 1rem 1.15rem;
+    font-family: 'Inter', Georgia, serif;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    resize: vertical;
+    white-space: pre-wrap;
+    word-break: normal;
+    overflow-wrap: break-word;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.corpus-quick-editor-textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+#btn-quick-edit-corpus.active {
+    background-color: var(--accent-primary);
+    color: #ffffff;
+    border-color: var(--accent-primary);
 }
 
 /* ATLAS.ti Margin Code Stripe Bar */
